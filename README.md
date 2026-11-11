@@ -31,6 +31,7 @@ Copie [`roteiros/_modelo.md`](roteiros/_modelo.md) e siga [`docs/como-escrever-u
 
 ## Estado e próximos passos
 
-- **Feito (11/11/2026):** vitrine, página do roteiro, modo gravação e o primeiro roteiro, [Movies: de 3,3 s para 2,4 s no celular](roteiros/do-curso-ao-produto/movies-lcp-no-celular.md).
-- **Próximos passos:** nas issues do repositório, como a abertura com o D e os roteiros das outras séries.
+- **Feito (11/11/2026, [PR #1](https://github.com/douglasabnovato/studio-d/pull/1)):** vitrine, página do roteiro, modo gravação e o primeiro roteiro, [Movies: de 3,3 s para 2,4 s no celular](roteiros/do-curso-ao-produto/movies-lcp-no-celular.md).
+- **Com o responsável:** ligar o Pages ([#2](https://github.com/douglasabnovato/studio-d/issues/2)), proteger a `main` ([#3](https://github.com/douglasabnovato/studio-d/issues/3)), medição ([#4](https://github.com/douglasabnovato/studio-d/issues/4)) e revisar e gravar o roteiro do Movies ([#10](https://github.com/douglasabnovato/studio-d/issues/10)).
+- **Próximos passos:** abertura com o D ([#5](https://github.com/douglasabnovato/studio-d/issues/5)), roteiros do Proffy ([#6](https://github.com/douglasabnovato/studio-d/issues/6)), do critério 8 ([#7](https://github.com/douglasabnovato/studio-d/issues/7)) e de engenharia com IA ([#8](https://github.com/douglasabnovato/studio-d/issues/8)), e aliviar o JavaScript ([#9](https://github.com/douglasabnovato/studio-d/issues/9)).
 - **Estado dos critérios:** [`docs/MVP.md`](docs/MVP.md). Arquitetura: [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).
