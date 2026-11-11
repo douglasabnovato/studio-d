@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Capa } from '../components/Capa';
 import { Markdown } from '../components/Markdown';
+import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import type { Catalogo } from '../lib/catalogo';
 import { SITUACOES } from '../lib/roteiro';
@@ -53,9 +54,7 @@ export function RoteiroPagina({ catalogo }: { catalogo: Catalogo }) {
 
   return (
     <>
-      <a href="#conteudo" className="pular-para-conteudo">
-        Pular para o conteúdo
-      </a>
+      <PularParaConteudo />
       <Topo />
       <main id="conteudo" className="pagina" tabIndex={-1}>
         <div className="roteiro-cabecalho">

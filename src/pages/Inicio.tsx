@@ -1,8 +1,9 @@
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Capa } from '../components/Capa';
 import { Detalhes } from '../components/Detalhes';
 import { Fileira } from '../components/Fileira';
+import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import { destaque, type Catalogo, type Episodio } from '../lib/catalogo';
 import { SITUACOES } from '../lib/roteiro';
@@ -26,10 +27,10 @@ export function Inicio({ catalogo }: { catalogo: Catalogo }) {
     origem.current = el;
     setAberto(e);
   };
-  const fechar = () => {
+  const fechar = useCallback(() => {
     setAberto(null);
     requestAnimationFrame(() => origem.current?.focus());
-  };
+  }, []);
 
   const fileiras = [
     { serie: { id: 'para-gravar', nome: 'Para gravar', descricao: 'Rascunhos e roteiros prontos, do mais adiantado ao mais novo.' }, eps: prontos },
@@ -41,9 +42,7 @@ export function Inicio({ catalogo }: { catalogo: Catalogo }) {
 
   return (
     <>
-      <a href="#conteudo" className="pular-para-conteudo">
-        Pular para o conteúdo
-      </a>
+      <PularParaConteudo />
       <Topo busca={busca} onBusca={setBusca} />
       <main id="conteudo" tabIndex={-1}>
         {principal && seriePrincipal && !termo && (

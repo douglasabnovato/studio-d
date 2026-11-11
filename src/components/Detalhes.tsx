@@ -28,25 +28,32 @@ export function Detalhes({ episodio, episodiosDaSerie, onFechar }: Props) {
     };
   }, []);
 
-  const onTecla = (ev: React.KeyboardEvent) => {
-    if (ev.key === 'Escape') {
-      ev.stopPropagation();
-      onFechar();
-      return;
-    }
-    if (ev.key !== 'Tab' || !janela.current) return;
-    const focaveis = Array.from(janela.current.querySelectorAll<HTMLElement>(FOCAVEIS));
-    if (focaveis.length === 0) return;
-    const primeiro = focaveis[0];
-    const ultimo = focaveis[focaveis.length - 1];
-    if (ev.shiftKey && document.activeElement === primeiro) {
-      ev.preventDefault();
-      ultimo.focus();
-    } else if (!ev.shiftKey && document.activeElement === ultimo) {
-      ev.preventDefault();
-      primeiro.focus();
-    }
-  };
+  // No document, e não só na janela: depois de um clique num texto, o foco sai dela,
+  // e mesmo assim Esc precisa fechar e o Tab precisa voltar para dentro.
+  useEffect(() => {
+    const onTecla = (ev: KeyboardEvent) => {
+      if (ev.key === 'Escape') {
+        ev.preventDefault();
+        onFechar();
+        return;
+      }
+      if (ev.key !== 'Tab' || !janela.current) return;
+      const focaveis = Array.from(janela.current.querySelectorAll<HTMLElement>(FOCAVEIS));
+      if (focaveis.length === 0) return;
+      const primeiro = focaveis[0];
+      const ultimo = focaveis[focaveis.length - 1];
+      const dentro = janela.current.contains(document.activeElement);
+      if (ev.shiftKey && (!dentro || document.activeElement === primeiro)) {
+        ev.preventDefault();
+        ultimo.focus();
+      } else if (!ev.shiftKey && (!dentro || document.activeElement === ultimo)) {
+        ev.preventDefault();
+        primeiro.focus();
+      }
+    };
+    document.addEventListener('keydown', onTecla);
+    return () => document.removeEventListener('keydown', onTecla);
+  }, [onFechar]);
 
   return (
     <div
@@ -54,7 +61,6 @@ export function Detalhes({ episodio, episodiosDaSerie, onFechar }: Props) {
       onMouseDown={(ev) => {
         if (ev.target === ev.currentTarget) onFechar();
       }}
-      onKeyDown={onTecla}
     >
       <div className="janela" role="dialog" aria-modal="true" aria-labelledby={tituloId} ref={janela}>
         <div className="janela-capa">
