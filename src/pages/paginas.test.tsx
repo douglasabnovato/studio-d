@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import { Rotas } from '../App';
-import { catalogo } from '../lib/catalogo';
+import { catalogo } from '../lib/conteudo';
 import { ITENS_CHECKLIST, Teleprompter } from './Gravacao';
 
 const abrir = (rota = '/') =>
@@ -34,6 +34,16 @@ describe('Início', () => {
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     await vi.waitFor(() => expect(card).toHaveFocus());
+  });
+
+  it('Esc fecha mesmo depois de o foco sair da janela', async () => {
+    const user = userEvent.setup();
+    abrir();
+    await user.click(screen.getAllByRole('button', { name: /Abrir detalhes/ })[0]);
+    (document.activeElement as HTMLElement).blur();
+    expect(screen.getByRole('dialog').contains(document.activeElement)).toBe(false);
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('prende o Tab dentro da janela', async () => {
@@ -70,6 +80,16 @@ describe('Início', () => {
     await user.clear(screen.getByRole('searchbox'));
     await user.type(screen.getByRole('searchbox'), 'zzzz');
     expect(screen.getByRole('status')).toHaveTextContent('Nenhum episódio');
+  });
+});
+
+describe('Pular para o conteúdo', () => {
+  it('move o foco para o conteúdo sem trocar de rota', async () => {
+    const user = userEvent.setup();
+    abrir(`/v/${primeiro.slug}`);
+    await user.click(screen.getByRole('link', { name: 'Pular para o conteúdo' }));
+    expect(screen.getByRole('main')).toHaveFocus();
+    expect(screen.getByRole('heading', { level: 1, name: primeiro.titulo })).toBeInTheDocument();
   });
 });
 
@@ -123,6 +143,13 @@ describe('Gravação', () => {
     expect(screen.getByText('Velocidade 50')).toBeInTheDocument();
     await user.keyboard('{Escape}');
     expect(sair).toHaveBeenCalledOnce();
+  });
+
+  it('ignora atalhos com Ctrl (o zoom do navegador)', async () => {
+    const user = userEvent.setup();
+    render(<Teleprompter roteiro={primeiro} onSair={() => {}} />);
+    await user.keyboard('{Control>}{ArrowUp}{/Control}');
+    expect(screen.getByText('Velocidade 40')).toBeInTheDocument();
   });
 
   it('mostra a cena atual e o tempo total do roteiro', () => {
