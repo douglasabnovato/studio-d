@@ -6,6 +6,7 @@ A interface é inspirada em serviços de streaming, com identidade própria: nom
 
 ## O que tem
 
+- **Abertura:** a letra D desenhada em luz azul, em 2,4 s, uma vez por sessão; dá para pular com o botão ou com Esc, e com movimento reduzido o D aparece parado ([ADR-004](docs/adr/004-movimento-e-abertura.md)).
 - **Início:** o roteiro em destaque, fileiras por série, busca e episódios planejados.
 - **Detalhes:** objetivo, público, pré-requisitos, fontes e a lista de episódios da série.
 - **Roteiro:** blocos com tempo (Fala, Tela e Comandos), fontes e o texto para o YouTube (descrição, capítulos e tags), com botão de copiar.
@@ -33,5 +34,6 @@ Copie [`roteiros/_modelo.md`](roteiros/_modelo.md) e siga [`docs/como-escrever-u
 
 - **Feito (11/11/2026, [PR #1](https://github.com/douglasabnovato/studio-d/pull/1)):** vitrine, página do roteiro, modo gravação e o primeiro roteiro, [Movies: de 3,3 s para 2,4 s no celular](roteiros/do-curso-ao-produto/movies-lcp-no-celular.md).
 - **Com o responsável:** ligar o Pages ([#2](https://github.com/douglasabnovato/studio-d/issues/2)), proteger a `main` ([#3](https://github.com/douglasabnovato/studio-d/issues/3)), medição ([#4](https://github.com/douglasabnovato/studio-d/issues/4)) e revisar e gravar o roteiro do Movies ([#10](https://github.com/douglasabnovato/studio-d/issues/10)).
-- **Próximos passos:** abertura com o D ([#5](https://github.com/douglasabnovato/studio-d/issues/5)), roteiros do Proffy ([#6](https://github.com/douglasabnovato/studio-d/issues/6)), do critério 8 ([#7](https://github.com/douglasabnovato/studio-d/issues/7)) e de engenharia com IA ([#8](https://github.com/douglasabnovato/studio-d/issues/8)), e aliviar o JavaScript ([#9](https://github.com/douglasabnovato/studio-d/issues/9)).
+- **Abertura com o D:** feita em 11/11/2026 ([#5](https://github.com/douglasabnovato/studio-d/issues/5)).
+- **Próximos passos:** roteiros do Proffy ([#6](https://github.com/douglasabnovato/studio-d/issues/6)), do critério 8 ([#7](https://github.com/douglasabnovato/studio-d/issues/7)) e de engenharia com IA ([#8](https://github.com/douglasabnovato/studio-d/issues/8)), e aliviar o JavaScript ([#9](https://github.com/douglasabnovato/studio-d/issues/9)).
 - **Estado dos critérios:** [`docs/MVP.md`](docs/MVP.md). Arquitetura: [`docs/ARQUITETURA.md`](docs/ARQUITETURA.md).

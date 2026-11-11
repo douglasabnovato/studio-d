@@ -19,7 +19,7 @@
 | 5 | Medição de uso | Não atende: depende da conta do GoatCounter, do responsável (#4) |
 | 6 | Falhas tratadas | Atende: `npx vitest run`, 11/11/2026, 60 testes, 0 falhas. Roteiro inexistente mostra "Roteiro não encontrado"; busca sem resultado avisa; copiar sem permissão avisa. Roteiro inválido para o build: `npm run build` com um roteiro de teste fora de ordem, 11/11/2026, parou com "Roteiros inválidos" |
 | 7 | Desempenho aceitável | Não atende: o site ainda não está no ar (#2, do responsável). Medir no site publicado, com 3 execuções do Lighthouse móvel |
-| 8 | Acessibilidade básica | Atende: `npx playwright test`, 11/11/2026: axe (WCAG 2.1 A e AA) sem violações em início, detalhes, roteiro, checklist e teleprompter, nos temas claro e escuro, em 1366 px e no celular, com o roteiro real; teclado: setas nas fileiras, Esc fecha e devolve o foco, Tab preso na janela, foco visível. Contraste dos tokens testado à parte (`contraste.test.ts`) |
+| 8 | Acessibilidade básica | Atende: `npx playwright test`, 11/11/2026: axe (WCAG 2.1 A e AA) sem violações em início, detalhes, roteiro, checklist e teleprompter (a abertura tem desenho `aria-hidden`, botão de pular no primeiro Tab, Esc e movimento reduzido, ADR-004), nos temas claro e escuro, em 1366 px e no celular, com o roteiro real; teclado: setas nas fileiras, Esc fecha e devolve o foco, Tab preso na janela, foco visível. Contraste dos tokens testado à parte (`contraste.test.ts`) |
 | 9 | Segurança e conformidade | Parcial: `npm audit --omit=dev`, 11/11/2026: 0 vulnerabilidades; sem segredo no código; sem dado pessoal e sem pedido a terceiros, fonte servida do próprio site (ADR-003); HTML, links e código do roteiro escapados, com testes de entrada maliciosa (ADR-002). Faltam os alertas do Dependabot, que se ligam nas configurações (#3) |
 | 10 | Entrega confiável | Parcial: CI em PR para `main` e `developer/**`, e publicação só depois dos jobs `verificar` e `e2e`. Falta o ruleset da `main`, do responsável (#3) |
 | 11 | Testes dos fluxos críticos | Atende: CI do PR #1, execução 43089905329, 11/11/2026: job `verificar`, `npm test` com 5 arquivos e 60 testes passando; job `e2e`, 10 passaram, sem pulo nos testes do fluxo principal no desktop |
@@ -27,6 +27,5 @@
 
 ## Fora do MVP
 
-- Abertura animada com o D (fase 4, ADR-004).
 - Editar roteiros pelo site, login, comentários.
 - Gravar ou editar vídeo: o Studio D só mostra o roteiro.
