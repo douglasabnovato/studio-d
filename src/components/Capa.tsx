@@ -32,7 +32,7 @@ export function Capa({ titulo, matiz, rotulo, id }: Props) {
         strokeLinejoin="round"
       />
       {rotulo && (
-        <text x="18" y="30" fill="#ffffff" fontSize="11" fontWeight="800" letterSpacing="2" fontFamily="Manrope, sans-serif">
+        <text x="18" y="30" fill="#ffffff" fontSize="11" fontWeight="800" letterSpacing="2" fontFamily="'Manrope Variable', sans-serif">
           {rotulo.toUpperCase()}
         </text>
       )}
@@ -40,7 +40,7 @@ export function Capa({ titulo, matiz, rotulo, id }: Props) {
         <div
           style={{
             color: '#fff',
-            font: '800 17px/1.15 Manrope, sans-serif',
+            font: "800 17px/1.15 'Manrope Variable', sans-serif",
             display: '-webkit-box',
             WebkitLineClamp: 3,
             WebkitBoxOrient: 'vertical',
