@@ -2,7 +2,7 @@
 
 **Os roteiros dos meus vídeos, prontos para gravar.** Cada vídeo do canal ensina como fiz um projeto do meu GitHub: o problema, as decisões, o que deu errado e como melhorar. O Studio D junta esses roteiros numa vitrine com cara de serviço de streaming. Ao abrir um episódio, você vê o roteiro em blocos e, no modo gravação, um teleprompter.
 
-> **Site:** será publicado em `https://douglasabnovato.github.io/studio-d/` depois do merge na `main` ([#2](https://github.com/douglasabnovato/studio-d/issues/2)). O link entra aqui quando responder.
+> **Site:** <https://douglasabnovato.github.io/studio-d/> · publicado pelo GitHub Actions a cada merge na `main`.
 
 ## Para quem é
 
@@ -86,12 +86,8 @@ docs/                  produto, arquitetura, ADRs, processo e critérios
 
 ## Estado e próximos passos
 
-- **Critérios do MVP:** 8 de 12, finalizado. Os 4 que faltam dependem de configuração do autor ([`docs/MVP.md`](docs/MVP.md)).
-- **Em andamento:** o épico [#15, Studio D no ar](https://github.com/douglasabnovato/studio-d/issues/15):
-  - Pages ([#2](https://github.com/douglasabnovato/studio-d/issues/2));
-  - `main` protegida ([#3](https://github.com/douglasabnovato/studio-d/issues/3));
-  - abertura ([#5](https://github.com/douglasabnovato/studio-d/issues/5));
-  - documentação ([#14](https://github.com/douglasabnovato/studio-d/issues/14)).
+- **Critérios do MVP:** 9 de 12, finalizado. LCP móvel no site: 1,94 s (mediana). Os 3 que faltam dependem de configuração do autor ([`docs/MVP.md`](docs/MVP.md)).
+- **No ar desde 11/11/2026:** o épico [#15, Studio D no ar](https://github.com/douglasabnovato/studio-d/issues/15), com o Pages ([#2](https://github.com/douglasabnovato/studio-d/issues/2)), a abertura ([#5](https://github.com/douglasabnovato/studio-d/issues/5)) e a documentação ([#14](https://github.com/douglasabnovato/studio-d/issues/14)). Falta só a `main` protegida ([#3](https://github.com/douglasabnovato/studio-d/issues/3)), que é do autor.
 - **Depois:**
   - medição de uso ([#4](https://github.com/douglasabnovato/studio-d/issues/4));
   - pacote menor ([#9](https://github.com/douglasabnovato/studio-d/issues/9));
