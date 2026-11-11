@@ -49,11 +49,13 @@ describe.each([
   });
 });
 
-describe('modo gravação (cores fixas)', () => {
+describe('modo gravação e abertura (cores fixas)', () => {
   it.each([
     ['#ffffff', '#000000'],
     ['#5aa0ff', '#000000'],
     ['#b4bccb', '#0b0d12'],
     ['#ffffff', '#1e6bff'],
+    ['#f2f4f8', '#0b0d12'], // botão "Pular abertura" (fundo quase opaco sobre o preto)
+    ['#ffffff', '#1e6bff'], // o mesmo botão com o mouse em cima (texto branco: o #f2f4f8 dava 4,1:1)
   ])('%s sobre %s', (a, b) => expect(contraste(a, b)).toBeGreaterThanOrEqual(4.5));
 });

@@ -8,6 +8,8 @@ async function abrir(page: Page, rota: string, projeto: string) {
   if (projeto === 'claro') {
     await page.addInitScript(() => localStorage.setItem('studio-d:tema', 'light'));
   }
+  // A abertura tem o próprio teste (abertura.spec.ts); aqui ela já foi vista na sessão.
+  await page.addInitScript(() => sessionStorage.setItem('studio-d:abertura-vista', '1'));
   // Nada de rede externa nos testes, além do próprio site.
   await page.route(/^https:\/\/fonts\./, (r) => r.abort());
   await page.goto(rota);
