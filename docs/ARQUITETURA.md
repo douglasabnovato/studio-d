@@ -34,7 +34,7 @@ flowchart TB
 ```
 
 - `lib/roteiro.ts` lê e valida um arquivo: cabeçalho, blocos `## Nome · início–fim`, `### Fala/Tela/Comandos` e `## Para o YouTube`.
-- `lib/catalogo.ts` junta os roteiros com `series.yml`, recusa série inexistente e slug repetido, e monta as fileiras com escritos e planejados.
+- `lib/catalogo.ts` junta os roteiros com `series.yml`, recusa série inexistente e slug repetido, monta as fileiras com escritos e planejados, e lista os problemas de tempo e de capítulos (`problemasDoCatalogo`). `lib/conteudo.ts` carrega os arquivos no navegador; o plugin `validar-roteiros` do `vite.config.ts` usa as mesmas funções no build.
 - `Capa` gera a capa em SVG a partir da série e do título.
 - `Detalhes` é uma janela modal: foco preso, Esc fecha, e o foco volta ao card.
 - `Teleprompter`: rolagem por `requestAnimationFrame`, bloco atual pela linha de leitura a 30% da altura, atalhos de teclado.
