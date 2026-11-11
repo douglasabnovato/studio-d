@@ -1,0 +1,67 @@
+# Séries do Studio D, na ordem das fileiras da tela de início.
+# "planejados" são episódios ainda sem roteiro: aparecem como "Planejado" e servem de calendário.
+- id: do-curso-ao-produto
+  nome: Do curso ao produto
+  descricao: Projetos que nasceram em curso e o que foi preciso para virarem produto no ar.
+  matiz: 218
+  planejados:
+    - titulo: "Proffy: do formulário do curso ao fluxo testado no navegador"
+      repositorio: douglasabnovato/proffy
+      resumo: Por que um teste só de API não basta para dizer que o fluxo funciona.
+    - titulo: "AirCnC: tempo real com Socket.IO e token no handshake"
+      repositorio: douglasabnovato/aircnc
+      resumo: Web, API e mobile publicados, com o banco no Atlas e um usuário por app.
+    - titulo: "Be The Hero: dados pessoais num projeto de estudo"
+      repositorio: douglasabnovato/be-the-hero
+      resumo: O que fazer quando o banco versionado tem e-mail e WhatsApp de verdade.
+
+- id: os-12-criterios
+  nome: Os 12 critérios
+  descricao: A régua que uso em todo repositório, um critério por episódio, com exemplos reais.
+  matiz: 196
+  planejados:
+    - titulo: "Critério 8: acessibilidade com axe, teclado e tema escuro"
+      repositorio: douglasabnovato/sushibar
+      resumo: O texto ilegível no modo escuro que o axe só no claro não pegou.
+    - titulo: "Critério 10: CI verde e a principal protegida"
+      repositorio: douglasabnovato/engenharia
+      resumo: Por que sem ruleset um push direto publica sem passar pelo CI.
+    - titulo: "Critério 12: documentação honesta"
+      repositorio: douglasabnovato/engenharia
+      resumo: README conferido contra o package.json e link publicado só se responder hoje.
+
+- id: engenharia-com-ia
+  nome: Engenharia com IA
+  descricao: Como trabalho com agentes de IA no portfólio, com o que deu certo e o que deu errado.
+  matiz: 232
+  planejados:
+    - titulo: "Briefs, revisor independente e permissões que dizem não"
+      repositorio: douglasabnovato/engenharia
+      resumo: O processo por repositório e as lições registradas em aprendizados.md.
+    - titulo: "Seis fases de um projeto novo, com portões"
+      repositorio: douglasabnovato/engenharia
+      resumo: Enquadrar, descobrir, esqueleto no ar, construir, validar e operar.
+
+- id: uma-tela-seis-telas
+  nome: Uma tela, seis telas
+  descricao: O mesmo produto redesenhado para celular, tablet, desktop, TV, carro e relógio.
+  matiz: 204
+  planejados:
+    - titulo: "Movies na TV: a interface vista a três metros"
+      repositorio: douglasabnovato/movies
+      resumo: Navegar só com o controle remoto, com o foco sempre visível.
+    - titulo: "Catálogo de açaí no celular: pedido com uma mão"
+      repositorio: douglasabnovato/catalogo-acai
+      resumo: Alvo de toque, fluxo curto e o pedido pelo WhatsApp.
+
+- id: pm-na-pratica
+  nome: PM na prática
+  descricao: Hipótese, métrica, conversa com pessoas e decisão escrita, nos meus produtos.
+  matiz: 210
+  planejados:
+    - titulo: "Hipótese com meta: como escrever e como medir"
+      repositorio: douglasabnovato/movies
+      resumo: A aposta da chegada ao detalhe do filme e a medição sem cookie.
+    - titulo: "Painel de Formação: ativação numa comunidade"
+      repositorio: learnTECH-community/formacao-dev
+      resumo: Quem conclui o primeiro item do catálogo, e como saber.
