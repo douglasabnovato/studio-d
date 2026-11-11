@@ -28,7 +28,7 @@ O autor tem dezenas de repositórios com plano, critérios, decisões e PRs docu
 | Marco | O que entrega | Issues | Situação |
 |---|---|---|---|
 | **M1: ferramenta pronta** | Vitrine, roteiro, modo gravação e o primeiro roteiro | PR #1 | Feito em 11/11/2026 |
-| **M2: no ar** | Abertura, documentação, Pages, `main` protegida, LCP no site | Épico #15: #2, #3, #5, #14 | Em andamento |
+| **M2: no ar** | Abertura, documentação, Pages, `main` protegida, LCP no site | Épico #15: #2, #3, #5, #14 | No ar em 11/11/2026; falta #3 (autor) |
 | **M3: primeiro vídeo** | Roteiro do Movies revisado, gravado e publicado | #10 | Depende do autor |
 | **M4: uma série por semana** | Um roteiro por série | #6, #7, #8 | Planejado |
 | **M5: aprender com o uso** | Medição e um pacote menor | #4, #9 | Planejado |
