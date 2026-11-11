@@ -710,3 +710,155 @@ code {
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* Abertura com o D (ADR-004). Desenho próprio, sem som. */
+.abertura {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: #000;
+  overflow: hidden;
+  transition: opacity 0.3s ease;
+}
+.abertura-saindo {
+  opacity: 0;
+}
+.abertura-cena {
+  width: min(72vmin, 440px);
+  height: min(72vmin, 440px);
+  overflow: visible;
+}
+/* Traço de "1 1.1" com deslocamento 1.05: antes de começar, nenhum pedaço cai dentro do caminho,
+   então as pontas arredondadas não aparecem como pontos soltos. */
+.abertura-haste,
+.abertura-curva {
+  fill: none;
+  stroke: #8cc0ff;
+  stroke-width: 30;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 1.1;
+  stroke-dashoffset: 1.05;
+}
+.abertura-haste {
+  animation: abertura-tracar 0.6s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+}
+.abertura-curva {
+  animation: abertura-tracar 0.7s cubic-bezier(0.5, 0, 0.3, 1) 0.6s forwards;
+}
+.abertura-preenchimento {
+  fill: url(#abertura-azul);
+  opacity: 0;
+  animation: abertura-acender 0.5s ease-out 1.3s forwards;
+}
+.abertura-d {
+  transform-box: fill-box;
+  transform-origin: 40% 50%;
+  animation: abertura-entrar 0.6s cubic-bezier(0.7, 0, 0.9, 0.4) 1.8s forwards;
+}
+.abertura-faixas line {
+  stroke: #5aa0ff;
+  stroke-width: 4;
+  stroke-linecap: butt;
+  stroke-dasharray: 1 1.1;
+  stroke-dashoffset: 1.05;
+  opacity: 0;
+  animation: abertura-faixa 0.9s ease-out forwards;
+}
+.abertura-nome {
+  position: absolute;
+  bottom: 18vh;
+  margin: 0;
+  color: #f2f4f8;
+  font-weight: 800;
+  font-size: clamp(1rem, 2.4vw, 1.4rem);
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: abertura-nome 1.1s ease 1.3s forwards;
+}
+.abertura-pular {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  min-height: 44px;
+  padding: 8px 18px;
+  border: 1px solid #5aa0ff;
+  border-radius: 8px;
+  background: rgb(11 13 18 / 0.85);
+  color: #f2f4f8;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.abertura-pular:hover {
+  background: #1e6bff;
+  color: #ffffff;
+}
+.abertura-pular:focus-visible {
+  outline: 3px solid #5aa0ff;
+  outline-offset: 3px;
+}
+
+/* Movimento reduzido: o D aparece pronto e parado, sem faixas nem zoom. */
+.abertura-parada .abertura-haste,
+.abertura-parada .abertura-curva {
+  stroke-dashoffset: 0;
+}
+.abertura-parada .abertura-preenchimento,
+.abertura-parada .abertura-nome {
+  opacity: 1;
+}
+.abertura-parada .abertura-faixas {
+  display: none;
+}
+
+@keyframes abertura-tracar {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes abertura-acender {
+  0% {
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+    filter: brightness(1.6);
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+@keyframes abertura-entrar {
+  to {
+    transform: scale(9);
+    opacity: 0;
+  }
+}
+@keyframes abertura-faixa {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 1.05;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes abertura-nome {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  30%,
+  60% {
+    opacity: 1;
+  }
+}

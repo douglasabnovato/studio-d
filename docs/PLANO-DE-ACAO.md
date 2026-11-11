@@ -18,3 +18,24 @@
 ### Plano de ação
 - Este ciclo: esqueleto, vitrine, página do roteiro, modo gravação, roteiro do movies, CI, documentação.
 - Vira issue: ligar o Pages e proteger a `main` (responsável), medição de uso (responsável), abertura com o D, roteiros das outras séries, leitura no build.
+
+## Ciclo de 11/11/2026, tarde: Studio D no ar (épico #15)
+
+### Produto
+- **Objetivo do autor:** abertura animada com o D, site hospedado no GitHub Pages e documentação que sirva de porta de entrada, com o trabalho guiado por issues.
+- **Como medimos:** site respondendo (HTTP 200), LCP móvel no site publicado até 2,5 s, abertura sem piorar o LCP, links da documentação sem quebra.
+- **Fontes:** WAI-ARIA para foco e movimento (<https://www.w3.org/WAI/WCAG21/Understanding/animation-from-interactions.html>), documentação do Pages com Actions (<https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages>) e relógio do Playwright (<https://playwright.dev/docs/clock>).
+
+### Engenharia
+- **Abertura:** SVG e CSS, fim por temporizador, uma vez por sessão, só na entrada pela tela de início (ADR-004).
+- **Hospedagem:** Pages com a fonte "GitHub Actions", Variable `PAGES_ATIVO` e ambiente `github-pages` restrito à `main`. Ligado em 11/11/2026 a pedido do autor.
+- **Riscos:** a abertura atrasar o LCP (medido: não atrasou); a fila do Actions atrasar o merge.
+
+### Plano de ação (issues)
+| Tarefa | Issue | Quem |
+|---|---|---|
+| Ligar o Pages e a Variable | #2 | Feito pelo agente, a pedido do autor; o site sobe com o merge na `main` |
+| Abertura com o D | #5 | Agente, PR #13 |
+| README como porta de entrada e `docs/` com índice | #14 | Agente, PR #13 |
+| Proteger a `main` e alertas do Dependabot | #3 | Autor |
+| Medir o LCP no site publicado | #15 | Agente, depois do merge na `main` |
