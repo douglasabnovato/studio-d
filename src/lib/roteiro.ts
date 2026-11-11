@@ -72,8 +72,11 @@ function texto(valor: unknown, campo: string, arquivo: string): string {
 function secoes(corpo: string, marca: '## ' | '### '): { titulo: string; conteudo: string }[] {
   const linhas = corpo.split(/\r?\n/);
   const saida: { titulo: string; conteudo: string[] }[] = [];
+  let emCodigo = false;
   for (const linha of linhas) {
-    if (linha.startsWith(marca)) {
+    // Dentro de um bloco de código, "## comentário" é texto, não título.
+    if (/^\s*(```|~~~)/.test(linha)) emCodigo = !emCodigo;
+    if (!emCodigo && linha.startsWith(marca)) {
       saida.push({ titulo: linha.slice(marca.length).trim(), conteudo: [] });
     } else if (saida.length > 0) {
       saida[saida.length - 1].conteudo.push(linha);

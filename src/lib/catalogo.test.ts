@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { catalogo, destaque, montarCatalogo } from './catalogo';
-import { emSegundos } from './roteiro';
+import { destaque, montarCatalogo, problemasDoCatalogo } from './catalogo';
+import { catalogo } from './conteudo';
 
 describe('catálogo real (roteiros/)', () => {
   it('tem pelo menos um roteiro e cinco séries', () => {
@@ -12,22 +12,8 @@ describe('catálogo real (roteiros/)', () => {
     for (const r of catalogo.roteiros) expect(r.repositorio).toMatch(/^[\w.-]+\/[\w.-]+$/);
   });
 
-  it('cada bloco começa onde o anterior terminou', () => {
-    for (const r of catalogo.roteiros) {
-      expect(r.blocos[0].inicio).toBe('0:00');
-      for (let i = 1; i < r.blocos.length; i++) {
-        expect(r.blocos[i].inicio, `${r.slug}: bloco ${r.blocos[i].nome}`).toBe(r.blocos[i - 1].fim);
-        expect(emSegundos(r.blocos[i].fim)).toBeGreaterThan(emSegundos(r.blocos[i].inicio));
-      }
-    }
-  });
-
-  it('os capítulos do YouTube batem com o início dos blocos', () => {
-    for (const r of catalogo.roteiros) {
-      if (!r.youtube.capitulos) continue;
-      const marcas = r.youtube.capitulos.split('\n').map((l) => l.split(' ')[0]);
-      expect(marcas).toEqual(r.blocos.map((b) => b.inicio));
-    }
+  it('blocos contínuos e capítulos batendo (a mesma regra do build)', () => {
+    expect(problemasDoCatalogo(catalogo)).toEqual([]);
   });
 
   it('o modelo (_modelo.md) não aparece no catálogo', () => {
@@ -69,6 +55,14 @@ fontes:
 
   it('recusa roteiro de série que não existe', () => {
     expect(() => montarCatalogo(series, { 'roteiros/s9/a.md': roteiro('s9') })).toThrow(/series.yml/);
+  });
+
+  it('aponta bloco fora de ordem e capítulos errados', () => {
+    const ruim =
+      roteiro('s1').replace('## Gancho · 0:00–0:30', '## Gancho · 0:10–0:30') + '\n## Para o YouTube\n### Capítulos\n0:00 Gancho\n';
+    const erros = problemasDoCatalogo(montarCatalogo(series, { 'roteiros/s1/a.md': ruim })).join('\n');
+    expect(erros).toMatch(/0:00/);
+    expect(erros).toMatch(/capítulos/);
   });
 
   it('recusa slug repetido', () => {

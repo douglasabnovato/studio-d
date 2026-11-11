@@ -1,6 +1,5 @@
 import { parse as lerYaml } from 'yaml';
-import { lerRoteiro, type Roteiro, type Situacao } from './roteiro';
-import seriesYml from '../../roteiros/series.yml?raw';
+import { emSegundos, lerRoteiro, type Roteiro, type Situacao } from './roteiro';
 
 export interface Planejado {
   titulo: string;
@@ -82,6 +81,23 @@ export function destaque(c: Catalogo): Roteiro | undefined {
   return c.roteiros.find((r) => r.situacao === 'pronto') ?? c.roteiros.find((r) => r.situacao === 'rascunho') ?? c.roteiros[0];
 }
 
-const arquivos = import.meta.glob('../../roteiros/**/*.md', { query: '?raw', import: 'default', eager: true }) as Record<string, string>;
-
-export const catalogo = montarCatalogo(seriesYml, arquivos);
+/**
+ * Regras que o parser sozinho não confere: blocos contínuos a partir de 0:00 e
+ * capítulos do YouTube iguais ao início dos blocos. Roda nos testes e no build.
+ */
+export function problemasDoCatalogo(c: Catalogo): string[] {
+  const erros: string[] = [];
+  for (const r of c.roteiros) {
+    if (r.blocos[0].inicio !== '0:00') erros.push(`${r.slug}: o primeiro bloco precisa começar em 0:00`);
+    r.blocos.forEach((b, i) => {
+      if (emSegundos(b.fim) <= emSegundos(b.inicio)) erros.push(`${r.slug}: "${b.nome}" termina antes de começar`);
+      if (i > 0 && b.inicio !== r.blocos[i - 1].fim) erros.push(`${r.slug}: "${b.nome}" não começa onde "${r.blocos[i - 1].nome}" terminou`);
+    });
+    if (r.youtube.capitulos) {
+      const marcas = r.youtube.capitulos.split(/\r?\n/).map((l) => l.trim().split(' ')[0]).filter(Boolean);
+      const inicios = r.blocos.map((b) => b.inicio);
+      if (marcas.join() !== inicios.join()) erros.push(`${r.slug}: os capítulos (${marcas.join(', ')}) não batem com os blocos (${inicios.join(', ')})`);
+    }
+  }
+  return erros;
+}

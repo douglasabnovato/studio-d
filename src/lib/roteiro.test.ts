@@ -93,6 +93,17 @@ describe('lerRoteiro', () => {
     expect(() => lerRoteiro('x.md', corpo)).toThrow(/cabeçalho/);
   });
 
+  it('não corta o bloco num comentário "##" dentro de código', () => {
+    const cerca = '`'.repeat(3);
+    const comCodigo =
+      cabecalho() +
+      `\n## Gancho · 0:00–0:30\n\n### Fala\n- Oi.\n\n### Comandos\n${cerca}bash\n## instala\nnpm ci\n### e testa\nnpm test\n${cerca}\n`;
+    const r = lerRoteiro('x.md', comCodigo);
+    expect(r.blocos).toHaveLength(1);
+    expect(r.blocos[0].comandos).toContain('## instala');
+    expect(r.blocos[0].comandos).toContain('npm test');
+  });
+
   it('converte marca de tempo em segundos', () => {
     expect(emSegundos('14:30')).toBe(870);
     expect(emSegundos('0:45')).toBe(45);
