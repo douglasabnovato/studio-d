@@ -22,11 +22,12 @@ Fluxo de um roteiro, do estudo ao merge na sprint:
 5. **Revisão de fatos** independente, e corrigir tudo o que ela achar.
 6. **PR para a sprint**, com CI verde, e comentário de evidência nas duas issues.
 
-## Regras de fato (aprendidas nos roteiros 2 a 4)
+## Regras de fato (aprendidas nos roteiros 2 a 7)
 
 - **O commit certo.** O código "de antes" está no pai do commit que mudou. Confira com `git show <commit>^:<arquivo>`.
 - **Cada mudança no seu commit.** Antes de dizer "no mesmo PR", confira com `git log -S"<trecho>"` quando cada parte entrou.
 - **Nada pessoal na tela.** `git log` só com `--format` sem e-mail; nunca `git show` ou `git log` simples. Arquivo de teste com dados de exemplo aparece só no trecho necessário.
+- **Teste a conferência que você ensina.** Se o roteiro diz que um comando pega o problema, rode-o contra o caso real: o `<title>` não teria pegado o site de outra pessoa no Proffy.
 - **Saída real de comando.** Mostre o que a ferramenta imprime de verdade: o `node --test` termina com `# pass 11`, não com "11 passed".
 - **Só o que o registro mostra.** Se o axe rodou em 4 telas, diga 4 telas, e não "em cada tela".
 - **Esboço não é código do repositório.** Código que ainda não existe leva o rótulo "esboço para a issue N", com os imports e o que falta.
