@@ -11,9 +11,6 @@
   descricao: A régua que uso em todo repositório, um critério por episódio, com exemplos reais.
   matiz: 196
   planejados:
-    - titulo: "Critério 10: CI verde e a principal protegida"
-      repositorio: douglasabnovato/engenharia
-      resumo: Por que sem ruleset um push direto publica sem passar pelo CI.
     - titulo: "Critério 12: documentação honesta"
       repositorio: douglasabnovato/engenharia
       resumo: README conferido contra o package.json e link publicado só se responder hoje.
