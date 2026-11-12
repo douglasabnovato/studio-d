@@ -102,6 +102,17 @@ describe('Roteiro', () => {
     expect(screen.getByRole('link', { name: /Gravar/ })).toHaveAttribute('href', `/v/${primeiro.slug}/gravar`);
   });
 
+  it('mostra a fala, a tela e os comandos que vieram do build (#9)', () => {
+    const { container } = abrir(`/v/${primeiro.slug}`);
+    const trecho = (md: string) => md.replace(/[*_`#>[\]()-]/g, ' ').split(/\s+/).filter((p) => p.length > 4).slice(0, 3);
+    const textoDaPagina = container.textContent ?? '';
+    const comTela = primeiro.blocos.find((b) => b.tela)!;
+    const comComandos = primeiro.blocos.find((b) => b.comandos)!;
+    for (const md of [primeiro.blocos[0].fala, comTela.tela, comComandos.comandos]) {
+      for (const palavra of trecho(md)) expect(textoDaPagina).toContain(palavra);
+    }
+  });
+
   it('avisa quando o roteiro não existe', () => {
     abrir('/v/nao-existe');
     expect(screen.getByRole('heading', { name: 'Roteiro não encontrado' })).toBeInTheDocument();

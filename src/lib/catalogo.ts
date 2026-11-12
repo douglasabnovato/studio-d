@@ -1,5 +1,5 @@
-import { parse as lerYaml } from 'yaml';
-import { emSegundos, lerRoteiro, type Roteiro, type Situacao } from './roteiro';
+// Vai para o navegador: sem yaml e sem marked (#9). A leitura dos arquivos está em ler-catalogo.ts.
+import { emSegundos, type Roteiro, type Situacao } from './tipos';
 
 export interface Planejado {
   titulo: string;
@@ -33,23 +33,8 @@ export interface Catalogo {
   porSerie: Map<string, Episodio[]>;
 }
 
-export function montarCatalogo(seriesTexto: string, arquivos: Record<string, string>): Catalogo {
-  const series = (lerYaml(seriesTexto) as Serie[]).map((s) => ({ ...s, planejados: s.planejados ?? [] }));
-  const ids = new Set(series.map((s) => s.id));
-  const roteiros = Object.entries(arquivos)
-    .filter(([caminho]) => !caminho.split('/').pop()!.startsWith('_'))
-    .map(([caminho, texto]) => lerRoteiro(caminho, texto))
-    .sort((a, b) => a.episodio - b.episodio);
-
-  for (const r of roteiros) {
-    if (!ids.has(r.serie)) throw new Error(`${r.slug}: a série "${r.serie}" não está em series.yml`);
-  }
-  const slugs = new Set<string>();
-  for (const r of roteiros) {
-    if (slugs.has(r.slug)) throw new Error(`slug repetido: ${r.slug}`);
-    slugs.add(r.slug);
-  }
-
+/** Monta as fileiras a partir das séries e dos roteiros já lidos. */
+export function indexarCatalogo(series: Serie[], roteiros: Roteiro[]): Catalogo {
   const porSerie = new Map<string, Episodio[]>();
   for (const s of series) {
     const escritos: Episodio[] = roteiros
