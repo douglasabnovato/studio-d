@@ -49,7 +49,7 @@ fontes:
 - Neste vídeo: como achar isso no seu repositório, o que apagar resolve, o que não resolve, e quem decide o resto.
 
 ### Tela
-`git log` do arquivo `backend/src/database/db.sqlite`, do primeiro commit (31/08/2020) ao último (02/11/2026). **Nunca abrir o arquivo do banco nem mostrar o conteúdo dele.**
+`git log` do arquivo `backend/src/database/db.sqlite`, do primeiro commit (30/08/2020) ao último (02/11/2026). **Nunca abrir o arquivo do banco nem mostrar o conteúdo dele.**
 
 ### Comandos
 ```bash
@@ -92,19 +92,20 @@ O texto da LGPD no site do Planalto, nos artigos 5º e 6º. Depois, a seção de
 ## O que foi feito · 5:30–8:00
 
 ### Fala
-- Na API: a rota que listava as ONGs saiu. O ID de acesso passou de 8 para 16 caracteres hexadecimais, com limite de tentativas. E as rotas da ONG passaram a exigir um token assinado.
+- Foi em duas etapas. Em setembro de 2026, na versão nova da API (commit `dedd929`): a rota que listava as ONGs saiu, o ID de acesso passou de 8 para 16 caracteres hexadecimais, com limite de 20 tentativas em 15 minutos, e as rotas da ONG passaram a exigir um token assinado.
 - Tem teste para cada coisa. Um deles confere que a listagem de ONGs não existe mais.
-- No repositório: os dois bancos saíram do Git com `git rm --cached`, que tira o arquivo do versionamento sem apagar a cópia local.
-- O `.gitignore` passou a ignorar `*.sqlite`. E o banco é criado ao subir a API, pelas migrações do Knex.
+- No mesmo commit, o `.gitignore` passou a ignorar `*.sqlite`. E aqui está a pegadinha: o `.gitignore` não tira do Git um arquivo que já é versionado. O banco continuou lá por mais um mês.
+- Em novembro, no PR #12, os dois bancos saíram do Git com `git rm --cached`, que tira o arquivo do versionamento sem apagar a cópia local. O banco já era criado ao subir a API, pelas migrações do Knex.
 - No mesmo PR, saiu também o cache do Expo, cerca de 350 arquivos que nem deveriam estar ali.
 
 ### Tela
-PR #12 do Be The Hero: a lista de arquivos com `db.sqlite` e `test.sqlite` saindo. Depois, o teste "a listagem de ONGs (que expunha todos os IDs de acesso) não existe mais".
+O `.gitignore` com `*.sqlite`. Depois, o PR #12 do Be The Hero: a lista de arquivos com `db.sqlite` e `test.sqlite` saindo. Por fim, só as linhas do teste "a listagem de ONGs (que expunha todos os IDs de acesso) não existe mais", ou o nome dele no log do CI: **não mostrar o topo do `api.test.js`**, onde estão os dados de exemplo da issue 29. Nunca rodar `git log` simples nem `git show` na tela, porque eles mostram o e-mail de quem fez o commit.
 
 ### Comandos
 ```bash
+# o .gitignore já ignorava *.sqlite, mas isso não tira do Git o que já é versionado
+grep sqlite .gitignore
 git rm --cached backend/src/database/db.sqlite backend/src/database/test.sqlite
-echo "*.sqlite" >> .gitignore
 cd backend && npm test
 ```
 
@@ -135,7 +136,9 @@ Issue 29 do Be The Hero. Depois, a RFC 2606 na seção dos domínios de exemplo.
 
 ### Comandos
 ```js
-// esboço para a issue 29: backend/src/database/seeds/01_demonstracao.js
+// esboço parcial para a issue 29 (uma ONG; a issue pede 2 ONGs e 4 casos)
+// o knexfile.js precisa de: seeds: { directory: path.join(__dirname, "src", "database", "seeds") }
+// backend/src/database/seeds/01_demonstracao.js
 exports.seed = async (knex) => {
   await knex("incidents").del();
   await knex("ongs").del();
@@ -159,7 +162,7 @@ exports.seed = async (knex) => {
 
 ### Comandos
 ```bash
-git log --all --format="%h %ad %s" --date=short -- "*.sqlite" "*.db" "*.csv" "*.xlsx" ".env" "*.env"
+git log --all --format="%h %ad %s" --date=short -- "*.sqlite" "*.db" "*.csv" "*.xlsx" ".env" ".env.*" "*.env"
 ```
 
 ## Encerramento · 13:30–14:00
