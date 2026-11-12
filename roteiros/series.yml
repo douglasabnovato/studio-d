@@ -11,9 +11,6 @@
   descricao: A régua que uso em todo repositório, um critério por episódio, com exemplos reais.
   matiz: 196
   planejados:
-    - titulo: "Critério 8: acessibilidade com axe, teclado e tema escuro"
-      repositorio: douglasabnovato/sushibar
-      resumo: O texto ilegível no modo escuro que o axe só no claro não pegou.
     - titulo: "Critério 10: CI verde e a principal protegida"
       repositorio: douglasabnovato/engenharia
       resumo: Por que sem ruleset um push direto publica sem passar pelo CI.
