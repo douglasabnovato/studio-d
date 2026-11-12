@@ -41,13 +41,13 @@ fontes:
 ## Gancho · 0:00–0:45
 
 ### Fala
-- Entre outubro e novembro de 2026, agentes de IA trabalharam nos 39 repositórios do meu portfólio, em lotes, ao mesmo tempo.
-- Em 10/11, eram 340 de 419 critérios da régua atendidos. Nada disso entrou na branch principal sem eu revisar.
+- Entre outubro e novembro de 2026, agentes de IA trabalharam nos 39 repositórios do meu portfólio, em lotes de 2 a 5 agentes em paralelo.
+- Em 10/11, o dia começou com 340 de 419 critérios da régua atendidos e terminou com 368. E nada disso entra na branch principal sem eu revisar: os PRs para a principal ficam abertos esperando por mim.
 - O que segurou a qualidade não foi o código que os agentes escreveram. Foram três peças em volta: o brief, o revisor que não viu o código e as permissões que dizem não.
 - Neste vídeo, uma de cada vez, com o que deu errado.
 
 ### Tela
-O `README.md` do repositório engenharia. Depois, a tabela de contexto da decisão de 10/11, com "39 repositórios, 340 de 419 critérios".
+O `README.md` do repositório engenharia. Depois, a tabela de contexto da decisão de 10/11, com "39 repositórios, 340 de 419 critérios", e o resultado do mesmo dia, com 368.
 
 ## Quatro papéis · 0:45–2:30
 
@@ -65,11 +65,11 @@ A tabela "Papéis" do `ia/como-trabalhamos.md`, destacando a coluna "Não faz".
 ## O brief é o único contexto · 2:30–5:00
 
 ### Fala
-- O agente começa do zero. Ele não leu a conversa, não sabe o que eu decidi ontem. O brief é tudo o que ele tem.
+- O agente não viu a conversa e não sabe o que eu decidi ontem. Além das instruções fixas do projeto, no `CLAUDE.md`, o brief é tudo o que ele tem.
 - Por isso o brief diz cinco coisas: o que ler antes, onde clonar, as regras que valem acima do processo, os passos em cada repositório e o formato exato da resposta.
 - O "onde clonar" parece detalhe. Não é: o agente sempre trabalha num clone novo numa pasta temporária, nunca na minha cópia de uso diário.
 - Briefs seguintes herdam o anterior e listam só o que muda. O do ciclo curto, por exemplo, começa com "leia antes, inteiros" e depois traz oito mudanças numeradas.
-- E o brief aprende. Em 05/11, uma queda de sessão deixou cinco agentes com trabalho só no clone, sem push. Desde então, "push a cada commit" está em todo brief.
+- E o brief aprende. Em 05/11, uma queda de sessão deixou cinco agentes com trabalho só no clone, sem push. Desde então, "push a cada commit" está no brief completo, que os outros herdam.
 
 ### Tela
 O `ia/briefs/ciclo-curto.md`, rolando do "Leia antes" até a "Resposta final". Depois, a linha da queda de sessão em `aprendizados.md`, na seção "Git e locks".
@@ -93,15 +93,15 @@ O bloco "▶ INÍCIO / ■ FIM" do `ia/como-trabalhamos.md`.
 - O motivo está numa frase do processo: um revisor que conhece a intenção tende a confirmá-la. Por isso ele recebe o diff, não a conclusão.
 - Um exemplo do próprio Studio D. No roteiro do AirCnC, eu tinha escrito que o código antigo estava num certo commit. O revisor, conferindo contra o repositório, achou duas coisas: o commit certo era outro, e o diff do que eu tinha citado mostrava a credencial antiga do banco. O vídeo teria posto uma senha na tela.
 - No roteiro do critério 12, eu ia ensinar a conferir um site comparando o título da página. O revisor apontou que o site de outra pessoa tinha o mesmo título do meu Proffy. A conferência que eu ia ensinar não pegaria o caso que eu ia contar.
-- De 5 a 6 achados por roteiro, todos corrigidos antes do merge. Cada PR lista os achados.
+- De 5 a 6 achados por roteiro, todos tratados antes do merge. Cada PR lista os achados.
 
 ### Tela
-A seção "Revisor independente" do `ia/como-trabalhamos.md`. Depois, a seção "Revisão independente de fatos" dos PRs 39 e 44 do Studio D. **Não abrir o diff do commit citado no PR 39**: é ele que mostra a credencial.
+A seção "Revisor independente" do `ia/como-trabalhamos.md`. Depois, a seção "Revisão independente de fatos" dos PRs 39 e 44 do Studio D. **Não abrir nem clicar nos commits `6c6d1c2` e `60e11d3` do AirCnC**, cujos hashes aparecem no PR 39: um deles mostra a credencial.
 
 ## Permissões que dizem não · 9:15–11:45
 
 ### Fala
-- O agente roda com um classificador de permissões. Antes de cada ação, ele decide se ela passa.
+- O agente roda com um classificador de permissões. Antes de ações como comandos e chamadas de rede, ele decide se elas passam.
 - Algumas ações foram negadas e assim ficaram. O merge da feature na sprint foi negado em parte dos repositórios, como "merge sem revisão", e passou em outros.
 - Apagar branch remota: negado. Mesclar PR do Dependabot: negado. Ligar o GitHub Pages pela API foi negado ao coordenador como "publicar site novo", mesmo com a minha autorização geral. Criar o ruleset pela mesma API passou.
 - A regra para tudo isso é uma só: se uma ação for bloqueada, não contornar. Registrar no relatório, abrir issue se for o caso e seguir para o próximo repositório.
@@ -114,7 +114,8 @@ A tabela "Limites e permissões" do `ia/como-trabalhamos.md`. Depois, a seção 
 ## O que fica comigo · 11:45–12:45
 
 ### Fala
-- Merge na principal, proteção da branch, contas, senhas, tokens e hospedagem ficam comigo.
+- Merge na principal, contas, senhas, tokens e hospedagem ficam comigo.
+- A proteção da branch é decisão minha. Em 10/11, eu deleguei ao coordenador a regra de checks no ruleset, e ele aplicou pela API. A decisão ficou escrita, com o caminho para desfazer.
 - Revogar credencial vazada e reescrever histórico também.
 - E o conteúdo que só eu sei: metas, depoimentos, números publicados.
 - Tudo isso vira issue com o rótulo `depende-do-responsavel`, com o passo a passo de onde clicar. O agente prepara, eu decido.
@@ -126,7 +127,7 @@ A seção "O que fica com o responsável" do `ia/como-trabalhamos.md`.
 
 ### Fala
 - Hoje, no processo, o revisor independente olha código. Os achados dos roteiros mostram que texto precisa da mesma coisa: data, commit, comando e o que aparece na tela.
-- A issue 9 do repositório engenharia leva a revisão de fatos para documentos, relatórios e roteiros, como já está no guia de roteiro do Studio D.
+- A issue 9 do repositório engenharia, ainda aberta, propõe levar a revisão de fatos para documentos, relatórios e roteiros, como já está no guia de roteiro do Studio D.
 
 ### Tela
 A issue 9 do repositório engenharia. Depois, o passo 8 do `docs/como-escrever-um-roteiro.md` do Studio D.
