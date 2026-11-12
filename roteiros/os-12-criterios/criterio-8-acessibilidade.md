@@ -10,7 +10,7 @@ pre_requisitos:
   - Já ter aberto o DevTools do navegador
 objetivo: Ao final, a pessoa sabe o que o critério 8 da régua pede, por que o axe precisa rodar nos temas claro e escuro, e como testar o teclado de um componente de abas.
 situacao: rascunho
-resumo: O cardápio do Sushibar passou no axe em 4 telas. No dia seguinte, com o celular no modo escuro, o texto estava branco sobre fundo claro.
+resumo: O cardápio do Sushibar passou no axe sem violações. No dia seguinte, com o sistema no modo escuro, o texto estava branco sobre fundo claro.
 fontes:
   - titulo: "Sushibar: docs/MVP.md (critério 8)"
     url: https://github.com/douglasabnovato/sushibar/blob/main/docs/MVP.md
@@ -47,13 +47,13 @@ fontes:
 ## Gancho · 0:00–0:40
 
 ### Fala
-- Em 02/11, o cardápio do Sushibar passou no axe: zero violações em 4 telas.
+- Em 02/11, o cardápio do Sushibar passou no axe: zero violações nas páginas do site.
 - Em 03/11, com o sistema no modo escuro, o texto estava branco sobre um fundo cinza-claro. Quase ilegível.
 - O axe não mentiu. Ele só olhou para o tema que eu mostrei a ele.
 - Neste vídeo: o critério 8 da minha régua, por que o axe precisa rodar nos dois temas, e o teste de teclado que o axe não faz.
 
 ### Tela
-O cardápio do Sushibar no tema claro, legível. Corte para o mesmo cardápio com o sistema no modo escuro, com o texto branco sobre cinza-claro.
+O cardápio do Sushibar no tema claro, legível. Corte para o mesmo cardápio com o sistema no modo escuro: os títulos de seção e os rótulos brancos sobre o fundo cinza-claro da página.
 
 ## O critério 8 · 0:40–2:00
 
@@ -71,12 +71,12 @@ A linha do critério 8 no `padroes.md` do repositório engenharia.
 ### Fala
 - O Sushibar é o cardápio de um restaurante, feito em Next.js e exportado como site estático.
 - O CSS global veio com um bloco para o modo escuro do sistema: se o sistema estiver escuro, o texto vira branco.
-- Só que os blocos do cardápio têm fundo próprio, cinza-claro. O texto herdava o branco e ficava sobre esse fundo.
-- A conferência com o axe de 02/11 rodou no modo claro. Nesse modo, o bloco escuro nem é aplicado. Por isso passou.
+- Só que o fundo das páginas é cinza-claro, por uma classe do Tailwind, e essa classe vence o fundo preto do bloco escuro. O texto sem cor própria, como títulos e rótulos, herdava o branco e ficava sobre esse cinza.
+- O registro de 02/11 não diz em qual tema o axe rodou. Como ninguém pediu o escuro, o mais provável é que tenha sido o claro, e nesse modo o bloco escuro nem se aplica.
 - A WCAG pede contraste de pelo menos 4,5 para 1 em texto normal. Branco sobre cinza-claro fica muito abaixo disso.
 
 ### Tela
-O `globals.css` antes do commit `72dbb14`, com o bloco `@media (prefers-color-scheme: dark)`. Depois, a página da WCAG sobre o contraste mínimo.
+O diff do commit `72dbb14` na página do GitHub, com o bloco `@media (prefers-color-scheme: dark)` saindo (no terminal, `git show` mostraria o e-mail do autor). Depois, a página da WCAG sobre o contraste mínimo.
 
 ### Comandos
 ```css
@@ -111,7 +111,7 @@ body { color: #111827; background: #e5e7eb; }
 - O axe confere o que está na tela no momento. Ele não troca o tema sozinho.
 - Se o seu site reage ao modo escuro, o axe precisa rodar duas vezes: uma com o sistema claro e outra com o sistema escuro.
 - No Playwright, isso é uma linha: a opção `colorScheme`, que imita a preferência do sistema.
-- É o que faço no próprio Studio D, este site de roteiros: os testes rodam em três projetos, escuro, claro e celular, e o axe roda em todos.
+- É o que faço no próprio Studio D, este site de roteiros: os testes rodam nos projetos escuro, claro e celular, e o axe roda em todos. Como o Studio D tem botão de tema, o teste também grava a escolha; no Sushibar, que só segue o sistema, basta o `colorScheme`.
 - No Sushibar, isso ainda é a issue 14: rodar o axe nas 5 páginas, nos dois modos, e o CI falhar com violação séria.
 
 ### Tela
@@ -119,7 +119,7 @@ O `playwright.config.ts` do Studio D, nos projetos `escuro` e `claro`. Depois, a
 
 ### Comandos
 ```ts
-// playwright.config.ts: o mesmo teste nos dois temas
+// playwright.config.ts (trecho resumido): o mesmo teste nos dois temas
 projects: [
   { name: 'escuro', use: { colorScheme: 'dark' } },
   { name: 'claro', use: { colorScheme: 'light' } },
@@ -173,7 +173,7 @@ A issue 14 do Sushibar, nos critérios de entrega. Depois, a página de testes d
 ## Para o YouTube
 
 ### Descrição
-O cardápio do Sushibar passou no axe em 4 telas e, no dia seguinte, estava ilegível no modo escuro do sistema. Mostro o critério 8 da minha régua de qualidade, por que o axe precisa rodar nos temas claro e escuro e como testar o teclado de abas no padrão da W3C.
+O cardápio do Sushibar passou no axe sem violações e, no dia seguinte, estava ilegível no modo escuro do sistema. Mostro o critério 8 da minha régua de qualidade, por que o axe precisa rodar nos temas claro e escuro e como testar o teclado de abas no padrão da W3C.
 
 Repositório: https://github.com/douglasabnovato/sushibar
 
