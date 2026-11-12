@@ -17,9 +17,6 @@
   descricao: Como trabalho com agentes de IA no portfólio, com o que deu certo e o que deu errado.
   matiz: 232
   planejados:
-    - titulo: "Briefs, revisor independente e permissões que dizem não"
-      repositorio: douglasabnovato/engenharia
-      resumo: O processo por repositório e as lições registradas em aprendizados.md.
     - titulo: "Seis fases de um projeto novo, com portões"
       repositorio: douglasabnovato/engenharia
       resumo: Enquadrar, descobrir, esqueleto no ar, construir, validar e operar.
