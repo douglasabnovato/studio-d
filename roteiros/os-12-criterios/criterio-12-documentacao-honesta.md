@@ -24,6 +24,8 @@ fontes:
     url: https://github.com/douglasabnovato/aircnc/pull/69
   - titulo: "AirCnC: README (publicação no Render)"
     url: https://github.com/douglasabnovato/aircnc/blob/master/Readme.md
+  - titulo: "AirCnC issue #109: README diz fora do ar e no ar ao mesmo tempo"
+    url: https://github.com/douglasabnovato/aircnc/issues/109
   - titulo: "Studio D: src/lib/links.test.ts"
     url: https://github.com/douglasabnovato/studio-d/blob/main/src/lib/links.test.ts
   - titulo: "Studio D: docs/MVP.md (critério 12)"
@@ -47,7 +49,7 @@ fontes:
 - Neste vídeo: o critério 12 da minha régua, documentação honesta, e três conferências que levam um minuto.
 
 ### Tela
-O README do Proffy com o link antigo. Corte para o site aberto, com um tema diferente do repositório.
+O README do Proffy com o link antigo. Corte para o site aberto, com um tema diferente do repositório. **Não mostrar o nome da conta nem o dono desse site**: é de outra pessoa. No terminal, esconder o prompt com usuário e caminho local.
 
 ## O critério 12 · 0:40–1:45
 
@@ -62,10 +64,11 @@ A linha do critério 12 no `padroes.md` do repositório engenharia.
 ## Mentira 1: o link que não abre · 1:45–3:30
 
 ### Fala
-- No AirCnC, em 01/11, os dois endereços do README estavam fora do ar. Testei duas vezes, com dois minutos de intervalo.
+- No AirCnC, em 31/10, os dois endereços do README estavam fora do ar. Testei duas vezes, com dois minutos de intervalo.
 - A correção foi tirar os links e apontar para a seção "Como executar". O deploy continuou possível: o `render.yaml` ficou no repositório.
 - Depois, em 09/11, o projeto voltou ao ar no Render, com um endereço novo para a API. Só então o link voltou ao README.
 - Conferi hoje, 12/11: os dois respondem.
+- E aqui, ao preparar este vídeo, achei uma mentira nova: o mesmo README diz no topo que o projeto está fora do ar, e mais abaixo traz os links no ar. Abri a issue 109 para corrigir. Documentação honesta é conferência contínua, não de uma vez só.
 
 ### Tela
 O PR 69 do AirCnC. Depois, o terminal com o `curl` nos dois endereços de hoje.
@@ -83,16 +86,19 @@ curl -s https://aircnc-api-45yf.onrender.com/health
 - Mas o HTML não batia com o repositório: outro tema, a biblioteca `scrollreveal`, que o meu Proffy não usa, e caminhos de arquivo que não existem aqui.
 - O nome `.onrender.com` é de quem pegou primeiro. Outra conta tinha um serviço com esse nome.
 - O link saiu do README, a correção ficou registrada no `AVALIACAO.md` e a decisão de publicar com outro nome virou issue.
-- A conferência que pega isso: comparar o `<title>` do site com o do repositório. Leva um comando.
+- O `<title>` não teria pegado: o site do outro tinha o mesmo título do meu, porque os dois nasceram do mesmo curso.
+- O que pegou foi procurar no HTML algo que só o seu projeto tem, ou que ele não tem: a biblioteca `scrollreveal` aparecia lá e não existe no meu repositório.
+- Então a regra é: o `<title>` pega a troca grosseira. Para projeto de curso, compare uma marca só sua, como a descrição da página ou o nome de um arquivo.
 
 ### Tela
-A "Correção de 06/11/2026" no `docs/AVALIACAO.md` do Proffy. Depois, o terminal comparando os dois `<title>` do Studio D, que batem.
+A "Correção de 06/11/2026" no `docs/AVALIACAO.md` do Proffy. Depois, o terminal conferindo a descrição do Studio D, que é só dele.
 
 ### Comandos
 ```bash
-# o título publicado é o mesmo do repositório?
-curl -s https://douglasabnovato.github.io/studio-d/ | grep -o "<title>[^<]*</title>"
-grep -o "<title>[^<]*</title>" index.html
+# o site tem uma marca que só o seu projeto tem?
+curl -s https://douglasabnovato.github.io/studio-d/ | grep -c "repositórios de douglasabnovato"
+# e não tem o que o seu projeto não usa? (no caso do Proffy de outra pessoa, dava 1 ou mais)
+curl -s https://proffy.onrender.com | grep -c scrollreveal
 ```
 
 ## Mentira 3: o comando que não existe · 5:30–7:00
@@ -116,7 +122,8 @@ npm run   # lista os scripts que existem de verdade
 ### Fala
 - No Studio D, um teste confere que todo link relativo do README e da pasta `docs` aponta para um arquivo que existe. Link quebrado dentro do repositório para o CI.
 - E o link do site só entrou no README depois de responder 200, com o comando e a data no `MVP.md`.
-- O que falta é o link de fora: hoje eu confiro à mão. A issue 43 propõe um job agendado, uma vez por semana, que faz o `curl` e compara o `<title>`.
+- O que falta é o link de fora: hoje eu confiro à mão. A issue 43 propõe um job agendado, uma vez por semana, que faz o `curl` e procura a marca do projeto.
+- Duas pegadinhas do agendamento: ele só roda na branch padrão, e o GitHub desliga o agendamento de um repositório público depois de 60 dias sem atividade.
 - Se o site cair ou trocar de dono, o job fica vermelho na aba Actions. Sem depender de eu lembrar.
 
 ### Tela
@@ -135,8 +142,8 @@ jobs:
       - uses: actions/checkout@v4
       - run: |
           url=https://douglasabnovato.github.io/studio-d/
-          test "$(curl -s -o /dev/null -w '%{http_code}' $url)" = 200
-          test "$(curl -s $url | grep -o '<title>[^<]*</title>')" = "$(grep -o '<title>[^<]*</title>' index.html)"
+          test "$(curl -s -o /dev/null -w '%{http_code}' "$url")" = 200
+          curl -sf "$url" | grep -q "repositórios de douglasabnovato"
 ```
 
 ## Desafio · 9:15–11:15
@@ -156,7 +163,7 @@ jobs:
 ## Para o YouTube
 
 ### Descrição
-Um link do README respondia 200 e servia o projeto de outra pessoa. Mostro o critério 12 da minha régua, documentação honesta, e três conferências de um minuto: o link responde hoje, o site é mesmo o do repositório e os comandos existem no package.json.
+Um link do README respondia 200 e servia o projeto de outra pessoa, com o mesmo título. Mostro o critério 12 da minha régua, documentação honesta, e três conferências de um minuto: o link responde hoje, o site é mesmo o do repositório e os comandos existem no package.json.
 
 Base do processo: https://github.com/douglasabnovato/engenharia
 
@@ -174,4 +181,4 @@ Base do processo: https://github.com/douglasabnovato/engenharia
 documentação, readme, github, curl, github actions, qualidade, portfólio
 
 ### Capa
-Um README com um selo verde "200 OK" e, ao lado, um site com outra cara. Texto: "Respondeu 200. Mas é o seu site?"
+Um README com um selo verde "200 OK" e, ao lado, um site com outra cara. Texto: "Respondeu 200. Mesmo título. Não era o meu site."
