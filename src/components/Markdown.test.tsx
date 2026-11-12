@@ -1,6 +1,7 @@
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { Markdown, paraHtml, urlSegura } from './Markdown';
+import { paraHtml, urlSegura } from '../lib/markdown';
+import { Markdown } from './Markdown';
 
 describe('Markdown dos roteiros', () => {
   it('escapa HTML cru', () => {
@@ -16,7 +17,7 @@ describe('Markdown dos roteiros', () => {
   });
 
   it('link javascript: vira texto; https continua link', () => {
-    const { container } = render(<Markdown texto={'[mau](javascript:alert(1)) e [bom](https://web.dev/articles/lcp)'} />);
+    const { container } = render(<Markdown html={paraHtml('[mau](javascript:alert(1)) e [bom](https://web.dev/articles/lcp)')} />);
     const links = container.querySelectorAll('a');
     expect(links).toHaveLength(1);
     expect(links[0]).toHaveAttribute('href', 'https://web.dev/articles/lcp');
