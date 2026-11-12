@@ -5,9 +5,6 @@
   descricao: Projetos que nasceram em curso e o que foi preciso para virarem produto no ar.
   matiz: 218
   planejados:
-    - titulo: "Proffy: do formulário do curso ao fluxo testado no navegador"
-      repositorio: douglasabnovato/proffy
-      resumo: Por que um teste só de API não basta para dizer que o fluxo funciona.
     - titulo: "AirCnC: tempo real com Socket.IO e token no handshake"
       repositorio: douglasabnovato/aircnc
       resumo: Web, API e mobile publicados, com o banco no Atlas e um usuário por app.
