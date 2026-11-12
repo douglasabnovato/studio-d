@@ -4,10 +4,7 @@
   nome: Do curso ao produto
   descricao: Projetos que nasceram em curso e o que foi preciso para virarem produto no ar.
   matiz: 218
-  planejados:
-    - titulo: "Be The Hero: dados pessoais num projeto de estudo"
-      repositorio: douglasabnovato/be-the-hero
-      resumo: O que fazer quando o banco versionado tem e-mail e WhatsApp de verdade.
+  planejados: []
 
 - id: os-12-criterios
   nome: Os 12 critérios
