@@ -24,6 +24,18 @@ const MODULO = 'virtual:roteiros';
 function roteiros(): Plugin {
   return {
     name: 'roteiros',
+    // No dev, roteiro novo ou apagado recarrega a página (o addWatchFile só cobre os que já existiam).
+    configureServer(server) {
+      const raiz = join(process.cwd(), 'roteiros');
+      const mudou = (arquivo: string) => {
+        if (!arquivo.startsWith(raiz) || !arquivo.endsWith('.md')) return;
+        const modulo = server.moduleGraph.getModuleById('\0' + MODULO);
+        if (modulo) server.moduleGraph.invalidateModule(modulo);
+        server.ws.send({ type: 'full-reload' });
+      };
+      server.watcher.on('add', mudou);
+      server.watcher.on('unlink', mudou);
+    },
     resolveId(id) {
       return id === MODULO ? '\0' + MODULO : undefined;
     },
