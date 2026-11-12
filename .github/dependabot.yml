@@ -9,3 +9,8 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Um PR só por rodada para todas as Actions (#24).
+    groups:
+      actions:
+        patterns:
+          - "*"
