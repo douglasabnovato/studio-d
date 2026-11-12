@@ -24,12 +24,14 @@ Fluxo de um roteiro, do estudo ao merge na sprint:
 
 ## Regras de fato (aprendidas nos roteiros 2 e 3)
 
+- **O commit certo.** O código "de antes" está no pai do commit que mudou. Confira com `git show <commit>^:<arquivo>`.
+
 - **Saída real de comando.** Mostre o que a ferramenta imprime de verdade: o `node --test` termina com `# pass 11`, não com "11 passed".
 - **Só o que o registro mostra.** Se o axe rodou em 4 telas, diga 4 telas, e não "em cada tela".
 - **Esboço não é código do repositório.** Código que ainda não existe leva o rótulo "esboço para a issue N", com os imports e o que falta.
 - **Estado honesto.** Se o `MVP.md` do repositório diverge da régua, o roteiro diz isso e a divergência vira comentário na issue de origem.
 - **Fonte na principal.** Prefira links para a branch principal. Se o conteúdo só existe numa sprint, diga isso no PR.
-- **Segredo no histórico.** Código antigo com senha ou URI aparece só no trecho necessário, e a linha do segredo vai **borrada na edição**. Nunca copie a credencial no roteiro, no PR ou na revisão.
+- **Segredo no histórico.** Código antigo com senha ou URI aparece só no trecho necessário, e a linha do segredo vai **borrada na edição**. Nunca copie a credencial no roteiro, no PR ou na revisão. Não use como fonte, nem abra na gravação, a página de um commit cujo diff mostra o segredo: mostre um recorte preparado, sem a linha.
 
 ## Como falar
 
