@@ -15,7 +15,7 @@ Cada roteiro tem duas issues: uma no `studio-d` (escrever o roteiro) e uma no re
 
 Fluxo de um roteiro, do estudo ao merge na sprint:
 
-1. **Estudar:** clone novo do repositório de origem; README, `docs/MVP.md`, plano, testes, PRs mesclados e issues abertas. Conferir o link publicado com `curl` e comparar o `<title>` com o repositório.
+1. **Estudar:** clone novo do repositório de origem; README, `docs/MVP.md`, plano, testes, PRs mesclados e issues abertas. Conferir o link publicado com `curl` e procurar no HTML uma marca que só o projeto tem (o `<title>` não basta: clones do mesmo curso repetem o título).
 2. **Escolher a história:** um antes e depois real, achado no histórico (commit ou PR), e uma issue aberta para a "Melhoria".
 3. **Escrever** no modelo, com as fontes conferidas (`curl` em cada link).
 4. **Validar:** `npx vitest run` e `npm run build`.
