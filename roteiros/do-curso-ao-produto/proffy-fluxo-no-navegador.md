@@ -53,7 +53,7 @@ fontes:
 - Neste vídeo: o que um teste de API cobre, o que ele não vê, e como percorrer o fluxo no navegador com Playwright e axe.
 
 ### Tela
-Terminal com `npm test` passando, 11 de 11. Corte para a tela de busca com o título quebrado uma palavra por linha.
+Terminal com `npm test` passando: `# pass 11`. Corte para a tela de busca com o título quebrado uma palavra por linha.
 
 ## O projeto · 0:40–2:00
 
@@ -81,7 +81,9 @@ README do Proffy: a frase do problema e a seção "Stack". Depois, o `docs/MVP.m
 ### Comandos
 ```bash
 npm ci
-npm test
+npm test   # o node --test termina com "# pass 11"
+# no Windows com Node 24, o better-sqlite3 11 não compila; o registro do MVP usou:
+# npm ci --ignore-scripts && npm i --no-save better-sqlite3@12
 ```
 
 ## O que um teste de API não vê · 3:45–5:15
@@ -108,14 +110,14 @@ Linha do critério 3 em `padroes.md` do repositório engenharia. Depois, a pági
 - Passos 5 e 6: quarta às 15:00 acha; quarta às 18:00 não acha, porque o fim do intervalo é exclusivo.
 - Passo 7: "Entrar em contato" abre o WhatsApp com o texto da aula.
 - Passo 8: de volta à inicial, "Total de 1 conexão realizada".
-- Em cada tela o axe roda e procura problemas de acessibilidade. E no fim, Tab na busca e largura de 375 pixels: foco visível e sem rolagem horizontal.
+- O axe rodou nas telas de início, cadastro, sucesso e busca, procurando problemas de acessibilidade. E no fim, Tab na busca e largura de 375 pixels: foco visível e sem rolagem horizontal.
 
 ### Tela
 A tabela "Fluxo percorrido na tela" do `docs/PLANO-DE-ACAO.md`. Em paralelo, a gravação do navegador fazendo cada passo.
 
 ### Comandos
 ```bash
-# servidor com um banco novo; o roteiro de tela do dia 09/11 rodou contra ele
+# servidor com um banco novo (o caminho é exemplo; o registro de 09/11 diz só "banco novo")
 PORT=5578 DATABASE_FILE=tmp/fluxo.sqlite npm start
 ```
 
@@ -137,21 +139,24 @@ Antes e depois da tela de busca. Depois, o commit `8c48062` no GitHub, com a reg
 - Hoje o fluxo na tela roda na minha máquina, e o registro está no plano. Isso é melhor que nada, mas não protege o próximo PR.
 - A issue 33 do Proffy pede o passo seguinte: rodar esse fluxo no CI, com o axe, a cada PR.
 - O Playwright tem a opção `webServer`: ele sobe o `npm start` antes dos testes e espera a porta responder.
-- O banco precisa ser novo a cada execução. Por isso o caminho do SQLite vai por variável de ambiente.
-- O link do WhatsApp sai para a internet. No teste, o certo é conferir o endereço do link, não seguir o redirecionamento.
-- Quando isso entrar, o critério 3 terá a evidência que a régua pede: teste de ponta a ponta no navegador passando no CI.
+- O banco precisa ser novo a cada execução. O caminho do SQLite vai por variável de ambiente, com um nome diferente a cada execução.
+- O botão de contato chama a rota `/contact/:id`, que conta a conexão e redireciona para o WhatsApp. No teste, o certo é conferir o cabeçalho `Location` da resposta, sem sair para a internet.
+- Um detalhe honesto: o `MVP.md` do Proffy marca o critério 3 como Atende, com a evidência local de 09/11. Pela régua, que pede o teste no navegador passando no CI, ele é Parcial até a issue 33 entrar.
 
 ### Tela
 Issue 33 do Proffy aberta. Depois, a página do `webServer` na documentação do Playwright.
 
 ### Comandos
 ```ts
-// playwright.config.ts (proposta da issue 33)
+// playwright.config.ts (esboço para a issue 33; o Playwright ainda não está no projeto)
+import { defineConfig } from '@playwright/test';
+
 export default defineConfig({
   webServer: {
     command: 'npm start',
     url: 'http://localhost:5578',
-    env: { PORT: '5578', DATABASE_FILE: 'tmp/e2e.sqlite' },
+    // nome novo a cada execução: o banco sempre começa vazio
+    env: { PORT: '5578', DATABASE_FILE: `tmp/e2e-${Date.now()}.sqlite` },
   },
 });
 ```
@@ -192,4 +197,4 @@ Repositório: https://github.com/douglasabnovato/proffy
 testes, playwright, axe, acessibilidade, node, express, supertest, ponta a ponta
 
 ### Capa
-À esquerda, um terminal com "11 passed" em verde. À direita, a tela de busca com o título quebrado em várias linhas e um alerta em vermelho. Texto: "Verde no teste. Quebrado na tela."
+À esquerda, um terminal com "# pass 11" em verde. À direita, a tela de busca com o título quebrado em várias linhas e um alerta em vermelho. Texto: "Verde no teste. Quebrado na tela."
