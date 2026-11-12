@@ -21,3 +21,6 @@ Comece pelo [README do repositório](../README.md). Aqui está o mapa do resto.
 
 ## Processo
 - [Como trabalhamos](processo/como-trabalhamos.md): do objetivo às issues, do commit ao PR, da sprint à `main`.
+
+## Relatórios
+- [12/11/2026](relatorios/2026-11-12.md): estado, o que falta e de quem, e propostas de melhoria.
