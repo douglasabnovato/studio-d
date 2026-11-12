@@ -10,10 +10,7 @@
   nome: Os 12 critérios
   descricao: A régua que uso em todo repositório, um critério por episódio, com exemplos reais.
   matiz: 196
-  planejados:
-    - titulo: "Critério 12: documentação honesta"
-      repositorio: douglasabnovato/engenharia
-      resumo: README conferido contra o package.json e link publicado só se responder hoje.
+  planejados: []
 
 - id: engenharia-com-ia
   nome: Engenharia com IA
