@@ -26,8 +26,6 @@ fontes:
     url: https://github.com/douglasabnovato/aircnc/blob/master/backend/tests/api.test.js
   - titulo: "AirCnC: render.yaml"
     url: https://github.com/douglasabnovato/aircnc/blob/master/render.yaml
-  - titulo: "AirCnC commit 60e11d3: versão nova da API"
-    url: https://github.com/douglasabnovato/aircnc/commit/60e11d3b3d5bd0bc6fc551db2bb8e6264d22274c
   - titulo: "AirCnC PR #99: fluxo na tela e aprovação em dobro"
     url: https://github.com/douglasabnovato/aircnc/pull/99
   - titulo: "AirCnC PR #103: endereço real da API no Render"
@@ -68,15 +66,15 @@ README do AirCnC na seção "Projeto". Depois, as três pastas do repositório: 
 ## Como era no curso · 2:00–4:00
 
 ### Fala
-- Este é o servidor antes da versão nova, no commit `60e11d3`.
+- Este é o servidor do curso, no commit `6c6d1c2`, o último antes da versão nova.
 - Na conexão, o servidor lia o `user_id` da URL do socket e guardava num objeto: este id está neste socket.
 - Para avisar a empresa, a rota procurava o socket pelo id do dono do spot e emitia o evento.
-- O problema: o `user_id` vinha do navegador. Pela leitura do código, quem abrisse a conexão com o id de outra empresa passava a ocupar o lugar dela no objeto e a receber os pedidos dela.
+- O problema: o `user_id` vinha do navegador. Pela leitura do código, quem abrisse a conexão com o id de outra empresa passava a ocupar o lugar dela no objeto e a receber os pedidos dela. Com as respostas para o dev acontecia o mesmo.
 - A análise de segurança do projeto registrou dois achados parecidos: o `user_id` no cabeçalho deixava agir como qualquer um, e a senha do banco estava escrita no código.
 - Um aviso importante: na tela, a linha da conexão com o banco aparece borrada. Uma senha que foi para o Git continua no histórico, mesmo depois de apagada. O certo é apagar o usuário no Atlas, e isso está no `DEPLOY.md`.
 
 ### Tela
-O `server.js` antigo no commit `60e11d3`, só com o trecho do `connectedUsers` e do `socket.handshake.query`. A linha do `mongoose.connect` fica **borrada na edição**. Depois, a tabela de achados do `docs/ANALISE.md`.
+Um recorte preparado do `server.js` do commit `6c6d1c2`, só com o trecho do `connectedUsers` e do `socket.handshake.query`, sem a linha do `mongoose.connect`. **Não abrir no GitHub a página do commit `60e11d3` nem o arquivo antigo**: o diff mostra a credencial em vermelho. Depois, a tabela de achados do `docs/ANALISE.md`.
 
 ## A versão nova: token no handshake · 4:00–7:00
 
@@ -136,7 +134,7 @@ npm run demo
 - Ainda tem um buraco, e ele está registrado na issue 93.
 - O token vale sete dias. Mas o servidor só confere o token na hora de conectar.
 - Uma conexão que fica aberta continua recebendo eventos mesmo depois que o token venceu.
-- O caminho: guardar a data de validade do token no socket e desconectar quando ela passar. No painel, quem for desconectado por isso volta para o login.
+- O caminho: ler a validade do token na conexão e agendar a desconexão para quando ela passar, limpando o agendamento se a pessoa sair antes. No painel, quem for desconectado por isso volta para o login.
 - E o teste: um token com validade curta, e a conferência de que a conexão cai.
 
 ### Tela
@@ -146,10 +144,18 @@ Issue 93 do AirCnC. Depois, a página de middlewares da documentação do Socket
 ```js
 // esboço para a issue 93: desconectar quando o token vencer
 io.use((socket, next) => {
-  const { sub, exp } = jwt.verify(token, config.authSecret);
-  socket.data.userId = sub;
-  setTimeout(() => socket.disconnect(true), exp * 1000 - Date.now());
-  next();
+  try {
+    const token = String(socket.handshake.auth?.token || "");
+    const { sub, exp } = jwt.verify(token, config.authSecret);
+    socket.data.userId = sub;
+    // o setTimeout aceita no máximo cerca de 24,8 dias
+    const ms = Math.min(exp * 1000 - Date.now(), 2 ** 31 - 1);
+    const timer = setTimeout(() => socket.disconnect(true), ms);
+    socket.on("disconnect", () => clearTimeout(timer));
+    return next();
+  } catch {
+    return next(new Error("unauthorized"));
+  }
 });
 ```
 
