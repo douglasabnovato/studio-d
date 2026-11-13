@@ -29,9 +29,6 @@
   descricao: Hipótese, métrica, conversa com pessoas e decisão escrita, nos meus produtos.
   matiz: 210
   planejados:
-    - titulo: "Hipótese com meta: como escrever e como medir"
-      repositorio: douglasabnovato/movies
-      resumo: A aposta da chegada ao detalhe do filme e a medição sem cookie.
     - titulo: "Painel de Formação: ativação numa comunidade"
       repositorio: learnTECH-community/formacao-dev
       resumo: Quem conclui o primeiro item do catálogo, e como saber.
