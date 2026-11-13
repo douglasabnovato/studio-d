@@ -16,10 +16,7 @@
   nome: Engenharia com IA
   descricao: Como trabalho com agentes de IA no portfólio, com o que deu certo e o que deu errado.
   matiz: 232
-  planejados:
-    - titulo: "Seis fases de um projeto novo, com portões"
-      repositorio: douglasabnovato/engenharia
-      resumo: Enquadrar, descobrir, esqueleto no ar, construir, validar e operar.
+  planejados: []
 
 - id: uma-tela-seis-telas
   nome: Uma tela, seis telas
