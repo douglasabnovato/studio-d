@@ -23,9 +23,6 @@
   descricao: O mesmo produto redesenhado para celular, tablet, desktop, TV, carro e relógio.
   matiz: 204
   planejados:
-    - titulo: "Movies na TV: a interface vista a três metros"
-      repositorio: douglasabnovato/movies
-      resumo: Navegar só com o controle remoto, com o foco sempre visível.
     - titulo: "Catálogo de açaí no celular: pedido com uma mão"
       repositorio: douglasabnovato/catalogo-acai
       resumo: Alvo de toque, fluxo curto e o pedido pelo WhatsApp.
