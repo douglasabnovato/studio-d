@@ -14,6 +14,7 @@ Comece pelo [README do repositório](../README.md). Aqui está o mapa do resto.
   - [ADR-002: roteiro em Markdown no repositório](adr/002-roteiro-em-markdown.md)
   - [ADR-003: site estático, sem dados pessoais](adr/003-site-estatico-sem-dados-pessoais.md)
   - [ADR-004: movimento reduzido e a abertura](adr/004-movimento-e-abertura.md)
+  - [ADR-005: a Fase 1 sem as cinco pessoas](adr/005-fase-1-sem-entrevistas.md)
 
 ## Conteúdo
 - [Como escrever um roteiro](como-escrever-um-roteiro.md): formato, regras e checklist de gravação.

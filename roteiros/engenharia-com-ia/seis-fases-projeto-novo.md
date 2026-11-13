@@ -10,7 +10,7 @@ pre_requisitos:
   - Saber o que é um PR e um CI
 objetivo: Ao final, a pessoa conhece as seis fases com portões do meu processo, de onde cada uma veio, e sabe dizer em que portão o projeto dela está parado.
 situacao: rascunho
-resumo: "Depois de levar 39 repositórios a MVP, escrevi o caminho para um projeto novo: seis fases, cada uma com uma pergunta de sim ou não. Mostro de onde elas vieram e em que portão o próprio Studio D parou."
+resumo: "Depois de levar 39 repositórios a MVP, escrevi o caminho para um projeto novo: seis fases: cinco terminam com uma pergunta de sim ou não, e a última é contínua. Mostro de onde elas vieram e em que portão o próprio Studio D parou."
 fontes:
   - titulo: "Engenharia: processo por repositório (seção Projeto novo: seis fases)"
     url: https://github.com/douglasabnovato/engenharia/blob/developer/sprint-2026-11-12/ia/processo-repositorio.md
@@ -24,6 +24,8 @@ fontes:
     url: https://github.com/douglasabnovato/studio-d/blob/main/docs/PLANO-DE-ACAO.md
   - titulo: "Studio D: .github/workflows/ci.yml (publicar depois de verificar e e2e)"
     url: https://github.com/douglasabnovato/studio-d/blob/main/.github/workflows/ci.yml
+  - titulo: "Studio D: ADR-005, a Fase 1 sem as cinco pessoas"
+    url: https://github.com/douglasabnovato/studio-d/blob/developer/sprint-2026-11-19/docs/adr/005-fase-1-sem-entrevistas.md
   - titulo: "Studio D issue #4: conta de medição"
     url: https://github.com/douglasabnovato/studio-d/issues/4
   - titulo: "Cooper (1990): Stage-gate systems, Business Horizons"
@@ -36,7 +38,7 @@ fontes:
     url: https://www.producttalk.org/continuous-discovery-habits/
   - titulo: "Continuous Delivery (Humble; Farley)"
     url: https://continuousdelivery.com/
-  - titulo: "DORA: as quatro métricas"
+  - titulo: "DORA: as métricas de entrega (quatro originais e a quinta)"
     url: https://dora.dev/guides/dora-metrics-four-keys/
 ---
 
@@ -45,7 +47,7 @@ fontes:
 ### Fala
 - Quase todo projeto meu começou pelo código. A métrica, a hospedagem e os dados pessoais ficavam para o fim.
 - Quando levei 39 repositórios a MVP, foi exatamente no fim que tudo travou.
-- Então escrevi o caminho ao contrário para o próximo projeto: seis fases, e cada uma termina com uma pergunta de sim ou não.
+- Então escrevi o caminho ao contrário para o próximo projeto: seis fases. As cinco primeiras terminam com uma pergunta de sim ou não. A última é contínua.
 - Neste vídeo: as seis fases, de onde cada uma veio, e o portão em que o meu projeto mais novo parou.
 
 ### Tela
@@ -62,7 +64,7 @@ A tabela "Projeto novo: seis fases" no `ia/processo-repositorio.md` do repositó
 - Cada erro virou uma regra: `MVP.md` no primeiro dia, contas e esqueleto no ar logo cedo, LGPD antes do primeiro commit e toda issue com critérios.
 
 ### Tela
-O parágrafo "Lições que geraram essas fases" no `processo-repositorio.md`. Depois, as linhas dos 4 repositórios e 12 issues e das 117 de 179 em `aprendizados.md`.
+O parágrafo "Lições que geraram essas fases" no `processo-repositorio.md`. Depois, as linhas dos 4 repositórios e 12 issues e das 117 de 179 em `aprendizados.md`. **Não abrir na tela a decisão de 10/11**: ela é fonte do número 15, mas cita e-mails e o nome de uma pessoa em outras linhas.
 
 ## Portões, não etapas · 2:45–4:00
 
@@ -91,7 +93,7 @@ As linhas das fases 0 e 1 da tabela. Depois, as páginas do Lean UX e do livro d
 ### Fala
 - Fase 2, fundar, numa sprint. É a mais importante para mim, porque ataca o gargalo.
 - O portão: um commit na principal chega ao site sem passo manual, e a medição já registra visitas?
-- É o esqueleto ambulante, de Alistair Cockburn: a menor versão que liga todas as pontas, do código ao ar, antes de qualquer funcionalidade.
+- É o esqueleto ambulante, de Alistair Cockburn: a menor versão que faz uma função pequena de ponta a ponta e liga as partes principais, do código ao ar.
 - Conta, hospedagem, CI e medição entram aqui. Se algo depende de uma conta que só eu crio, aparece na primeira semana, não na última.
 
 ### Tela
@@ -102,24 +104,25 @@ A linha da fase 2 na tabela. Depois, a página do Walking Skeleton.
 ### Fala
 - Fase 3, construir, em sprints de uma semana. O portão: o fluxo principal funciona no site publicado, e uma pessoa o conclui sem ajuda?
 - Fase 4, validar e decidir. A métrica atingiu a meta? Se não, a mudança de rumo está escrita? Não atingir a meta é resultado. Não escrever o que muda é que é falha.
-- Fase 5, operar e evoluir, contínua: Dependabot semanal, revisão mensal do backlog e as métricas DORA.
-- As métricas DORA medem a entrega: com que frequência se publica, quanto tempo um commit leva até o ar, quantas mudanças falham e quanto tempo leva para recuperar.
+- Fase 5, operar e evoluir. Ela é contínua e não tem pergunta: tem uma rotina. Dependabot semanal, revisão mensal do backlog e as métricas DORA.
+- As métricas DORA medem a entrega. As quatro originais: com que frequência se publica, quanto tempo um commit leva até o ar, quantas mudanças falham e quanto tempo leva para recuperar de um deploy que falhou.
+- Hoje o DORA usa cinco. A quinta é a taxa de retrabalho: quantos deploys foram feitos às pressas por causa de um incidente.
 
 ### Tela
-As linhas das fases 3, 4 e 5 da tabela. Depois, a página das quatro métricas no site do DORA.
+As linhas das fases 3, 4 e 5 da tabela. Depois, a página das métricas no site do DORA.
 
 ## O Studio D nos portões · 9:30–11:45
 
 ### Fala
 - O Studio D, este site de roteiros, é o primeiro projeto que nasceu depois das fases. Vamos passar por elas, com honestidade.
 - Fase 0: passou. O problema está numa frase no README, e a hipótese tem meta: 4 vídeos publicados em 30 dias depois do primeiro.
-- Fase 1: não fiz. O público sou eu, que gravo os vídeos. Não houve 5 pessoas para ouvir. É um risco aceito, e o portão diz isso claramente.
-- Fase 2: meio portão. O `MVP.md` foi criado em 11/11, no mesmo dia do primeiro commit e no mesmo PR do primeiro código. Um commit na `main` vai ao ar sozinho, mas só depois de os jobs `verificar` e `e2e` passarem. Só que a medição de visitas ainda não existe: depende da conta, que é a issue 4.
+- Fase 1: não fiz. O público sou eu, que gravo os vídeos. Não houve 5 pessoas para ouvir. A resposta do portão é não, e eu registrei numa decisão escrita, a ADR 5, que segui como risco aceito.
+- Fase 2: meio portão. O `MVP.md` foi criado em 11/11, no mesmo dia do primeiro commit e no mesmo PR do primeiro código. Ligar o Pages foi um passo único, feito uma vez. Depois disso, um commit na `main` vai ao ar sozinho, mas só depois de os jobs `verificar` e `e2e` passarem. Só que a medição de visitas ainda não existe: depende da conta, que é a issue 4.
 - Pela regra, o portão da fase 2 ainda é "não". E isso me diz exatamente o que fazer antes de cobrar a fase 4: sem medição, não vou saber se a meta foi atingida.
 - Fase 5: o Dependabot já roda toda semana.
 
 ### Tela
-O README e o `docs/MVP.md` do Studio D, na linha "Criado em 11/11/2026". Depois, o job `publicar` no `ci.yml`, com o `needs` de `verificar` e `e2e`. Por fim, a issue 4.
+O README e o `docs/MVP.md` do Studio D, na linha "Criado em 11/11/2026". Depois, a ADR 5. Depois, o job `publicar` no `ci.yml`, com o `needs` de `verificar` e `e2e`. Por fim, a issue 4.
 
 ## Desafio · 11:45–12:30
 
@@ -139,7 +142,7 @@ O README e o `docs/MVP.md` do Studio D, na linha "Criado em 11/11/2026". Depois,
 ### Descrição
 Seis fases para um projeto novo, cada uma com um portão de sim ou não: enquadrar, descobrir, esqueleto no ar, construir, validar e operar. Mostro os quatro erros do meu portfólio que geraram essas fases, as referências de cada uma (Stage-Gate, Lean UX, descoberta contínua, esqueleto ambulante e DORA) e o portão em que o meu projeto mais novo parou.
 
-Base do processo: https://github.com/douglasabnovato/engenharia
+Base do processo: https://github.com/douglasabnovato/engenharia/blob/developer/sprint-2026-11-12/ia/processo-repositorio.md (troque pelo link da `main` depois do merge da sprint)
 
 ### Capítulos
 0:00 Gancho
