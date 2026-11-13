@@ -1,5 +1,5 @@
 import type { Episodio } from '../lib/catalogo';
-import { SITUACOES } from '../lib/roteiro';
+import { SITUACOES } from '../lib/tipos';
 import { Capa } from './Capa';
 
 interface Props {

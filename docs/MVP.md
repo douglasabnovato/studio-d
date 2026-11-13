@@ -12,7 +12,7 @@
 
 | # | Critério | Situação em 11/11/2026 |
 |---|---|---|
-| 1 | Problema e público claros | Atende: "um lugar para abrir e gravar os roteiros dos vídeos feitos a partir dos meus repositórios" (README) |
+| 1 | Problema e público claros | Atende: "Os roteiros dos meus vídeos, prontos para gravar." (README; citação acertada em 12/11/2026) |
 | 2 | Hipótese a validar | Atende: "acreditamos que roteiros em blocos, com teleprompter e checklist, farão o autor gravar um vídeo por semana; saberemos quando houver 4 vídeos publicados em 30 dias depois do primeiro" (`PLANO-DE-ACAO.md`) |
 | 3 | Fluxo principal completo | Atende: job `e2e`, CI do PR #1, execução 43089905329, 11/11/2026: 10 passaram e 2 pulados de propósito (o fluxo de teclado roda só nos projetos de desktop, escuro e claro). O fluxo vai do card à janela, ao roteiro, ao checklist e ao teleprompter, no navegador |
 | 4 | Escopo enxuto | Atende: seção "Fora do MVP" abaixo |

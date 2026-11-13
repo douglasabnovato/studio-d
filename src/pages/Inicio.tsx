@@ -6,7 +6,7 @@ import { Fileira } from '../components/Fileira';
 import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import { destaque, type Catalogo, type Episodio } from '../lib/catalogo';
-import { SITUACOES } from '../lib/roteiro';
+import { SITUACOES } from '../lib/tipos';
 
 export function Inicio({ catalogo }: { catalogo: Catalogo }) {
   const [busca, setBusca] = useState('');

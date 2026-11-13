@@ -5,7 +5,7 @@ import { Markdown } from '../components/Markdown';
 import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import type { Catalogo } from '../lib/catalogo';
-import { SITUACOES } from '../lib/roteiro';
+import { SITUACOES } from '../lib/tipos';
 
 function Copiar({ texto, nome }: { texto: string; nome: string }) {
   const [aviso, setAviso] = useState('');
@@ -106,17 +106,17 @@ export function RoteiroPagina({ catalogo }: { catalogo: Catalogo }) {
                   </span>
                 </h2>
                 <h3>Fala</h3>
-                <Markdown texto={b.fala} />
+                <Markdown html={b.html?.fala} />
                 {b.tela && (
                   <>
                     <h3>Tela</h3>
-                    <Markdown texto={b.tela} />
+                    <Markdown html={b.html?.tela} />
                   </>
                 )}
                 {b.comandos && (
                   <>
                     <h3>Comandos</h3>
-                    <Markdown texto={b.comandos} />
+                    <Markdown html={b.html?.comandos} />
                   </>
                 )}
               </section>
