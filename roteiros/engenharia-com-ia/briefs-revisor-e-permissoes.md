@@ -47,7 +47,7 @@ fontes:
 - Neste vídeo, uma de cada vez, com o que deu errado.
 
 ### Tela
-O `README.md` do repositório engenharia. Depois, a tabela de contexto da decisão de 10/11, com "39 repositórios, 340 de 419 critérios", e o resultado do mesmo dia, com 368.
+O `README.md` do repositório engenharia. Depois, a lista de contexto da decisão de 10/11, com "39 repositórios, 340 de 419 critérios", e o resultado do mesmo dia, com 368.
 
 ## Quatro papéis · 0:45–2:30
 
@@ -78,7 +78,7 @@ O `ia/briefs/ciclo-curto.md`, rolando do "Leia antes" até a "Resposta final". D
 
 ### Fala
 - Cada agente responde em dois blocos por repositório: um de início e um de fim.
-- O de fim traz os critérios antes e depois, os PRs, as issues novas, o resumo dos testes, o que espera a minha revisão e os desvios.
+- O de fim traz os critérios antes e depois, os PRs, as issues novas, o resumo dos testes, se o repositório está finalizado, o que espera a minha revisão, o que depende de mim e os desvios.
 - O coordenador lê só esses blocos. A regra é dura de propósito: o que não está no bloco não existe.
 - Isso obriga o agente a declarar o que não deu certo, em vez de deixar escondido num parágrafo.
 
@@ -93,7 +93,7 @@ O bloco "▶ INÍCIO / ■ FIM" do `ia/como-trabalhamos.md`.
 - O motivo está numa frase do processo: um revisor que conhece a intenção tende a confirmá-la. Por isso ele recebe o diff, não a conclusão.
 - Um exemplo do próprio Studio D. No roteiro do AirCnC, eu tinha escrito que o código antigo estava num certo commit. O revisor, conferindo contra o repositório, achou duas coisas: o commit certo era outro, e o diff do que eu tinha citado mostrava a credencial antiga do banco. O vídeo teria posto uma senha na tela.
 - No roteiro do critério 12, eu ia ensinar a conferir um site comparando o título da página. O revisor apontou que o site de outra pessoa tinha o mesmo título do meu Proffy. A conferência que eu ia ensinar não pegaria o caso que eu ia contar.
-- De 5 a 6 achados por roteiro, todos tratados antes do merge. Cada PR lista os achados.
+- Nos roteiros 3 a 7, de 5 a 6 achados por roteiro, todos tratados antes do merge. Cada PR lista os achados.
 
 ### Tela
 A seção "Revisor independente" do `ia/como-trabalhamos.md`. Depois, a seção "Revisão independente de fatos" dos PRs 39 e 44 do Studio D. **Não abrir nem clicar nos commits `6c6d1c2` e `60e11d3` do AirCnC**, cujos hashes aparecem no PR 39: um deles mostra a credencial.
@@ -101,11 +101,12 @@ A seção "Revisor independente" do `ia/como-trabalhamos.md`. Depois, a seção 
 ## Permissões que dizem não · 9:15–11:45
 
 ### Fala
-- O agente roda com um classificador de permissões. Antes de ações como comandos e chamadas de rede, ele decide se elas passam.
-- Algumas ações foram negadas e assim ficaram. O merge da feature na sprint foi negado em parte dos repositórios, como "merge sem revisão", e passou em outros.
-- Apagar branch remota: negado. Mesclar PR do Dependabot: negado. Ligar o GitHub Pages pela API foi negado ao coordenador como "publicar site novo", mesmo com a minha autorização geral. Criar o ruleset pela mesma API passou.
+- O agente roda com um classificador de permissões, que decide se cada ação passa.
+- Algumas ações foram negadas e assim ficaram. O merge da feature na sprint foi negado em parte dos repositórios, como "Merge Without Review", merge sem revisão, e passou em outros.
+- Apagar branch remota: negado. Mesclar PR do Dependabot: negado. Ligar o GitHub Pages pela API foi negado ao coordenador como "publicar site novo", mesmo com a minha autorização geral. Criar workflow agendado de publicação: negado. Criar o ruleset pela mesma API passou.
 - A regra para tudo isso é uma só: se uma ação for bloqueada, não contornar. Registrar no relatório, abrir issue se for o caso e seguir para o próximo repositório.
 - E tem o que é proibido pelo processo, mesmo quando a ferramenta deixa. Force push, inclusive com `--force-with-lease`. Em 09/11, um agente usou por engano. Foi um avanço simples e nada se perdeu, mas virou desvio registrado na decisão do dia e a regra foi reforçada.
+- Até 12/11, essa proibição era só texto. Desde 13/11, há um hook que recusa o comando antes de rodar. Ligá-lo na máquina é uma configuração minha, na issue 17 do engenharia.
 - Uma lição da decisão de 09/11: regra explícita sobre produção vence instrução geral de autonomia.
 
 ### Tela
@@ -115,7 +116,7 @@ A tabela "Limites e permissões" do `ia/como-trabalhamos.md`. Depois, a seção 
 
 ### Fala
 - Merge na principal, contas, senhas, tokens e hospedagem ficam comigo.
-- A proteção da branch é decisão minha. Em 10/11, eu deleguei ao coordenador a regra de checks no ruleset, e ele aplicou pela API. A decisão ficou escrita, com o caminho para desfazer.
+- A proteção da branch é decisão minha. Em 10/11, eu deleguei as decisões do ciclo. O coordenador decidiu exigir os checks no ruleset e aplicou pela API nos 38 repositórios. A decisão ficou escrita, com o caminho para desfazer.
 - Revogar credencial vazada e reescrever histórico também.
 - E o conteúdo que só eu sei: metas, depoimentos, números publicados.
 - Tudo isso vira issue com o rótulo `depende-do-responsavel`, com o passo a passo de onde clicar. O agente prepara, eu decido.
@@ -126,11 +127,11 @@ A seção "O que fica com o responsável" do `ia/como-trabalhamos.md`.
 ## Melhoria: revisor de fatos também para documentos · 12:45–13:30
 
 ### Fala
-- Hoje, no processo, o revisor independente olha código. Os achados dos roteiros mostram que texto precisa da mesma coisa: data, commit, comando e o que aparece na tela.
+- Desde 13/11, o engenharia tem um agente revisor de fatos e uma skill para isso. Mas o `como-trabalhamos.md`, que guia os ciclos, ainda só fala do revisor de código. Os achados dos roteiros mostram que texto precisa da mesma coisa: data, commit, comando e o que aparece na tela.
 - A issue 9 do repositório engenharia, ainda aberta, propõe levar a revisão de fatos para documentos, relatórios e roteiros, como já está no guia de roteiro do Studio D.
 
 ### Tela
-A issue 9 do repositório engenharia. Depois, o passo 8 do `docs/como-escrever-um-roteiro.md` do Studio D.
+O arquivo `.claude/agents/revisor-de-fatos.md` do engenharia. Depois, a issue 9. Por fim, o passo 8 do `docs/como-escrever-um-roteiro.md` do Studio D.
 
 ## Desafio · 13:30–13:50
 

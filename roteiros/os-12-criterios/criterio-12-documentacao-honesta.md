@@ -18,7 +18,7 @@ fontes:
     url: https://github.com/douglasabnovato/engenharia/blob/developer/sprint-2026-11-12/ia/aprendizados.md
   - titulo: "Proffy: docs/AVALIACAO.md (correção de 06/11/2026)"
     url: https://github.com/douglasabnovato/proffy/blob/developer/sprint-2026-11-12/docs/AVALIACAO.md
-  - titulo: "Proffy PR #25: o link de outro projeto sai do README"
+  - titulo: "Proffy PR #25: ciclo de 03/11, que tira do README o link de outro projeto"
     url: https://github.com/douglasabnovato/proffy/pull/25
   - titulo: "AirCnC PR #69: retira do README os endereços fora do ar"
     url: https://github.com/douglasabnovato/aircnc/pull/69
@@ -67,8 +67,8 @@ A linha do critério 12 no `padroes.md` do repositório engenharia.
 - No AirCnC, em 31/10, os dois endereços do README estavam fora do ar. Testei duas vezes, com dois minutos de intervalo.
 - A correção foi tirar os links e apontar para a seção "Como executar". O deploy continuou possível: o `render.yaml` ficou no repositório.
 - Depois, em 09/11, o projeto voltou ao ar no Render, com um endereço novo para a API. Só então o link voltou ao README.
-- Conferi hoje, 12/11: os dois respondem.
-- E aqui, ao preparar este vídeo, achei uma mentira nova: o mesmo README diz no topo que o projeto está fora do ar, e mais abaixo traz os links no ar. Abri a issue 109 para corrigir. Documentação honesta é conferência contínua, não de uma vez só.
+- Conferi de novo em 15/11: os dois respondem 200. No dia da gravação, rodo o `curl` outra vez.
+- E aqui, ao preparar este vídeo, achei uma mentira nova: o mesmo README diz no topo que o projeto está fora do ar, e mais abaixo traz os links no ar. Abri a issue 109. A correção está no PR 110, já na sprint, e chega à `master` quando eu mesclar a sprint. Documentação honesta é conferência contínua, não de uma vez só.
 
 ### Tela
 O PR 69 do AirCnC. Depois, o terminal com o `curl` nos dois endereços de hoje.
@@ -84,8 +84,8 @@ curl -s https://aircnc-api-45yf.onrender.com/health
 ### Fala
 - Este é o caso do gancho. Em 06/11, `proffy.onrender.com` respondia 200.
 - Mas o HTML não batia com o repositório: outro tema, a biblioteca `scrollreveal`, que o meu Proffy não usa, e caminhos de arquivo que não existem aqui.
-- O nome `.onrender.com` é de quem pegou primeiro. Outra conta tinha um serviço com esse nome.
-- O link saiu do README, a correção ficou registrada no `AVALIACAO.md` e a decisão de publicar com outro nome virou issue.
+- O nome `.onrender.com` é de quem pegou primeiro. Outra conta tem um serviço com esse nome, e ele responde até hoje.
+- O link saiu do README, a correção ficou registrada no `AVALIACAO.md` e a decisão de publicar com outro nome virou a issue 26 do Proffy.
 - O `<title>` não teria pegado: o site do outro tinha o mesmo título do meu, porque os dois nasceram do mesmo curso.
 - O que pegou foi procurar no HTML algo que só o seu projeto tem, ou que ele não tem: a biblioteca `scrollreveal` aparecia lá e não existe no meu repositório.
 - Então a regra é: o `<title>` pega a troca grosseira. Para projeto de curso, compare uma marca só sua, como a descrição da página ou o nome de um arquivo.
@@ -110,7 +110,7 @@ curl -s https://proffy.onrender.com | grep -c scrollreveal
 - E vale ler o README procurando promessas: "o CI publica o site", "os testes cobrem tudo". Abra o workflow e confira.
 
 ### Tela
-O terminal com `npm run` no Studio D, lado a lado com a seção "Como rodar" do README.
+O terminal com `npm run` no Studio D, lado a lado com a seção "Rodar no seu computador" do README.
 
 ### Comandos
 ```bash
@@ -121,7 +121,7 @@ npm run   # lista os scripts que existem de verdade
 
 ### Fala
 - No Studio D, um teste confere que todo link relativo do README e da pasta `docs` aponta para um arquivo que existe. Link quebrado dentro do repositório para o CI.
-- E o link do site só entrou no README depois de responder 200, com o comando e a data no `MVP.md`.
+- E o link do site está no README com o comando e a data do 200 registrados no `MVP.md`.
 - O que falta é o link de fora: hoje eu confiro à mão. A issue 43 propõe um job agendado, uma vez por semana, que faz o `curl` e procura a marca do projeto.
 - Duas pegadinhas do agendamento: ele só roda na branch padrão, e o GitHub desliga o agendamento de um repositório público depois de 60 dias sem atividade.
 - Se o site cair ou trocar de dono, o job fica vermelho na aba Actions. Sem depender de eu lembrar.

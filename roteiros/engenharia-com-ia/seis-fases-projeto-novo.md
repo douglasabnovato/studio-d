@@ -61,10 +61,10 @@ A tabela "Projeto novo: seis fases" no `ia/processo-repositorio.md` do repositó
 - Dois: hospedagem e contas ficaram para o fim e viraram o gargalo. Em 10/11, a medição de uso faltava em 15 repositórios, todos os de nível vitrine e produto, porque nenhuma conta de medição tinha sido criada.
 - Três: dados pessoais em bancos versionados e em issues públicas, em 4 repositórios e 12 issues.
 - Quatro: 117 de 179 issues iniciais, sem objetivo nem critério, acabaram fechadas como não planejadas.
-- Cada erro virou uma regra: `MVP.md` no primeiro dia, contas e esqueleto no ar logo cedo, LGPD antes do primeiro commit e toda issue com critérios.
+- Cada erro virou uma regra: `MVP.md` no primeiro dia, contas e esqueleto no ar na Fase 2, LGPD antes do primeiro commit e toda issue com critérios.
 
 ### Tela
-O parágrafo "Lições que geraram essas fases" no `processo-repositorio.md`. Depois, as linhas dos 4 repositórios e 12 issues e das 117 de 179 em `aprendizados.md`. **Não abrir na tela a decisão de 10/11**: ela é fonte do número 15, mas cita e-mails e o nome de uma pessoa em outras linhas.
+O parágrafo "Lições que geraram essas fases" no `processo-repositorio.md`. Depois, as linhas dos 4 repositórios e 12 issues e das 117 de 179 em `aprendizados.md`. **Não abrir na tela a decisão de 10/11**: ela é fonte do número 15, mas traz números e situações de outros repositórios que não são o assunto deste vídeo.
 
 ## Portões, não etapas · 2:45–4:00
 
@@ -82,7 +82,7 @@ A coluna "Portão" da tabela, destacando as perguntas. Depois, a página do arti
 ### Fala
 - Fase 0, enquadrar, de 2 a 5 dias. O portão: qualquer pessoa entende o problema em uma frase, e existe um número que diz se a aposta deu certo?
 - Sem o número, não dá para saber depois se valeu. É aqui que nasce a hipótese com meta.
-- Fase 1, descobrir, de 1 a 2 semanas. O portão: 3 de 5 pessoas confirmaram o problema e concluíram o fluxo num protótipo?
+- Fase 1, descobrir, de 1 a 2 semanas. O portão: 3 de 5 pessoas confirmaram o problema e concluíram o fluxo no protótipo?
 - Essa fase vem do Lean UX, de Jeff Gothelf e Josh Seiden, e da descoberta contínua, de Teresa Torres: conversar com quem tem o problema antes de construir a solução.
 
 ### Tela
@@ -105,8 +105,8 @@ A linha da fase 2 na tabela. Depois, a página do Walking Skeleton.
 - Fase 3, construir, em sprints de uma semana. O portão: o fluxo principal funciona no site publicado, e uma pessoa o conclui sem ajuda?
 - Fase 4, validar e decidir. A métrica atingiu a meta? Se não, a mudança de rumo está escrita? Não atingir a meta é resultado. Não escrever o que muda é que é falha.
 - Fase 5, operar e evoluir. Ela é contínua e não tem pergunta: tem uma rotina. Dependabot semanal, revisão mensal do backlog e as métricas DORA.
-- As métricas DORA medem a entrega. As quatro originais: com que frequência se publica, quanto tempo um commit leva até o ar, quantas mudanças falham e quanto tempo leva para recuperar de um deploy que falhou.
-- Hoje o DORA usa cinco. A quinta é a taxa de retrabalho: quantos deploys foram feitos às pressas por causa de um incidente.
+- As métricas DORA medem a entrega. As quatro originais: com que frequência se publica, quanto tempo um commit leva até o ar, quantos deploys precisam de correção imediata e quanto tempo leva para recuperar de um deploy que falhou.
+- Hoje o DORA usa cinco. A quinta é a taxa de retrabalho: a proporção de deploys não planejados, feitos por causa de um incidente em produção.
 
 ### Tela
 As linhas das fases 3, 4 e 5 da tabela. Depois, a página das métricas no site do DORA.
@@ -117,7 +117,7 @@ As linhas das fases 3, 4 e 5 da tabela. Depois, a página das métricas no site 
 - O Studio D, este site de roteiros, é o primeiro projeto que nasceu depois das fases. Vamos passar por elas, com honestidade.
 - Fase 0: passou. O problema está numa frase no README, e a hipótese tem meta: 4 vídeos publicados em 30 dias depois do primeiro.
 - Fase 1: não fiz. O público sou eu, que gravo os vídeos. Não houve 5 pessoas para ouvir. A resposta do portão é não, e eu registrei numa decisão escrita, a ADR 5, que segui como risco aceito.
-- Fase 2: meio portão. O `MVP.md` foi criado em 11/11, no mesmo dia do primeiro commit e no mesmo PR do primeiro código. Ligar o Pages foi um passo único, feito uma vez. Depois disso, um commit na `main` vai ao ar sozinho, mas só depois de os jobs `verificar` e `e2e` passarem. Só que a medição de visitas ainda não existe: depende da conta, que é a issue 4.
+- Fase 2: meio portão. O `MVP.md` foi criado em 11/11, no mesmo dia do primeiro commit e no mesmo PR do primeiro código. Ligar o Pages e a variável `PAGES_ATIVO` foi um passo único, feito uma vez. Depois disso, um commit na `main` vai ao ar sozinho, mas só depois de os jobs `verificar` e `e2e` passarem. Só que a medição de visitas ainda não existe: depende da conta, que é a issue 4.
 - Pela regra, o portão da fase 2 ainda é "não". E isso me diz exatamente o que fazer antes de cobrar a fase 4: sem medição, não vou saber se a meta foi atingida.
 - Fase 5: o Dependabot já roda toda semana.
 

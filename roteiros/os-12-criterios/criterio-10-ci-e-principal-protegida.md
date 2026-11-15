@@ -40,12 +40,12 @@ fontes:
 
 ### Fala
 - Todos os meus repositórios têm CI. Testes, lint e build rodam em cada PR.
-- Mesmo assim, no AirCnC, até novembro, qualquer push direto na branch principal entrava sem passar por nada disso. E o Render, que publica a cada commit na principal sem esperar o CI, colocava no ar.
+- Mesmo assim, no AirCnC, até 09/11 de 2026, qualquer push direto na branch principal entrava sem passar por nada disso. E o Render, que publica a cada commit na principal sem esperar o CI, colocava no ar.
 - CI que roda não é CI que bloqueia.
 - Neste vídeo: o critério 10 da minha régua, o ruleset que fecha essa porta e uma armadilha da API que dizia "não protegida" para uma branch protegida.
 
 ### Tela
-Um workflow verde no GitHub Actions. Corte para um `git push origin main` sem PR, aceito sem nenhuma checagem.
+Um workflow verde no GitHub Actions. Corte para um `git push origin master` sem PR (a principal do AirCnC é a `master`), aceito sem nenhuma checagem.
 
 ## O critério 10 · 0:40–2:00
 
@@ -65,7 +65,7 @@ A linha do critério 10 no `padroes.md` do repositório engenharia.
 - No AirCnC, em 09/11, o `MVP.md` dizia: o CI roda em PR e push, mas a `master` não tem proteção. Critério 10: Parcial.
 - O CI tinha quatro jobs: `backend`, `frontend`, `mobile` e `e2e`. Todos rodavam. Nenhum era obrigatório.
 - Um PR com o CI vermelho podia ser mesclado. E um push direto nem abria PR.
-- Criar a proteção não foi tarefa do agente que escrevia o código. Configuração do repositório é decisão do dono. O agente escreveu o passo a passo numa issue.
+- Criar a proteção não foi tarefa do agente que escrevia o código. Configuração do repositório é decisão do dono. O agente escreveu o passo a passo numa issue, a 89, com o rótulo `depende-do-responsavel`.
 
 ### Tela
 O histórico do `docs/MVP.md` do AirCnC, na tabela de 09/11 com o critério 10 "Parcial". Depois, os quatro jobs no `ci.yml`.
@@ -80,7 +80,7 @@ O histórico do `docs/MVP.md` do AirCnC, na tabela de 09/11 com o critério 10 "
 - Três: tudo entra por PR. Com zero aprovações exigidas, porque num repositório de uma pessoa só ela mesma mescla.
 - Quatro: o merge só libera com os checks verdes. Os nomes são os dos jobs do workflow: `backend`, `frontend`, `mobile` e `e2e`.
 - O nome do check precisa bater com o nome do job. Se não bater, o check nunca chega e o PR fica esperando para sempre.
-- Ele foi criado em 09/11, à noite. Minutos depois, o PR 105 marcou o critério 10 como Atende, na branch da sprint. A `master` ainda mostra "Parcial" até a sprint entrar nela.
+- Ele foi criado em 09/11, à noite. No mesmo dia, à noite, o PR 105 marcou o critério 10 como Atende, na branch da sprint. A `master` ainda mostra "Parcial" até a sprint entrar nela, pelo PR 106, que está verde e espera a minha revisão.
 
 ### Tela
 O JSON do ruleset no `fluxo-git.md` do repositório engenharia, destacando as quatro regras. Depois, a tela de Settings → Rules → Rulesets do GitHub, **sem mostrar o id do ruleset, a lista de exceções (bypass) nem outras configurações da conta**. Na gravação, nunca rodar `gh api .../rulesets` sem `--jq`: a saída traz ids e links.
@@ -129,7 +129,7 @@ gh api repos/douglasabnovato/aircnc/rules/branches/master --jq '[.[].type]'
 - Para ser honesto: o Studio D, este site de roteiros, ainda não tem o ruleset.
 - O CI dele roda em todo PR, e eu mesclo na `main` só com o CI verde. Mas isso é disciplina, não regra.
 - No `MVP.md` dele, o critério 10 está como Parcial: falta o ruleset da `main`. A issue 3 tem o passo a passo.
-- A diferença para o AirCnC: aqui a publicação no GitHub Pages espera os jobs `verificar` e `e2e`. Um push direto entra na `main`, mas só vai para o ar se o CI passar.
+- A diferença para o AirCnC: aqui a publicação no GitHub Pages espera os jobs `verificar` e `e2e`. Um push direto entra na `main`, mas só vai para o ar se o CI passar. E a publicação só roda a partir de push na `main`.
 - Prefiro mostrar o buraco a esconder. A régua serve exatamente para isso.
 
 ### Tela
@@ -159,7 +159,7 @@ gh api repos/douglasabnovato/studio-d/rules/branches/main --jq 'length'   # 0: n
 ### Descrição
 CI rodando em todo PR não impede que um push direto chegue à branch principal. Mostro o critério 10 da minha régua, o ruleset que exige PR e checks verdes, e a armadilha da API de branch protection, que responde 404 para uma branch protegida por ruleset.
 
-Base do processo: https://github.com/douglasabnovato/engenharia
+Base do processo: https://github.com/douglasabnovato/engenharia/tree/developer/sprint-2026-11-12
 
 ### Capítulos
 0:00 Gancho
