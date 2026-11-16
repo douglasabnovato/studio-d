@@ -14,7 +14,7 @@
     "site:conferir": "node scripts/conferir-site.ts"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.18"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",
