@@ -23,7 +23,7 @@ export function marcasDoHtml(html: string): Marcas {
   const titulo = /<title[^>]*>([\s\S]*?)<\/title>/i.exec(html)?.[1];
   const meta = [...html.matchAll(/<meta\b[^>]*>/gi)]
     .map((m) => m[0])
-    .find((tag) => /\bname\s*=\s*["']description["']/i.test(tag));
+    .find((tag) => /(?:^|\s)name\s*=\s*["']description["']/i.test(tag));
   const descricao = meta ? /\bcontent\s*=\s*(["'])([\s\S]*?)\1/i.exec(meta)?.[2] : undefined;
   return {
     titulo: titulo === undefined ? null : decodificar(titulo),

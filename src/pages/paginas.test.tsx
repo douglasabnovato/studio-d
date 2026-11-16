@@ -129,11 +129,14 @@ describe('Roteiro', () => {
   it('avisa quando o navegador não deixa copiar', async () => {
     const user = userEvent.setup();
     const negado = vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new DOMException('negado', 'NotAllowedError'));
-    abrir(`/v/${primeiro.slug}`);
-    await user.click(screen.getByRole('button', { name: 'Copiar tags' }));
-    expect(await screen.findByText('Não deu para copiar. Selecione o texto e use Ctrl+C.')).toBeInTheDocument();
-    expect(negado).toHaveBeenCalledWith(primeiro.youtube.tags);
-    negado.mockRestore();
+    try {
+      abrir(`/v/${primeiro.slug}`);
+      await user.click(screen.getByRole('button', { name: 'Copiar tags' }));
+      expect(await screen.findByText('Não deu para copiar. Selecione o texto e use Ctrl+C.')).toBeInTheDocument();
+      expect(negado).toHaveBeenCalledWith(primeiro.youtube.tags);
+    } finally {
+      negado.mockRestore();
+    }
   });
 
   it('não deixa HTML do roteiro virar elemento', () => {

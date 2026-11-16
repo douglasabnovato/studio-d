@@ -13,6 +13,15 @@ const publicado = nosso.replace(
 );
 
 describe('marcasDoHtml', () => {
+  it('o HTML publicado de exemplo é diferente do index.html (o fixture não ficou igual)', () => {
+    expect(publicado).not.toBe(nosso);
+  });
+
+  it('ignora data-name="description"', () => {
+    const html = '<meta data-name="description" content="falsa"><meta name="description" content="certa">';
+    expect(marcasDoHtml(html).descricao).toBe('certa');
+  });
+
   it('lê o título e a descrição do index.html do repositório', () => {
     const { titulo, descricao } = marcasDoHtml(nosso);
     expect(titulo).toBe('Studio D');

@@ -50,7 +50,7 @@ São 13 roteiros escritos, todos em **rascunho**: cada um espera a revisão do a
 | Uma tela, seis telas | 1. [Movies na TV](roteiros/uma-tela-seis-telas/movies-na-tv.md) · 2. [Catálogo de açaí no celular](roteiros/uma-tela-seis-telas/catalogo-acai-no-celular.md) |
 | PM na prática | 1. [Hipótese com meta](roteiros/pm-na-pratica/hipotese-com-meta.md) · 2. [Painel de Formação](roteiros/pm-na-pratica/painel-formacao-ativacao.md) |
 
-Os episódios planejados estão em [`roteiros/series.yml`](roteiros/series.yml).
+Não há episódio planejado sem roteiro: em [`roteiros/series.yml`](roteiros/series.yml), as 5 séries estão com `planejados: []`.
 
 ## Rodar no seu computador
 
