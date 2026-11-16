@@ -19,6 +19,7 @@ flowchart LR
 | Site | React 19 + Vite + TypeScript, React Router (`HashRouter`) | Vitrine, página do roteiro e modo gravação |
 | Conteúdo | Markdown com cabeçalho YAML em `roteiros/` | Um arquivo por vídeo; `series.yml` com séries e planejados |
 | CI | GitHub Actions | `verificar` (tipos, testes, build, audit), `e2e` (Playwright + axe) e `publicar` (Pages) |
+| Conferência do site | GitHub Actions, semanal | `site-no-ar`: o site publicado responde 200 e tem o título e a descrição do `index.html` (#43, [`DEPLOY.md`](DEPLOY.md)) |
 
 ## Componentes (nível 3)
 

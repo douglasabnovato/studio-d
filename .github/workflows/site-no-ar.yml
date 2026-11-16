@@ -1,0 +1,32 @@
+name: Site no ar
+
+# Confere toda semana que https://douglasabnovato.github.io/studio-d/ responde 200
+# e tem o título e a descrição do index.html do repositório (#43).
+# O schedule só roda na branch padrão, e o GitHub o desliga depois de 60 dias sem
+# atividade num repositório público; nesse caso, religar na aba Actions.
+# Em falha, o job fica vermelho na aba Actions; nada é enviado a terceiros.
+on:
+  schedule:
+    - cron: '0 12 * * 1' # segunda, 9h de Brasília
+  workflow_dispatch:
+  pull_request:
+    branches: [main, 'developer/**']
+    paths:
+      - '.github/workflows/site-no-ar.yml'
+      - 'scripts/conferir-site.ts'
+      - 'src/lib/conferir-site.ts'
+
+permissions:
+  contents: read
+
+jobs:
+  conferir:
+    name: conferir-site
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: node scripts/conferir-site.ts
