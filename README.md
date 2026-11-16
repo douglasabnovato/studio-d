@@ -90,7 +90,7 @@ docs/                  produto, arquitetura, ADRs, processo e critérios
 
 ## Estado e próximos passos
 
-**Critérios do MVP:** 9 de 12, finalizado. Os 3 que faltam (5, 9 e 10) dependem de configuração do autor. LCP móvel no site publicado em 16/11/2026: 1,73 s (mediana de 3). Detalhes em [`docs/MVP.md`](docs/MVP.md).
+**Critérios do MVP:** 10 de 12, finalizado. Os 2 que faltam (5 e 10) dependem de configuração do autor. Os alertas do Dependabot foram ligados em 16/11/2026 e mostram 0 abertos (15h03), com `npm audit --omit=dev` sem vulnerabilidades. LCP móvel no site publicado em 16/11/2026: 1,73 s (mediana de 3). Detalhes em [`docs/MVP.md`](docs/MVP.md).
 
 **O que foi feito**
 - Site no ar desde 11/11/2026: vitrine, roteiro, modo gravação e abertura (épico [#15](https://github.com/douglasabnovato/studio-d/issues/15), PR [#13](https://github.com/douglasabnovato/studio-d/pull/13)).
@@ -99,7 +99,7 @@ docs/                  produto, arquitetura, ADRs, processo e critérios
 - Ciclo de 16/11/2026: conferência semanal do site publicado ([#43](https://github.com/douglasabnovato/studio-d/issues/43)), teste do botão de copiar, LCP medido de novo e o passo a passo da publicação em [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 **O que queremos fazer**
-- Com o autor: proteger a `main` e ligar os alertas ([#3](https://github.com/douglasabnovato/studio-d/issues/3)), medição de uso ([#4](https://github.com/douglasabnovato/studio-d/issues/4)), revisar os rascunhos ([#10](https://github.com/douglasabnovato/studio-d/issues/10) e [#54](https://github.com/douglasabnovato/studio-d/issues/54)).
+- Com o autor: proteger a `main` ([#3](https://github.com/douglasabnovato/studio-d/issues/3)), medição de uso ([#4](https://github.com/douglasabnovato/studio-d/issues/4)), revisar os rascunhos ([#10](https://github.com/douglasabnovato/studio-d/issues/10) e [#54](https://github.com/douglasabnovato/studio-d/issues/54)).
 - No código: conferir o build publicado ([#55](https://github.com/douglasabnovato/studio-d/issues/55)), pacote menor ([#56](https://github.com/douglasabnovato/studio-d/issues/56)), tema do sistema ([#57](https://github.com/douglasabnovato/studio-d/issues/57)), fontes dos roteiros ([#58](https://github.com/douglasabnovato/studio-d/issues/58)) e LCP a cada deploy ([#59](https://github.com/douglasabnovato/studio-d/issues/59)).
 
 **Onde está a documentação:** o índice em [`docs/README.md`](docs/README.md), o estado em [`docs/MVP.md`](docs/MVP.md), o plano em [`docs/PLANO-DE-ACAO.md`](docs/PLANO-DE-ACAO.md) e a publicação em [`docs/DEPLOY.md`](docs/DEPLOY.md).

@@ -1,12 +1,12 @@
 # MVP: critérios e estado
 
-> Fonte única do estado. Criado em 11/11/2026, revisto em 16/11/2026. Plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md). Publicação em [`DEPLOY.md`](DEPLOY.md).
+> Fonte única do estado. Criado em 11/11/2026, revisto em 16/11/2026 (critério 9 às 15h03, com os alertas do Dependabot ligados). Plano em [`PLANO-DE-ACAO.md`](PLANO-DE-ACAO.md). Publicação em [`DEPLOY.md`](DEPLOY.md).
 
 **Nível:** Vitrine (N2). Valem os 12 critérios: o site fica público e no ar.
 
-**Resumo:** 9 de 12 aplicáveis atendidos
+**Resumo:** 10 de 12 aplicáveis atendidos
 
-**Finalizado:** sim — os 3 que faltam (5, 9 e 10) dependem do responsável e têm issue com `depende-do-responsavel`: a conta de medição (#4), e a `main` protegida com os alertas do Dependabot ligados (#3).
+**Finalizado:** sim — os 2 que faltam (5 e 10) dependem do responsável e têm issue com `depende-do-responsavel`: a conta de medição (#4) e a `main` protegida (#3).
 
 **Hipótese:** acreditamos que roteiros em blocos, com teleprompter e checklist, farão o autor gravar um vídeo por semana; saberemos quando houver 4 vídeos publicados em 30 dias depois do primeiro.
 
@@ -22,10 +22,14 @@
 | 6 | Falhas tratadas | Atende: `npx vitest run`, 16/11/2026, 99 testes, 0 falhas; no CI, job `verificar` do run 43838179093 (PR #60), 16/11/2026, 99 testes passando. Roteiro inexistente mostra "Roteiro não encontrado" e busca sem resultado avisa (`paginas.test.tsx`); copiar com a permissão negada avisa para usar Ctrl+C (`paginas.test.tsx`, teste novo neste ciclo); roteiro fora de ordem é recusado pela mesma regra do build (`catalogo.test.ts`, "aponta bloco fora de ordem e capítulos errados") |
 | 7 | Desempenho aceitável | Atende: `npx -y lighthouse@12 https://douglasabnovato.github.io/studio-d/ --form-factor=mobile --only-categories=performance,accessibility --output=json --chrome-flags="--headless --no-sandbox"` (Lighthouse 12.8.2), 4 vezes, 16/11/2026, build `index-NY5LSstr.js`, o mesmo do `npm run build` da `main` (`611b5e7`). Três execuções válidas: LCP de 1,87, 1,73 e 1,73 s (mediana 1,73 s); TBT de 48, 62 e 111 ms; elemento do LCP `p.destaque-resumo`. Uma quarta execução foi descartada: a primeira da série, com FCP observado de 10,3 s (CPU ocupada). Acessibilidade do Lighthouse: 100 |
 | 8 | Acessibilidade básica | Atende: job `e2e` do run 43799589604, 16/11/2026: axe (WCAG 2.1 A e AA) sem violações em início, detalhes, roteiro e gravação, com o roteiro real, em 1366 px e no Pixel 7. O tema escuro é o padrão do CSS e o claro vem por `data-theme='light'` (`src/styles.css`); o projeto `claro` grava essa escolha antes de abrir. Teclado: setas nas fileiras, Esc fecha e devolve o foco, Tab preso na janela, foco visível nos cards. Contraste dos tokens dos dois temas em `contraste.test.ts` |
-| 9 | Segurança e conformidade | Parcial: `npm audit --omit=dev`, 16/11/2026: 0 vulnerabilidades; sem segredo no código; sem dado pessoal e sem pedido a terceiros (ADR-003); HTML do roteiro escapado no build, com teste (ADR-002). Os alertas do Dependabot estão desligados: `gh api "repos/douglasabnovato/studio-d/dependabot/alerts?state=open&per_page=100"`, 16/11/2026, respondeu 403. Ligar é do responsável (#3). A régua para esse caso está em decisão (engenharia#33) |
+| 9 | Segurança e conformidade | Atende: `gh api "repos/douglasabnovato/studio-d/dependabot/alerts?state=open&per_page=100" --jq length`, 16/11/2026 15:03: 0 alertas abertos (o responsável ligou os alertas em 16/11/2026). `npm audit --omit=dev`, 16/11/2026 15:03: 0 vulnerabilidades. Sem segredo no código; sem dado pessoal e sem pedido a terceiros (ADR-003); HTML do roteiro escapado no build, com teste (ADR-002) |
 | 10 | Entrega confiável | Parcial: CI em PR para `main` e `developer/**`, e publicação só depois de `verificar` e `e2e`. Sem ruleset: `gh api repos/douglasabnovato/studio-d/rulesets` e `.../rules/branches/main`, 16/11/2026, listas vazias. Proteger a `main` é do responsável (#3) |
 | 11 | Testes dos fluxos críticos | Atende: run 43799589604, na `main`, 16/11/2026: job `verificar`, `npm test` com 7 arquivos e 85 testes passando; job `e2e`, 14 passaram, sem pulo no fluxo principal no desktop. No PR #60, run 43838179093, 16/11/2026: `verificar` com 8 arquivos e 99 testes passando (14 novos, com o teste de links do `DEPLOY.md`) e `e2e` com 14 passando |
 | 12 | Documentação honesta | Atende: README com os comandos conferidos contra o `package.json`; o site respondeu ao `npm run site:conferir` em 16/11/2026 com "OK" (HTTP 200, título e descrição iguais aos do `index.html`), a mesma conferência que o job semanal `site-no-ar` faz (#43); links internos conferidos por `src/lib/links.test.ts` |
+
+## Histórico
+
+- 16/11/2026, 15h03: 9 → 10 de 12. O critério 9 era "Parcial" porque a API de alertas do Dependabot respondia 403 (alertas desligados, engenharia#33). O responsável ligou os alertas; a API mostra 0 abertos e o audit de produção, 0 vulnerabilidades.
 
 ## Fora do MVP
 
