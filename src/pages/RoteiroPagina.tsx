@@ -12,7 +12,7 @@ function Copiar({ texto, nome }: { texto: string; nome: string }) {
   const copiar = async () => {
     try {
       await navigator.clipboard.writeText(texto);
-      setAviso(`${nome} copiado.`);
+      setAviso(`Copiado: ${nome.toLowerCase()}.`);
     } catch {
       setAviso('Não deu para copiar. Selecione o texto e use Ctrl+C.');
     }

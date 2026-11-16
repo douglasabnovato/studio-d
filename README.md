@@ -40,18 +40,21 @@ flowchart LR
 
 ## Episódios
 
-| Série | Episódio | Situação |
-|---|---|---|
-| Do curso ao produto | [1. Movies: de 3,3 s para 2,4 s no celular](roteiros/do-curso-ao-produto/movies-lcp-no-celular.md) | Rascunho, revisão do autor ([#10](https://github.com/douglasabnovato/studio-d/issues/10)) |
-| Do curso ao produto | 2. Proffy: do curso ao fluxo testado no navegador | Planejado ([#6](https://github.com/douglasabnovato/studio-d/issues/6)) |
-| Os 12 critérios | Critério 8: acessibilidade com axe, teclado e tema escuro | Planejado ([#7](https://github.com/douglasabnovato/studio-d/issues/7)) |
-| Engenharia com IA | Briefs, revisor independente e permissões | Planejado ([#8](https://github.com/douglasabnovato/studio-d/issues/8)) |
+São 13 roteiros escritos, todos em **rascunho**: cada um espera a revisão do autor antes de gravar ([#10](https://github.com/douglasabnovato/studio-d/issues/10) para o Movies e [#54](https://github.com/douglasabnovato/studio-d/issues/54) para os outros).
 
-Os outros episódios planejados estão em [`roteiros/series.yml`](roteiros/series.yml).
+| Série | Episódios |
+|---|---|
+| Do curso ao produto | 1. [Movies](roteiros/do-curso-ao-produto/movies-lcp-no-celular.md) · 2. [Proffy](roteiros/do-curso-ao-produto/proffy-fluxo-no-navegador.md) · 3. [AirCnC](roteiros/do-curso-ao-produto/aircnc-tempo-real.md) · 4. [Be The Hero](roteiros/do-curso-ao-produto/be-the-hero-dados-pessoais.md) |
+| Os 12 critérios | 1. [Critério 8](roteiros/os-12-criterios/criterio-8-acessibilidade.md) · 2. [Critério 10](roteiros/os-12-criterios/criterio-10-ci-e-principal-protegida.md) · 3. [Critério 12](roteiros/os-12-criterios/criterio-12-documentacao-honesta.md) |
+| Engenharia com IA | 1. [Briefs, revisor e permissões](roteiros/engenharia-com-ia/briefs-revisor-e-permissoes.md) · 2. [Seis fases de um projeto novo](roteiros/engenharia-com-ia/seis-fases-projeto-novo.md) |
+| Uma tela, seis telas | 1. [Movies na TV](roteiros/uma-tela-seis-telas/movies-na-tv.md) · 2. [Catálogo de açaí no celular](roteiros/uma-tela-seis-telas/catalogo-acai-no-celular.md) |
+| PM na prática | 1. [Hipótese com meta](roteiros/pm-na-pratica/hipotese-com-meta.md) · 2. [Painel de Formação](roteiros/pm-na-pratica/painel-formacao-ativacao.md) |
+
+Não há episódio planejado sem roteiro: em [`roteiros/series.yml`](roteiros/series.yml), as 5 séries estão com `planejados: []`.
 
 ## Rodar no seu computador
 
-Requer Node 22 ou mais novo.
+Requer Node 22.18 ou mais novo (o `site:conferir` roda TypeScript direto no Node, e o `@axe-core/playwright` pede 22.12+).
 
 ```bash
 npm ci
@@ -61,6 +64,7 @@ npm run build      # gera dist/; para se algum roteiro for inválido
 npm run preview    # serve o build em http://localhost:4173/studio-d/
 npx playwright install chromium
 npm run test:e2e   # Playwright com axe: temas claro e escuro, desktop e celular
+npm run site:conferir  # confere que o site publicado é o Studio D (#43)
 ```
 
 ## Escrever um roteiro
@@ -86,12 +90,19 @@ docs/                  produto, arquitetura, ADRs, processo e critérios
 
 ## Estado e próximos passos
 
-- **Critérios do MVP:** 9 de 12, finalizado. LCP móvel no site: 1,94 s (mediana). Os 3 que faltam dependem de configuração do autor ([`docs/MVP.md`](docs/MVP.md)).
-- **No ar desde 11/11/2026:** o épico [#15, Studio D no ar](https://github.com/douglasabnovato/studio-d/issues/15), com o Pages ([#2](https://github.com/douglasabnovato/studio-d/issues/2)), a abertura ([#5](https://github.com/douglasabnovato/studio-d/issues/5)) e a documentação ([#14](https://github.com/douglasabnovato/studio-d/issues/14)). Falta só a `main` protegida ([#3](https://github.com/douglasabnovato/studio-d/issues/3)), que é do autor.
-- **Depois:**
-  - medição de uso ([#4](https://github.com/douglasabnovato/studio-d/issues/4));
-  - pacote menor ([#9](https://github.com/douglasabnovato/studio-d/issues/9));
-  - novos roteiros ([#6](https://github.com/douglasabnovato/studio-d/issues/6), [#7](https://github.com/douglasabnovato/studio-d/issues/7) e [#8](https://github.com/douglasabnovato/studio-d/issues/8)).
+**Critérios do MVP:** 9 de 12, finalizado. Os 3 que faltam (5, 9 e 10) dependem de configuração do autor. LCP móvel no site publicado em 16/11/2026: 1,73 s (mediana de 3). Detalhes em [`docs/MVP.md`](docs/MVP.md).
+
+**O que foi feito**
+- Site no ar desde 11/11/2026: vitrine, roteiro, modo gravação e abertura (épico [#15](https://github.com/douglasabnovato/studio-d/issues/15), PR [#13](https://github.com/douglasabnovato/studio-d/pull/13)).
+- Roteiros lidos no build, com o JS caindo 33% (PR [#28](https://github.com/douglasabnovato/studio-d/pull/28)).
+- Mais 12 roteiros, conferidos contra as fontes, nas 5 séries (PRs [#38](https://github.com/douglasabnovato/studio-d/pull/38) a [#42](https://github.com/douglasabnovato/studio-d/pull/42) e [#44](https://github.com/douglasabnovato/studio-d/pull/44) a [#51](https://github.com/douglasabnovato/studio-d/pull/51), na `main` pelo PR [#27](https://github.com/douglasabnovato/studio-d/pull/27)).
+- Ciclo de 16/11/2026: conferência semanal do site publicado ([#43](https://github.com/douglasabnovato/studio-d/issues/43)), teste do botão de copiar, LCP medido de novo e o passo a passo da publicação em [`docs/DEPLOY.md`](docs/DEPLOY.md).
+
+**O que queremos fazer**
+- Com o autor: proteger a `main` e ligar os alertas ([#3](https://github.com/douglasabnovato/studio-d/issues/3)), medição de uso ([#4](https://github.com/douglasabnovato/studio-d/issues/4)), revisar os rascunhos ([#10](https://github.com/douglasabnovato/studio-d/issues/10) e [#54](https://github.com/douglasabnovato/studio-d/issues/54)).
+- No código: conferir o build publicado ([#55](https://github.com/douglasabnovato/studio-d/issues/55)), pacote menor ([#56](https://github.com/douglasabnovato/studio-d/issues/56)), tema do sistema ([#57](https://github.com/douglasabnovato/studio-d/issues/57)), fontes dos roteiros ([#58](https://github.com/douglasabnovato/studio-d/issues/58)) e LCP a cada deploy ([#59](https://github.com/douglasabnovato/studio-d/issues/59)).
+
+**Onde está a documentação:** o índice em [`docs/README.md`](docs/README.md), o estado em [`docs/MVP.md`](docs/MVP.md), o plano em [`docs/PLANO-DE-ACAO.md`](docs/PLANO-DE-ACAO.md) e a publicação em [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 ## Documentação
 
@@ -101,6 +112,7 @@ docs/                  produto, arquitetura, ADRs, processo e critérios
 | Como o código é organizado | [Arquitetura](docs/ARQUITETURA.md) e as [ADRs](docs/README.md#engenharia) |
 | Como cada pedido vira issue, PR e entrega | [Como trabalhamos](docs/processo/como-trabalhamos.md) |
 | O que está pronto, com evidência | [MVP](docs/MVP.md) |
+| Como o site é publicado e conferido | [Publicação](docs/DEPLOY.md) |
 | Tudo, num só lugar | [Índice da documentação](docs/README.md) |
 
 A interface é inspirada em serviços de streaming, com identidade própria: nome, cores, desenho e capas são do Studio D ([ADR-001](docs/adr/001-inspiracao-sem-copia.md)).

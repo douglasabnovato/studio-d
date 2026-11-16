@@ -6,6 +6,7 @@ Comece pelo [README do repositório](../README.md). Aqui está o mapa do resto.
 - [Visão do produto](produto/visao.md): problema, público, hipótese, métricas e roadmap por marcos.
 - [MVP: critérios e estado](MVP.md): a régua de 12 critérios, com evidência e data. Fonte única do estado.
 - [Plano de ação](PLANO-DE-ACAO.md): o plano de cada ciclo, com produto, engenharia e o que virou issue.
+- [Publicação](DEPLOY.md): como o site chega ao Pages, como ligar do zero e a conferência semanal (#43).
 
 ## Engenharia
 - [Arquitetura](ARQUITETURA.md): contexto, contêineres e componentes (C4).

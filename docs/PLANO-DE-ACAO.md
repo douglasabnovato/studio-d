@@ -39,3 +39,40 @@
 | README como porta de entrada e `docs/` com índice | #14 | Agente, PR #13 |
 | Proteger a `main` e alertas do Dependabot | #3 | Autor |
 | Medir o LCP no site publicado | #15 | Agente, depois do merge na `main` |
+
+## Ciclo de 16/11/2026
+
+### Produto
+- **Problema e público:** os mesmos do ciclo de 11/11. O autor grava a partir do site publicado; quem assiste abre a página de cada roteiro. Se o link quebrar ou servir outro site, os dois perdem a fonte.
+- **Hipótese:** a mesma, com meta: acreditamos que roteiros em blocos, com teleprompter e checklist, farão o autor gravar um vídeo por semana; saberemos quando houver 4 vídeos publicados em 30 dias depois do primeiro.
+- **Estado de partida:** a sprint de 19/11 entrou na `main` em 16/11 (PR #27, merge `611b5e7`). O site publicado roda esse build (`index-NY5LSstr.js`, igual ao `dist/` local). São 13 roteiros em rascunho, todos esperando a revisão do autor.
+- **Pesquisa (fontes):**
+  - Eventos do Actions, `schedule`: roda só na branch padrão, o intervalo mínimo é de 5 minutos e pode atrasar em hora de pico (<https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule>).
+  - Desligar e ligar workflows: num repositório público, o agendamento é desligado depois de 60 dias sem atividade, e se religa na aba Actions (<https://docs.github.com/en/actions/how-tos/manage-workflow-runs/disable-and-enable-workflows>).
+  - `fetch` e `AbortSignal.timeout` no Node, sem dependência nova (<https://nodejs.org/api/globals.html#fetch>); LCP bom até 2,5 s no web.dev (<https://web.dev/articles/lcp>), para a medição de novo no ar.
+- **Backlog (impacto × esforço):**
+  1. conferir toda semana que o site é o Studio D, com teste (#43; médio × baixo; este ciclo);
+  2. medir de novo o LCP no build publicado (alto × baixo; este ciclo);
+  3. fechar as issues que já estão na `main` e apontar o que é do autor (médio × baixo; este ciclo);
+  4. analisar os PRs do Dependabot #52 e #53 (médio × baixo; este ciclo, o merge é do autor);
+  5. revisão dos rascunhos pelo autor, conferência do hash publicado, pacote de JS que voltou a crescer (issues).
+- **Fora do escopo:** reescrever roteiros (falam em nome do autor), medição de uso sem a conta (#4), mudar o tema padrão.
+
+### Engenharia
+- **Arquitetura:** sem mudança no site. Entra um workflow à parte, `site-no-ar.yml`, que roda `node scripts/conferir-site.ts`. A regra fica numa função pura (`src/lib/conferir-site.ts`), testada no Vitest; o script só baixa a página e chama a função.
+- **Por que título e descrição:** o site de terceiro do Proffy tinha o mesmo título do repositório (comentário de 12/11 no #43). A descrição do `index.html` cita o dono e não se repete em outro site.
+- **Riscos:** o agendamento parar depois de 60 dias sem atividade (anotado no `DEPLOY.md`); instabilidade do Pages dar alarme falso (3 tentativas com espera de 10 s para erro 5xx ou de rede); o JS voltou a 144,92 kB com gzip porque os 13 roteiros entram no pacote (issue nova).
+- **Qualidade:** teste da função com o `index.html` real, com site de terceiro de mesmo título, com 404 e com página sem marcas; mutação conferida (sem a checagem da descrição, 2 testes falham). O job também roda nos PRs que mexem nele.
+- **Definição de pronto:** CI verde (`verificar`, `e2e` e `conferir-site`), `MVP.md` com evidência e data, revisão independente sem erro aberto, 5 ou mais issues de próximos passos.
+
+### Plano de ação
+| Tarefa | Issue | Quem |
+|---|---|---|
+| Job semanal do site no ar, com teste | #43 | Agente, este ciclo |
+| LCP móvel de novo no site publicado | critério 7 | Agente, este ciclo |
+| Fechar as issues já na `main` (#6 a #9, #23, #24, #29 a #36) | várias | Agente, este ciclo |
+| `docs/DEPLOY.md` com o passo a passo | critério 12 | Agente, este ciclo |
+| Analisar os PRs #52 (maior) e #53 (patch) | — | Agente comenta; o autor mescla |
+| Proteger a `main` e ligar os alertas | #3 | Autor |
+| Conta de medição | #4 | Autor |
+| Revisar os rascunhos de roteiro | issue nova | Autor |

@@ -118,6 +118,27 @@ describe('Roteiro', () => {
     expect(screen.getByRole('heading', { name: 'Roteiro não encontrado' })).toBeInTheDocument();
   });
 
+  it('copia o texto do YouTube e confirma', async () => {
+    const user = userEvent.setup();
+    abrir(`/v/${primeiro.slug}`);
+    await user.click(screen.getByRole('button', { name: 'Copiar descrição' }));
+    expect(await screen.findByText('Copiado: descrição.')).toBeInTheDocument();
+    expect(await navigator.clipboard.readText()).toBe(primeiro.youtube.descricao);
+  });
+
+  it('avisa quando o navegador não deixa copiar', async () => {
+    const user = userEvent.setup();
+    const negado = vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new DOMException('negado', 'NotAllowedError'));
+    try {
+      abrir(`/v/${primeiro.slug}`);
+      await user.click(screen.getByRole('button', { name: 'Copiar tags' }));
+      expect(await screen.findByText('Não deu para copiar. Selecione o texto e use Ctrl+C.')).toBeInTheDocument();
+      expect(negado).toHaveBeenCalledWith(primeiro.youtube.tags);
+    } finally {
+      negado.mockRestore();
+    }
+  });
+
   it('não deixa HTML do roteiro virar elemento', () => {
     abrir(`/v/${primeiro.slug}`);
     expect(document.querySelector('main script, main iframe')).toBeNull();

@@ -10,10 +10,11 @@
     "preview": "vite preview --port 4173 --strictPort",
     "lint": "tsc -b --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "site:conferir": "node scripts/conferir-site.ts"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.18"
   },
   "dependencies": {
     "@fontsource-variable/manrope": "^5.3.0",
