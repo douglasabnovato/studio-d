@@ -33,8 +33,8 @@ flowchart TB
   Inicio & RoteiroPagina & Gravacao --> catalogo
 ```
 
-- `lib/roteiro.ts` lê e valida um arquivo: cabeçalho, blocos `## Nome · início–fim`, `### Fala/Tela/Comandos` e `## Para o YouTube`.
-- `lib/catalogo.ts` junta os roteiros com `series.yml`, recusa série inexistente e slug repetido, monta as fileiras com escritos e planejados, e lista os problemas de tempo e de capítulos (`problemasDoCatalogo`). `lib/conteudo.ts` carrega os arquivos no navegador; o plugin `validar-roteiros` do `vite.config.ts` usa as mesmas funções no build.
+- Só no build (e nos testes): `lib/roteiro.ts` lê e valida um arquivo (cabeçalho, blocos `## Nome · início–fim`, `### Fala/Tela/Comandos` e `## Para o YouTube`); `lib/ler-catalogo.ts` junta os roteiros com `series.yml` e recusa série inexistente e slug repetido; `lib/markdown.ts` converte o Markdown em HTML seguro. O plugin `roteiros` do `vite.config.ts` usa os três e entrega o módulo `virtual:roteiros` (#9).
+- No navegador: `lib/tipos.ts` (tipos e situações) e `lib/catalogo.ts`, que monta as fileiras com escritos e planejados e lista os problemas de tempo e de capítulos (`problemasDoCatalogo`). `lib/conteudo.ts` importa `virtual:roteiros`. Nada disso importa `yaml` ou `marked`.
 - `Abertura` mostra o D animado na primeira entrada da sessão pela tela de início, com fim por temporizador (ADR-004).
 - `Capa` gera a capa em SVG a partir da série e do título.
 - `Detalhes` é uma janela modal: foco preso, Esc fecha, e o foco volta ao card.

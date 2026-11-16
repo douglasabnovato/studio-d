@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { destaque, montarCatalogo, problemasDoCatalogo } from './catalogo';
+import { destaque, problemasDoCatalogo } from './catalogo';
+import { montarCatalogo } from './ler-catalogo';
 import { catalogo } from './conteudo';
 
 describe('catálogo real (roteiros/)', () => {
@@ -69,5 +70,16 @@ fontes:
     expect(() =>
       montarCatalogo(series, { 'roteiros/s1/a.md': roteiro('s1'), 'roteiros/outra/a.md': roteiro('s1') }),
     ).toThrow(/repetido/);
+  });
+});
+
+describe('dados do build (#9)', () => {
+  it('cada bloco chega com a fala já em HTML, sem precisar do marked no navegador', () => {
+    for (const r of catalogo.roteiros) {
+      for (const b of r.blocos) {
+        expect(b.html?.fala).toMatch(/^<p>|^<ul>|^<ol>|^<pre/);
+        expect(b.html?.fala).not.toMatch(/<script/i);
+      }
+    }
   });
 });

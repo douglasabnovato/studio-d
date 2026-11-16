@@ -49,6 +49,7 @@ Cada issue entra no Project com todos os campos: Status, Prioridade (P0 a P3), T
 - O PR da sprint para a `main` leva o rótulo `revisao-responsavel` e fica com o autor.
 - Com o merge na `main`, o job `publicar` sobe o site no Pages. Ele só roda com a Variable `PAGES_ATIVO` = `true`.
 - Depois do merge, cada issue recebe um comentário com a evidência e é fechada.
+- O Dependabot junta todas as GitHub Actions num PR só por semana (grupo `actions`). Esse PR vai para a `main` e é revisado pelo autor, que lê as notas das versões maiores antes do merge.
 
 ## 4. Pronto quer dizer
 

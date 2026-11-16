@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import type { Episodio } from '../lib/catalogo';
-import { SITUACOES } from '../lib/roteiro';
+import { SITUACOES } from '../lib/tipos';
 import { Capa } from './Capa';
 
 interface Props {

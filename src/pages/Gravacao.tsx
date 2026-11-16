@@ -4,7 +4,7 @@ import { Markdown } from '../components/Markdown';
 import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import type { Catalogo } from '../lib/catalogo';
-import { emSegundos, type Roteiro } from '../lib/roteiro';
+import { emSegundos, type Roteiro } from '../lib/tipos';
 
 export const ITENS_CHECKLIST = [
   'Nenhum .env, token, senha ou chave na tela, no terminal ou no histórico do navegador.',
@@ -204,7 +204,7 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
             <h2>
               {i + 1}. {b.nome}
             </h2>
-            <Markdown texto={b.fala} />
+            <Markdown html={b.html?.fala} />
           </section>
         ))}
       </div>
