@@ -76,3 +76,45 @@ jobs:
           path: dist
       - id: deploy
         uses: actions/deploy-pages@v4
+
+  # Mede o LCP móvel no site publicado depois de cada deploy (#59). Fica vermelho se a
+  # mediana passar de 2,5 s, mas o deploy já foi feito: falhar aqui não desfaz nada.
+  lcp:
+    name: lcp
+    needs: publicar
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      URL_DO_SITE: https://douglasabnovato.github.io/studio-d/
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      # O Pages pode servir o build anterior por alguns minutos: medir só o build novo.
+      - name: Esperar o site servir este build
+        run: |
+          for i in $(seq 1 20); do
+            node scripts/conferir-site.ts "$URL_DO_SITE" --build dist/index.html && exit 0
+            sleep 30
+          done
+          exit 1
+      - name: Lighthouse móvel, 3 execuções
+        run: |
+          for i in 1 2 3; do
+            npx -y lighthouse@12.8.2 "$URL_DO_SITE" --form-factor=mobile --only-categories=performance \
+              --output=json --output-path="lh-$i.json" --quiet --chrome-flags="--headless=new --no-sandbox" \
+              || echo "A execução $i falhou; o resumo a marca como inválida."
+          done
+      - name: Resumo do LCP
+        run: node scripts/medir-lcp.ts "$URL_DO_SITE" "$(grep -o 'index-[A-Za-z0-9_-]*\.js' dist/index.html | head -1)" lh-1.json lh-2.json lh-3.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse
+          path: lh-*.json
+          if-no-files-found: ignore
