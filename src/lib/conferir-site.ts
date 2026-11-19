@@ -49,3 +49,28 @@ export function problemasDoSite(status: number, htmlPublicado: string, htmlDoRep
   }
   return problemas;
 }
+
+/**
+ * Nome do pacote principal (`assets/index-<hash>.js`) que um HTML de build pede (#55).
+ * O hash muda a cada build com código diferente: é o que prova qual build está no ar.
+ */
+export function pacoteDoHtml(html: string): string | null {
+  const scripts = [...html.matchAll(/<script\b[^>]*>/gi)].map((m) => m[0]);
+  for (const tag of scripts) {
+    const src = /\bsrc\s*=\s*(["'])([^"']*)\1/i.exec(tag)?.[2];
+    const nome = src ? /(?:^|\/)assets\/(index-[\w-]+\.js)$/.exec(src)?.[1] : undefined;
+    if (nome) return nome;
+  }
+  return null;
+}
+
+/** Compara o pacote do site publicado com o do build da `main`. Devolve a lista de problemas. */
+export function problemasDoBuild(htmlPublicado: string, htmlDoBuild: string): string[] {
+  const doBuild = pacoteDoHtml(htmlDoBuild);
+  if (!doBuild) return ['o dist/index.html do build da main não pede nenhum assets/index-*.js'];
+  const publicado = pacoteDoHtml(htmlPublicado);
+  if (publicado !== doBuild) {
+    return [`o site pede ${publicado ?? '(nenhum assets/index-*.js)'}, mas o build da main gera ${doBuild}: o site está com um build antigo`];
+  }
+  return [];
+}

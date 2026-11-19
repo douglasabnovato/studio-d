@@ -44,8 +44,9 @@ Nenhum desses passos usa senha ou token.
 - O workflow [`.github/workflows/site-no-ar.yml`](../.github/workflows/site-no-ar.yml) roda toda segunda às 12h UTC (9h de Brasília).
 - Ele baixa o site e compara com o [`index.html`](../index.html) do repositório: status 200, mesmo `<title>` e mesma `<meta name="description">`. A descrição cita o dono, e por isso um site de terceiro com o mesmo título não passa.
 - Em falha, o job fica vermelho na aba Actions. Nada é enviado a terceiros.
+- Ele também confere que o site roda o build da `main` (#55): faz `npm ci` e `npm run build` numa cópia da `main` e compara o pacote que o `dist/index.html` pede (`assets/index-<hash>.js`) com o que o HTML publicado pede. O hash só muda quando o código muda; se os nomes divergem, o site está com um build antigo.
 - O job também roda em PR que mexe nele (workflow, script ou `src/lib/conferir-site.ts`). Ele compara o site em produção com o `index.html` do PR: um PR que mude o título ou a descrição e toque nesses arquivos fica vermelho até o deploy. Nesse caso, separar a mudança do `index.html` em outro PR.
-- Para rodar na mão: `npm run site:conferir`, ou **Actions → Site no ar → Run workflow** (depois que o workflow estiver na `main`).
+- Para rodar na mão: `npm run site:conferir` (marcas) ou, com o build da `main` feito, `node scripts/conferir-site.ts --build dist/index.html` (marcas e build), ou **Actions → Site no ar → Run workflow** (depois que o workflow estiver na `main`).
 - O `schedule` só roda na branch padrão. Num repositório público, o GitHub desliga o agendamento depois de 60 dias sem atividade. Se isso acontecer: **Actions → Site no ar → Enable workflow**.
 
 ## Se a publicação falhar
@@ -56,3 +57,4 @@ Nenhum desses passos usa senha ou token.
 | `publicar` falha em `deploy-pages` com "Branch is not allowed" | O ambiente `github-pages` não aceita a `main` | Passo 2 acima (responsável) |
 | `publicar` falha em `configure-pages` | Fonte do Pages não é "GitHub Actions" | Passo 1 acima (responsável) |
 | Site responde 200, mas `site:conferir` falha | Build antigo em cache ou outro site no endereço | Esperar alguns minutos e rodar de novo; se seguir, abrir issue com a saída |
+| `conferir-site` acusa "o site está com um build antigo" | O último `publicar` da `main` falhou, foi pulado ou ainda não terminou | Abrir o último run do CI na `main` e ver o job `publicar`. Se terminou há poucos minutos, rodar de novo **Actions → Site no ar → Run workflow**. Se falhou ou foi pulado, seguir as linhas acima; republicar (Re-run) é do responsável |
