@@ -3,16 +3,19 @@ import { expect, test, type Page } from '@playwright/test';
 
 const SLUG = 'movies-lcp-no-celular';
 
-/** O tema do site segue o projeto: o claro grava a escolha antes de abrir. */
+/**
+ * O tema do site segue o sistema (#57): cada projeto só define o `colorScheme`, sem gravar escolha.
+ * O celular (Pixel 7) usa o padrão do Playwright, claro.
+ */
 async function abrir(page: Page, rota: string, projeto: string) {
-  if (projeto === 'claro') {
-    await page.addInitScript(() => localStorage.setItem('studio-d:tema', 'light'));
-  }
+  const esperado = projeto === 'escuro' ? 'dark' : 'light';
   // A abertura tem o próprio teste (abertura.spec.ts); aqui ela já foi vista na sessão.
   await page.addInitScript(() => sessionStorage.setItem('studio-d:abertura-vista', '1'));
   // Nada de rede externa nos testes, além do próprio site.
   await page.route(/^https:\/\/fonts\./, (r) => r.abort());
   await page.goto(rota);
+  await expect(page.locator('html')).toHaveAttribute('data-theme', esperado);
+  expect(await page.evaluate(() => localStorage.getItem('studio-d:tema'))).toBeNull();
 }
 
 async function semViolacoes(page: Page, escopo?: string) {

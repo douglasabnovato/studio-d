@@ -56,7 +56,7 @@
   3. fechar as issues que já estão na `main` e apontar o que é do autor (médio × baixo; este ciclo);
   4. analisar os PRs do Dependabot #52 e #53 (médio × baixo; este ciclo, o merge é do autor);
   5. revisão dos rascunhos pelo autor, conferência do hash publicado, pacote de JS que voltou a crescer (issues).
-- **Fora do escopo:** reescrever roteiros (falam em nome do autor), medição de uso sem a conta (#4), mudar o tema padrão.
+- **Fora do escopo:** reescrever roteiros (falam em nome do autor), medição de uso sem a conta (#4), mudar o tema padrão sem o autor (o #57 propõe seguir o tema do sistema e espera a aprovação dele).
 
 ### Engenharia
 - **Arquitetura:** sem mudança no site. Entra um workflow à parte, `site-no-ar.yml`, que roda `node scripts/conferir-site.ts`. A regra fica numa função pura (`src/lib/conferir-site.ts`), testada no Vitest; o script só baixa a página e chama a função.
