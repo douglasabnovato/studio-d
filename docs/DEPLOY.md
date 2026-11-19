@@ -49,6 +49,14 @@ Nenhum desses passos usa senha ou token.
 - Para rodar na mão: `npm run site:conferir` (marcas) ou, com o build da `main` feito, `node scripts/conferir-site.ts --build dist/index.html` (marcas e build), ou **Actions → Site no ar → Run workflow** (depois que o workflow estiver na `main`).
 - O `schedule` só roda na branch padrão. Num repositório público, o GitHub desliga o agendamento depois de 60 dias sem atividade. Se isso acontecer: **Actions → Site no ar → Enable workflow**.
 
+## LCP medido a cada deploy (#59)
+
+- Depois do `publicar`, o job `lcp` do CI espera o site servir o build novo (a mesma conferência do `site-no-ar`, até 10 minutos) e roda o Lighthouse 12.8.2 móvel 3 vezes no endereço publicado.
+- O resumo do run (aba **Summary**) traz o build medido, o LCP e o TBT de cada execução, o elemento do LCP e a mediana. Os 3 JSON ficam no artefato `lighthouse`.
+- O job fica vermelho se a mediana passar de 2,5 s ou se houver menos de 3 execuções válidas. O site já foi publicado; o vermelho só avisa. Se for menos de 3 válidas, rodar o job de novo; se for a mediana, abrir uma issue com o link do run.
+- Para citar no `docs/MVP.md` (critério 7): o número do run, o build medido, as 3 execuções, a mediana, os TBTs e o elemento do LCP, com a data do resumo.
+- O `lcp` não entra nos checks obrigatórios da `main`: ele só roda depois do merge.
+
 ## Se a publicação falhar
 
 | Sintoma | Causa provável | O que fazer |
