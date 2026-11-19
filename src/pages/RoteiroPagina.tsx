@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Capa } from '../components/Capa';
+import { CarregarRoteiro } from '../components/CarregarRoteiro';
 import { Markdown } from '../components/Markdown';
 import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import type { Catalogo } from '../lib/catalogo';
-import { SITUACOES } from '../lib/tipos';
+import { SITUACOES, type Roteiro } from '../lib/tipos';
+import { useRoteiro } from '../lib/usar-roteiro';
 
 function Copiar({ texto, nome }: { texto: string; nome: string }) {
   const [aviso, setAviso] = useState('');
@@ -32,9 +34,9 @@ function Copiar({ texto, nome }: { texto: string; nome: string }) {
 
 export function RoteiroPagina({ catalogo }: { catalogo: Catalogo }) {
   const { slug } = useParams();
-  const roteiro = catalogo.roteiros.find((r) => r.slug === slug);
+  const estado = useRoteiro(catalogo, slug);
 
-  if (!roteiro) {
+  if (estado.estado === 'inexistente') {
     return (
       <>
         <Topo />
@@ -48,9 +50,10 @@ export function RoteiroPagina({ catalogo }: { catalogo: Catalogo }) {
     );
   }
 
+  // O cabeçalho sai do resumo, que já está no pacote inicial; o resto espera o pedaço do roteiro (#56).
+  const roteiro = estado.resumo;
   const serie = catalogo.series.find((s) => s.id === roteiro.serie)!;
   const outros = (catalogo.porSerie.get(serie.id) ?? []).filter((e) => e.chave !== roteiro.slug);
-  const { youtube } = roteiro;
 
   return (
     <>
@@ -94,75 +97,22 @@ export function RoteiroPagina({ catalogo }: { catalogo: Catalogo }) {
 
         <div className="roteiro-layout">
           <div>
-            <h2>Roteiro em {roteiro.blocos.length} blocos</h2>
-            {roteiro.blocos.map((b, i) => (
-              <section className="bloco" key={b.nome} aria-labelledby={`bloco-${i}`}>
-                <h2 id={`bloco-${i}`}>
-                  <span>
-                    {i + 1}. {b.nome}
-                  </span>
-                  <span className="bloco-tempo">
-                    {b.inicio}–{b.fim}
-                  </span>
-                </h2>
-                <h3>Fala</h3>
-                <Markdown html={b.html?.fala} />
-                {b.tela && (
-                  <>
-                    <h3>Tela</h3>
-                    <Markdown html={b.html?.tela} />
-                  </>
-                )}
-                {b.comandos && (
-                  <>
-                    <h3>Comandos</h3>
-                    <Markdown html={b.html?.comandos} />
-                  </>
-                )}
-              </section>
-            ))}
-
-            <section className="bloco" aria-labelledby="youtube">
-              <h2 id="youtube">Para o YouTube</h2>
-              {youtube.descricao && (
-                <div className="youtube-campo">
-                  <h3>Descrição</h3>
-                  <pre>{youtube.descricao}</pre>
-                  <Copiar texto={youtube.descricao} nome="Descrição" />
-                </div>
-              )}
-              {youtube.capitulos && (
-                <div className="youtube-campo">
-                  <h3>Capítulos</h3>
-                  <pre>{youtube.capitulos}</pre>
-                  <Copiar texto={youtube.capitulos} nome="Capítulos" />
-                </div>
-              )}
-              {youtube.tags && (
-                <div className="youtube-campo">
-                  <h3>Tags</h3>
-                  <pre>{youtube.tags}</pre>
-                  <Copiar texto={youtube.tags} nome="Tags" />
-                </div>
-              )}
-              {youtube.capa && (
-                <div className="youtube-campo">
-                  <h3>Ideia de capa</h3>
-                  <p>{youtube.capa}</p>
-                </div>
-              )}
-            </section>
+            {estado.estado === 'pronto' ? <Corpo roteiro={estado.roteiro} /> : <CarregarRoteiro estado={estado} />}
           </div>
 
           <aside className="lateral" aria-label="Fontes e próximos episódios">
-            <h2>Fontes</h2>
-            <ul className="fontes">
-              {roteiro.fontes.map((f) => (
-                <li key={f.url}>
-                  <a href={f.url}>{f.titulo}</a>
-                </li>
-              ))}
-            </ul>
+            {estado.estado === 'pronto' && (
+              <>
+                <h2>Fontes</h2>
+                <ul className="fontes">
+                  {estado.roteiro.fontes.map((f) => (
+                    <li key={f.url}>
+                      <a href={f.url}>{f.titulo}</a>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
             <h2>A seguir em {serie.nome}</h2>
             <ul className="lateral-lista">
               {outros.map((e) => (
@@ -186,6 +136,73 @@ export function RoteiroPagina({ catalogo }: { catalogo: Catalogo }) {
           </aside>
         </div>
       </main>
+    </>
+  );
+}
+
+/** Blocos e textos do YouTube: só com o roteiro completo carregado. */
+function Corpo({ roteiro }: { roteiro: Roteiro }) {
+  const { youtube } = roteiro;
+  return (
+    <>
+      <h2>Roteiro em {roteiro.blocos.length} blocos</h2>
+      {roteiro.blocos.map((b, i) => (
+        <section className="bloco" key={b.nome} aria-labelledby={`bloco-${i}`}>
+          <h2 id={`bloco-${i}`}>
+            <span>
+              {i + 1}. {b.nome}
+            </span>
+            <span className="bloco-tempo">
+              {b.inicio}–{b.fim}
+            </span>
+          </h2>
+          <h3>Fala</h3>
+          <Markdown html={b.html?.fala} />
+          {b.tela && (
+            <>
+              <h3>Tela</h3>
+              <Markdown html={b.html?.tela} />
+            </>
+          )}
+          {b.comandos && (
+            <>
+              <h3>Comandos</h3>
+              <Markdown html={b.html?.comandos} />
+            </>
+          )}
+        </section>
+      ))}
+
+      <section className="bloco" aria-labelledby="youtube">
+        <h2 id="youtube">Para o YouTube</h2>
+        {youtube.descricao && (
+          <div className="youtube-campo">
+            <h3>Descrição</h3>
+            <pre>{youtube.descricao}</pre>
+            <Copiar texto={youtube.descricao} nome="Descrição" />
+          </div>
+        )}
+        {youtube.capitulos && (
+          <div className="youtube-campo">
+            <h3>Capítulos</h3>
+            <pre>{youtube.capitulos}</pre>
+            <Copiar texto={youtube.capitulos} nome="Capítulos" />
+          </div>
+        )}
+        {youtube.tags && (
+          <div className="youtube-campo">
+            <h3>Tags</h3>
+            <pre>{youtube.tags}</pre>
+            <Copiar texto={youtube.tags} nome="Tags" />
+          </div>
+        )}
+        {youtube.capa && (
+          <div className="youtube-campo">
+            <h3>Ideia de capa</h3>
+            <p>{youtube.capa}</p>
+          </div>
+        )}
+      </section>
     </>
   );
 }

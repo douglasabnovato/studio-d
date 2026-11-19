@@ -4,7 +4,7 @@ import { join, relative } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { problemasDoCatalogo } from './src/lib/catalogo';
-import { dadosDoSite, montarCatalogo } from './src/lib/ler-catalogo';
+import { conteudoDoRoteiro, dadosDoSite, montarCatalogo } from './src/lib/ler-catalogo';
 
 function arquivosMd(pasta: string): string[] {
   return readdirSync(pasta).flatMap((nome) => {
@@ -15,11 +15,28 @@ function arquivosMd(pasta: string): string[] {
 }
 
 const MODULO = 'virtual:roteiros';
+const PEDACO = 'virtual:roteiro/';
+
+/** Lê e confere todos os roteiros. Para o build (e o dev) se algum for inválido. */
+function lerTudo(ctx: { addWatchFile(id: string): void; error(mensagem: string): never }) {
+  const raiz = join(process.cwd(), 'roteiros');
+  const caminhos = arquivosMd(raiz);
+  for (const c of [...caminhos, join(raiz, 'series.yml')]) ctx.addWatchFile(c);
+  const arquivos = Object.fromEntries(
+    caminhos.map((c) => [relative(process.cwd(), c).replace(/\\/g, '/'), readFileSync(c, 'utf-8')]),
+  );
+  const catalogo = montarCatalogo(readFileSync(join(raiz, 'series.yml'), 'utf-8'), arquivos);
+  const erros = problemasDoCatalogo(catalogo);
+  if (erros.length) ctx.error(`Roteiros inválidos:\n- ${erros.join('\n- ')}`);
+  return catalogo;
+}
 
 /**
- * Lê os roteiros no build e entrega ao navegador um módulo com os dados prontos (#9):
- * o yaml e o marked ficam fora do pacote. Para o build (e o dev) se um roteiro for
- * inválido: o site nunca publica tela em branco.
+ * Lê os roteiros no build e entrega ao navegador módulos com os dados prontos (#9):
+ * o yaml e o marked ficam fora do pacote. O `virtual:roteiros` leva só o resumo de cada
+ * roteiro; fontes, blocos e YouTube vão num pedaço próprio, `virtual:roteiro/<slug>`,
+ * pedido por `import()` só ao abrir o roteiro (#56). Para o build (e o dev) se um roteiro
+ * for inválido: o site nunca publica tela em branco.
  */
 function roteiros(): Plugin {
   return {
@@ -37,20 +54,24 @@ function roteiros(): Plugin {
       server.watcher.on('unlink', mudou);
     },
     resolveId(id) {
-      return id === MODULO ? '\0' + MODULO : undefined;
+      return id === MODULO || id.startsWith(PEDACO) ? '\0' + id : undefined;
     },
     load(id) {
-      if (id !== '\0' + MODULO) return undefined;
-      const raiz = join(process.cwd(), 'roteiros');
-      const caminhos = arquivosMd(raiz);
-      for (const c of [...caminhos, join(raiz, 'series.yml')]) this.addWatchFile(c);
-      const arquivos = Object.fromEntries(
-        caminhos.map((c) => [relative(process.cwd(), c).replace(/\\/g, '/'), readFileSync(c, 'utf-8')]),
-      );
-      const catalogo = montarCatalogo(readFileSync(join(raiz, 'series.yml'), 'utf-8'), arquivos);
-      const erros = problemasDoCatalogo(catalogo);
-      if (erros.length) this.error(`Roteiros inválidos:\n- ${erros.join('\n- ')}`);
-      return `export default ${JSON.stringify(dadosDoSite(catalogo))};`;
+      if (id === '\0' + MODULO) {
+        const catalogo = lerTudo(this);
+        // Um import() por roteiro: o Vite gera um pedaço de JS para cada um.
+        const carregadores = catalogo.roteiros
+          .map((r) => `  ${JSON.stringify(r.slug)}: () => import(${JSON.stringify(PEDACO + r.slug)}),`)
+          .join('\n');
+        return `export default ${JSON.stringify(dadosDoSite(catalogo))};\nexport const carregadores = {\n${carregadores}\n};\n`;
+      }
+      if (id.startsWith('\0' + PEDACO)) {
+        const slug = id.slice(1 + PEDACO.length);
+        const roteiro = lerTudo(this).roteiros.find((r) => r.slug === slug);
+        if (!roteiro) return this.error(`Roteiro inexistente: ${slug}`);
+        return `export default ${JSON.stringify(conteudoDoRoteiro(roteiro))};`;
+      }
+      return undefined;
     },
   };
 }

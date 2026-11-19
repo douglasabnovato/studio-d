@@ -36,7 +36,11 @@ export interface ParaOYoutube {
   capa: string;
 }
 
-export interface Roteiro {
+/**
+ * O que a vitrine precisa de um roteiro: vai no pacote inicial (#56).
+ * Fontes, blocos e o texto do YouTube ficam num pedaço por roteiro, carregado ao abrir.
+ */
+export interface RoteiroResumo {
   slug: string;
   titulo: string;
   serie: string;
@@ -48,10 +52,18 @@ export interface Roteiro {
   objetivo: string;
   situacao: Situacao;
   resumo: string;
+  /** Número de fontes, para a janela de detalhes mostrar sem carregar o roteiro. */
+  quantasFontes: number;
+}
+
+/** O que só a página do roteiro e o modo gravação usam (#56). */
+export interface ConteudoDoRoteiro {
   fontes: Fonte[];
   blocos: Bloco[];
   youtube: ParaOYoutube;
 }
+
+export interface Roteiro extends RoteiroResumo, ConteudoDoRoteiro {}
 
 /** Converte "m:ss" em segundos. */
 export function emSegundos(marca: string): number {

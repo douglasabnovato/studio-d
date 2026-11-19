@@ -1,7 +1,15 @@
-import { describe, expect, it } from 'vitest';
+import dados, { carregadores } from 'virtual:roteiros';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { destaque, problemasDoCatalogo } from './catalogo';
 import { montarCatalogo } from './ler-catalogo';
-import { catalogo } from './conteudo';
+import { carregarRoteiro, catalogo } from './conteudo';
+import type { Roteiro } from './tipos';
+
+// Os roteiros completos, como o navegador os recebe depois de abrir cada um (#56).
+let completos: Roteiro[] = [];
+beforeAll(async () => {
+  completos = await Promise.all(catalogo.roteiros.map((r) => catalogo.carregar(r.slug)));
+});
 
 describe('catálogo real (roteiros/)', () => {
   it('tem pelo menos um roteiro e cinco séries', () => {
@@ -14,7 +22,7 @@ describe('catálogo real (roteiros/)', () => {
   });
 
   it('blocos contínuos e capítulos batendo (a mesma regra do build)', () => {
-    expect(problemasDoCatalogo(catalogo)).toEqual([]);
+    expect(problemasDoCatalogo({ roteiros: completos })).toEqual([]);
   });
 
   it('o modelo (_modelo.md) não aparece no catálogo', () => {
@@ -75,11 +83,40 @@ fontes:
 
 describe('dados do build (#9)', () => {
   it('cada bloco chega com a fala já em HTML, sem precisar do marked no navegador', () => {
-    for (const r of catalogo.roteiros) {
+    for (const r of completos) {
       for (const b of r.blocos) {
         expect(b.html?.fala).toMatch(/^<p>|^<ul>|^<ol>|^<pre/);
         expect(b.html?.fala).not.toMatch(/<script/i);
       }
     }
+  });
+});
+
+describe('pacote inicial e pedaços (#56)', () => {
+  it('o pacote inicial leva só o resumo: sem fontes, blocos e YouTube', () => {
+    for (const r of dados.roteiros) {
+      expect(r).not.toHaveProperty('fontes');
+      expect(r).not.toHaveProperty('blocos');
+      expect(r).not.toHaveProperty('youtube');
+      expect(r.quantasFontes).toBeGreaterThan(0);
+    }
+  });
+
+  it('há um pedaço por roteiro, e ele completa o resumo', async () => {
+    expect(Object.keys(carregadores).sort()).toEqual(dados.roteiros.map((r) => r.slug).sort());
+    const primeiro = dados.roteiros[0];
+    const completo = await carregarRoteiro(primeiro.slug);
+    expect(completo).toMatchObject(primeiro);
+    expect(completo.fontes).toHaveLength(primeiro.quantasFontes);
+    expect(completo.blocos.length).toBeGreaterThan(0);
+  });
+
+  it('o mesmo roteiro é pedido uma vez só', () => {
+    const slug = dados.roteiros[0].slug;
+    expect(carregarRoteiro(slug)).toBe(carregarRoteiro(slug));
+  });
+
+  it('recusa slug que não existe', async () => {
+    await expect(carregarRoteiro('nao-existe')).rejects.toThrow(/inexistente/);
   });
 });

@@ -1,19 +1,25 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { Rotas } from '../App';
+import { indexarCatalogo, type Catalogo } from '../lib/catalogo';
 import { catalogo } from '../lib/conteudo';
+import type { Roteiro } from '../lib/tipos';
 import { ITENS_CHECKLIST, Teleprompter } from './Gravacao';
 
-const abrir = (rota = '/') =>
+const abrir = (rota = '/', c: Catalogo = catalogo) =>
   render(
     <MemoryRouter initialEntries={[rota]}>
-      <Rotas catalogo={catalogo} />
+      <Rotas catalogo={c} />
     </MemoryRouter>,
   );
 
-const primeiro = catalogo.roteiros[0];
+// O primeiro roteiro completo, com fontes, blocos e YouTube, que chegam num pedaço à parte (#56).
+let primeiro: Roteiro;
+beforeAll(async () => {
+  primeiro = await catalogo.carregar(catalogo.roteiros[0].slug);
+});
 
 describe('Início', () => {
   it('mostra o destaque e uma fileira por série', () => {
@@ -94,16 +100,17 @@ describe('Pular para o conteúdo', () => {
 });
 
 describe('Roteiro', () => {
-  it('mostra os blocos, as fontes e o botão de gravar', () => {
+  it('mostra os blocos, as fontes e o botão de gravar', async () => {
     abrir(`/v/${primeiro.slug}`);
     expect(screen.getByRole('heading', { level: 1, name: primeiro.titulo })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: `Roteiro em ${primeiro.blocos.length} blocos` })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: `Roteiro em ${primeiro.blocos.length} blocos` })).toBeInTheDocument();
     for (const f of primeiro.fontes) expect(screen.getByRole('link', { name: f.titulo })).toHaveAttribute('href', f.url);
     expect(screen.getByRole('link', { name: /Gravar/ })).toHaveAttribute('href', `/v/${primeiro.slug}/gravar`);
   });
 
-  it('mostra a fala, a tela e os comandos que vieram do build (#9)', () => {
+  it('mostra a fala, a tela e os comandos que vieram do build (#9)', async () => {
     const { container } = abrir(`/v/${primeiro.slug}`);
+    await screen.findByRole('heading', { name: /^Roteiro em/ });
     const trecho = (md: string) => md.replace(/[*_`#>[\]()-]/g, ' ').split(/\s+/).filter((p) => p.length > 4).slice(0, 3);
     const textoDaPagina = container.textContent ?? '';
     const comTela = primeiro.blocos.find((b) => b.tela)!;
@@ -121,7 +128,7 @@ describe('Roteiro', () => {
   it('copia o texto do YouTube e confirma', async () => {
     const user = userEvent.setup();
     abrir(`/v/${primeiro.slug}`);
-    await user.click(screen.getByRole('button', { name: 'Copiar descrição' }));
+    await user.click(await screen.findByRole('button', { name: 'Copiar descrição' }));
     expect(await screen.findByText('Copiado: descrição.')).toBeInTheDocument();
     expect(await navigator.clipboard.readText()).toBe(primeiro.youtube.descricao);
   });
@@ -131,7 +138,7 @@ describe('Roteiro', () => {
     const negado = vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new DOMException('negado', 'NotAllowedError'));
     try {
       abrir(`/v/${primeiro.slug}`);
-      await user.click(screen.getByRole('button', { name: 'Copiar tags' }));
+      await user.click(await screen.findByRole('button', { name: 'Copiar tags' }));
       expect(await screen.findByText('Não deu para copiar. Selecione o texto e use Ctrl+C.')).toBeInTheDocument();
       expect(negado).toHaveBeenCalledWith(primeiro.youtube.tags);
     } finally {
@@ -139,9 +146,43 @@ describe('Roteiro', () => {
     }
   });
 
-  it('não deixa HTML do roteiro virar elemento', () => {
+  it('não deixa HTML do roteiro virar elemento', async () => {
     abrir(`/v/${primeiro.slug}`);
+    await screen.findByRole('heading', { name: /^Roteiro em/ });
     expect(document.querySelector('main script, main iframe')).toBeNull();
+  });
+});
+
+describe('Carregar o roteiro sob demanda (#56)', () => {
+  /** Catálogo com os mesmos resumos e um carregador controlado pelo teste. */
+  const comCarregador = (carregar: Catalogo['carregar']) => indexarCatalogo(catalogo.series, catalogo.roteiros, carregar);
+
+  it('mostra o cabeçalho na hora e avisa enquanto o roteiro carrega', async () => {
+    let entregar: (r: Roteiro) => void = () => {};
+    abrir(`/v/${primeiro.slug}`, comCarregador(() => new Promise((ok) => (entregar = ok))));
+    expect(screen.getByRole('heading', { level: 1, name: primeiro.titulo })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Carregando o roteiro…');
+    entregar(primeiro);
+    expect(await screen.findByRole('heading', { name: `Roteiro em ${primeiro.blocos.length} blocos` })).toBeInTheDocument();
+    expect(screen.queryByText('Carregando o roteiro…')).not.toBeInTheDocument();
+  });
+
+  it('avisa quando o pedaço não chega e tenta de novo', async () => {
+    const user = userEvent.setup();
+    const carregar = vi.fn<Catalogo['carregar']>().mockRejectedValueOnce(new TypeError('Failed to fetch')).mockResolvedValue(primeiro);
+    abrir(`/v/${primeiro.slug}`, comCarregador(carregar));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não deu para carregar o roteiro');
+    await user.click(screen.getByRole('button', { name: 'Tentar de novo' }));
+    expect(await screen.findByRole('heading', { name: /^Roteiro em/ })).toBeInTheDocument();
+    expect(carregar).toHaveBeenCalledTimes(2);
+  });
+
+  it('no modo gravação, o botão de começar espera o roteiro e avisa a falha', async () => {
+    const user = userEvent.setup();
+    abrir(`/v/${primeiro.slug}/gravar`, comCarregador(() => Promise.reject(new TypeError('Failed to fetch'))));
+    for (const c of screen.getAllByRole('checkbox')) await user.click(c);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não deu para carregar o roteiro');
+    expect(screen.getByRole('button', { name: /Começar a gravação/ })).toBeDisabled();
   });
 });
 
@@ -154,7 +195,7 @@ describe('Gravação', () => {
     const caixas = screen.getAllByRole('checkbox');
     expect(caixas).toHaveLength(ITENS_CHECKLIST.length);
     for (const c of caixas) await user.click(c);
-    expect(comecar).toBeEnabled();
+    await vi.waitFor(() => expect(comecar).toBeEnabled());
     await user.click(comecar);
     expect(screen.getByRole('region', { name: /Modo gravação/ })).toBeInTheDocument();
   });
