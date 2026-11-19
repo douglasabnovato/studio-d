@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { aplicarTema, temaSalvo, type Tema } from '../lib/tema';
+import { aplicarTema, escolherTema, temaSalvo, type Tema } from '../lib/tema';
 
 interface Props {
   busca?: string;
@@ -42,7 +42,10 @@ export function Topo({ busca, onBusca }: Props) {
         <button
           type="button"
           className="botao botao-secundario botao-icone"
-          onClick={() => setTema(outro)}
+          onClick={() => {
+            escolherTema(outro);
+            setTema(outro);
+          }}
           aria-label={outro === 'light' ? 'Usar tema claro' : 'Usar tema escuro'}
           title={outro === 'light' ? 'Tema claro' : 'Tema escuro'}
         >
