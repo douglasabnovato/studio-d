@@ -1,10 +1,17 @@
-// Confere que o site publicado responde e é o Studio D (#43).
-// Uso: node scripts/conferir-site.ts [url]. Sai com código 1 se houver problema.
+// Confere que o site publicado responde e é o Studio D (#43) e, com --build, que roda o build da main (#55).
+// Uso: node scripts/conferir-site.ts [url] [--build caminho/do/dist/index.html]. Sai com código 1 se houver problema.
 // O Node 22.18+ roda TypeScript direto, sem compilar (só remove os tipos).
 import { readFileSync } from 'node:fs';
-import { problemasDoSite } from '../src/lib/conferir-site.ts';
+import { problemasDoBuild, problemasDoSite } from '../src/lib/conferir-site.ts';
 
-const URL_DO_SITE = process.argv[2] ?? 'https://douglasabnovato.github.io/studio-d/';
+const argumentos = process.argv.slice(2);
+const posBuild = argumentos.indexOf('--build');
+const indiceDoBuild = posBuild >= 0 ? argumentos[posBuild + 1] : undefined;
+if (posBuild >= 0 && !indiceDoBuild) {
+  console.error('Faltou o caminho depois de --build (ex.: --build dist/index.html).');
+  process.exit(1);
+}
+const URL_DO_SITE = argumentos.find((a, i) => !a.startsWith('--') && argumentos[i - 1] !== '--build') ?? 'https://douglasabnovato.github.io/studio-d/';
 const TENTATIVAS = 3;
 const ESPERA_MS = 10_000;
 
@@ -29,12 +36,14 @@ const doRepositorio = readFileSync(new URL('../index.html', import.meta.url), 'u
 try {
   const { status, html } = await baixar(URL_DO_SITE);
   const problemas = problemasDoSite(status, html, doRepositorio);
+  if (!problemas.length && indiceDoBuild) problemas.push(...problemasDoBuild(html, readFileSync(indiceDoBuild, 'utf-8')));
   if (problemas.length) {
-    console.error(`O site ${URL_DO_SITE} não é o Studio D:\n- ${problemas.join('\n- ')}`);
+    console.error(`O site ${URL_DO_SITE} não passou na conferência:\n- ${problemas.join('\n- ')}`);
     process.exit(1);
   }
-  console.log(`OK: ${URL_DO_SITE} respondeu HTTP 200 com o título e a descrição do index.html.`);
+  const doBuild = indiceDoBuild ? ', e pede o mesmo pacote do build da main' : '';
+  console.log(`OK: ${URL_DO_SITE} respondeu HTTP 200 com o título e a descrição do index.html${doBuild}.`);
 } catch (erro) {
-  console.error(`Não foi possível abrir ${URL_DO_SITE}: ${erro instanceof Error ? erro.message : String(erro)}`);
+  console.error(`Não foi possível conferir ${URL_DO_SITE}: ${erro instanceof Error ? erro.message : String(erro)}`);
   process.exit(1);
 }

@@ -1,5 +1,5 @@
 // Vai para o navegador: sem yaml e sem marked (#9). A leitura dos arquivos está em ler-catalogo.ts.
-import { emSegundos, type Roteiro, type Situacao } from './tipos';
+import { emSegundos, type Roteiro, type RoteiroResumo, type Situacao } from './tipos';
 
 export interface Planejado {
   titulo: string;
@@ -24,17 +24,25 @@ export interface Episodio {
   repositorio: string;
   resumo: string;
   situacao: Situacao;
-  roteiro?: Roteiro;
+  roteiro?: RoteiroResumo;
 }
 
-export interface Catalogo {
+/** Busca o roteiro completo (fontes, blocos e YouTube) pelo slug (#56). */
+export type CarregarRoteiro = (slug: string) => Promise<Roteiro>;
+
+/**
+ * No navegador, `roteiros` traz só os resumos e `carregar` busca o resto sob demanda (#56).
+ * No build e nos testes de regra, `montarCatalogo` entrega os roteiros completos.
+ */
+export interface Catalogo<R extends RoteiroResumo = RoteiroResumo> {
   series: Serie[];
-  roteiros: Roteiro[];
+  roteiros: R[];
   porSerie: Map<string, Episodio[]>;
+  carregar: CarregarRoteiro;
 }
 
 /** Monta as fileiras a partir das séries e dos roteiros já lidos. */
-export function indexarCatalogo(series: Serie[], roteiros: Roteiro[]): Catalogo {
+export function indexarCatalogo<R extends RoteiroResumo>(series: Serie[], roteiros: R[], carregar: CarregarRoteiro): Catalogo<R> {
   const porSerie = new Map<string, Episodio[]>();
   for (const s of series) {
     const escritos: Episodio[] = roteiros
@@ -58,11 +66,11 @@ export function indexarCatalogo(series: Serie[], roteiros: Roteiro[]): Catalogo 
     }));
     porSerie.set(s.id, [...escritos, ...planejados]);
   }
-  return { series, roteiros, porSerie };
+  return { series, roteiros, porSerie, carregar };
 }
 
 /** O roteiro em destaque: o primeiro pronto para gravar; senão, o primeiro rascunho. */
-export function destaque(c: Catalogo): Roteiro | undefined {
+export function destaque<R extends RoteiroResumo>(c: Catalogo<R>): R | undefined {
   return c.roteiros.find((r) => r.situacao === 'pronto') ?? c.roteiros.find((r) => r.situacao === 'rascunho') ?? c.roteiros[0];
 }
 
@@ -70,7 +78,7 @@ export function destaque(c: Catalogo): Roteiro | undefined {
  * Regras que o parser sozinho não confere: blocos contínuos a partir de 0:00 e
  * capítulos do YouTube iguais ao início dos blocos. Roda nos testes e no build.
  */
-export function problemasDoCatalogo(c: Catalogo): string[] {
+export function problemasDoCatalogo(c: { roteiros: Roteiro[] }): string[] {
   const erros: string[] = [];
   for (const r of c.roteiros) {
     if (r.blocos[0].inicio !== '0:00') erros.push(`${r.slug}: o primeiro bloco precisa começar em 0:00`);

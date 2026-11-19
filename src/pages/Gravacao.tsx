@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { CarregarRoteiro } from '../components/CarregarRoteiro';
 import { Markdown } from '../components/Markdown';
 import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import type { Catalogo } from '../lib/catalogo';
-import { emSegundos, type Roteiro } from '../lib/tipos';
+import { emSegundos, type Roteiro, type RoteiroResumo } from '../lib/tipos';
+import { useRoteiro, type EstadoDoRoteiro } from '../lib/usar-roteiro';
 
 export const ITENS_CHECKLIST = [
   'Nenhum .env, token, senha ou chave na tela, no terminal ou no histórico do navegador.',
@@ -39,7 +41,17 @@ function Cronometro({ rodando, total, zerar }: { rodando: boolean; total: number
   );
 }
 
-function Checklist({ roteiro, onComecar }: { roteiro: Roteiro; onComecar: () => void }) {
+function Checklist({
+  roteiro,
+  estado,
+  onComecar,
+  children,
+}: {
+  roteiro: RoteiroResumo;
+  estado: EstadoDoRoteiro['estado'];
+  onComecar: () => void;
+  children?: ReactNode;
+}) {
   const [marcados, setMarcados] = useState<boolean[]>(() => ITENS_CHECKLIST.map(() => false));
   const todos = marcados.every(Boolean);
   return (
@@ -65,7 +77,7 @@ function Checklist({ roteiro, onComecar }: { roteiro: Roteiro; onComecar: () => 
           ))}
         </ul>
         <div className="destaque-acoes">
-          <button type="button" className="botao botao-principal" disabled={!todos} onClick={onComecar}>
+          <button type="button" className="botao botao-principal" disabled={!todos || estado !== 'pronto'} onClick={onComecar}>
             <span aria-hidden="true">▶</span> Começar a gravação
           </button>
           <Link className="botao botao-secundario" to={`/v/${roteiro.slug}`}>
@@ -77,6 +89,7 @@ function Checklist({ roteiro, onComecar }: { roteiro: Roteiro; onComecar: () => 
             Faltam {marcados.filter((m) => !m).length} itens.
           </p>
         )}
+        {children}
       </main>
     </>
   );
@@ -243,10 +256,10 @@ export function Gravacao({ catalogo }: { catalogo: Catalogo }) {
   const { slug } = useParams();
   const navegar = useNavigate();
   const [gravando, setGravando] = useState(false);
-  const roteiro = catalogo.roteiros.find((r) => r.slug === slug);
+  const estado = useRoteiro(catalogo, slug);
   const sair = useCallback(() => navegar(`/v/${slug}`), [navegar, slug]);
 
-  if (!roteiro) {
+  if (estado.estado === 'inexistente') {
     return (
       <main className="pagina">
         <h1>Roteiro não encontrado</h1>
@@ -254,5 +267,11 @@ export function Gravacao({ catalogo }: { catalogo: Catalogo }) {
       </main>
     );
   }
-  return gravando ? <Teleprompter roteiro={roteiro} onSair={sair} /> : <Checklist roteiro={roteiro} onComecar={() => setGravando(true)} />;
+  if (gravando && estado.estado === 'pronto') return <Teleprompter roteiro={estado.roteiro} onSair={sair} />;
+  // O checklist sai do resumo; o botão de começar espera o roteiro completo (#56).
+  return (
+    <Checklist roteiro={estado.resumo} estado={estado.estado} onComecar={() => setGravando(true)}>
+      {estado.estado !== 'pronto' && <CarregarRoteiro estado={estado} />}
+    </Checklist>
+  );
 }
