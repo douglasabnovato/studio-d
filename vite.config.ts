@@ -17,17 +17,25 @@ function arquivosMd(pasta: string): string[] {
 const MODULO = 'virtual:roteiros';
 const PEDACO = 'virtual:roteiro/';
 
-/** Lê e confere todos os roteiros. Para o build (e o dev) se algum for inválido. */
+let lidos: ReturnType<typeof montarCatalogo> | undefined;
+
+/**
+ * Lê e confere todos os roteiros, uma vez por build (o resumo e cada pedaço usam o mesmo resultado).
+ * Para o build (e o dev) se algum for inválido.
+ */
 function lerTudo(ctx: { addWatchFile(id: string): void; error(mensagem: string): never }) {
   const raiz = join(process.cwd(), 'roteiros');
   const caminhos = arquivosMd(raiz);
+  // Cada módulo (o resumo e cada pedaço) observa os arquivos, mesmo quando a leitura já está guardada.
   for (const c of [...caminhos, join(raiz, 'series.yml')]) ctx.addWatchFile(c);
+  if (lidos) return lidos;
   const arquivos = Object.fromEntries(
     caminhos.map((c) => [relative(process.cwd(), c).replace(/\\/g, '/'), readFileSync(c, 'utf-8')]),
   );
   const catalogo = montarCatalogo(readFileSync(join(raiz, 'series.yml'), 'utf-8'), arquivos);
   const erros = problemasDoCatalogo(catalogo);
   if (erros.length) ctx.error(`Roteiros inválidos:\n- ${erros.join('\n- ')}`);
+  lidos = catalogo;
   return catalogo;
 }
 
@@ -41,11 +49,19 @@ function lerTudo(ctx: { addWatchFile(id: string): void; error(mensagem: string):
 function roteiros(): Plugin {
   return {
     name: 'roteiros',
+    buildStart() {
+      lidos = undefined;
+    },
+    // No dev, um roteiro editado invalida a leitura guardada.
+    watchChange() {
+      lidos = undefined;
+    },
     // No dev, roteiro novo ou apagado recarrega a página (o addWatchFile só cobre os que já existiam).
     configureServer(server) {
       const raiz = join(process.cwd(), 'roteiros');
       const mudou = (arquivo: string) => {
         if (!arquivo.startsWith(raiz) || !arquivo.endsWith('.md')) return;
+        lidos = undefined;
         const modulo = server.moduleGraph.getModuleById('\0' + MODULO);
         if (modulo) server.moduleGraph.invalidateModule(modulo);
         server.ws.send({ type: 'full-reload' });

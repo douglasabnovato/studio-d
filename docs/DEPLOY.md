@@ -51,7 +51,7 @@ Nenhum desses passos usa senha ou token.
 
 ## LCP medido a cada deploy (#59)
 
-- Depois do `publicar`, o job `lcp` do CI espera o site servir o build novo (a mesma conferência do `site-no-ar`, até 10 minutos) e roda o Lighthouse 12.8.2 móvel 3 vezes no endereço publicado.
+- Depois do `publicar`, o job `lcp` do CI espera o site servir o build novo (a mesma conferência do `site-no-ar`, 20 tentativas com 30 s entre elas) e roda o Lighthouse 12.8.2 móvel 3 vezes no endereço publicado.
 - O resumo do run (aba **Summary**) traz o build medido, o LCP e o TBT de cada execução, o elemento do LCP e a mediana. Os 3 JSON ficam no artefato `lighthouse`.
 - O job fica vermelho se a mediana passar de 2,5 s ou se houver menos de 3 execuções válidas. O site já foi publicado; o vermelho só avisa. Se for menos de 3 válidas, rodar o job de novo; se for a mediana, abrir uma issue com o link do run.
 - Para citar no `docs/MVP.md` (critério 7): o número do run, o build medido, as 3 execuções, a mediana, os TBTs e o elemento do LCP, com a data do resumo.

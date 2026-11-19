@@ -161,7 +161,7 @@ describe('Carregar o roteiro sob demanda (#56)', () => {
     let entregar: (r: Roteiro) => void = () => {};
     abrir(`/v/${primeiro.slug}`, comCarregador(() => new Promise((ok) => (entregar = ok))));
     expect(screen.getByRole('heading', { level: 1, name: primeiro.titulo })).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Carregando o roteiro…');
+    expect(screen.getByText('Carregando o roteiro…')).toHaveAttribute('aria-live', 'polite');
     entregar(primeiro);
     expect(await screen.findByRole('heading', { name: `Roteiro em ${primeiro.blocos.length} blocos` })).toBeInTheDocument();
     expect(screen.queryByText('Carregando o roteiro…')).not.toBeInTheDocument();
@@ -172,6 +172,7 @@ describe('Carregar o roteiro sob demanda (#56)', () => {
     const carregar = vi.fn<Catalogo['carregar']>().mockRejectedValueOnce(new TypeError('Failed to fetch')).mockResolvedValue(primeiro);
     abrir(`/v/${primeiro.slug}`, comCarregador(carregar));
     expect(await screen.findByRole('alert')).toHaveTextContent('Não deu para carregar o roteiro');
+    expect(screen.getByRole('button', { name: 'Recarregar a página' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Tentar de novo' }));
     expect(await screen.findByRole('heading', { name: /^Roteiro em/ })).toBeInTheDocument();
     expect(carregar).toHaveBeenCalledTimes(2);
