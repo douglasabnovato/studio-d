@@ -114,7 +114,7 @@ export function Detalhes({ episodio, episodiosDaSerie, onFechar }: Props) {
                   )}
                   <p>
                     <span className="rotulo">Fontes: </span>
-                    {roteiro.fontes.length} links no roteiro
+                    {roteiro.quantasFontes} links no roteiro
                   </p>
                 </>
               ) : (

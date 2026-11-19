@@ -105,6 +105,7 @@ export function lerRoteiro(arquivo: string, conteudo: string): Roteiro {
     objetivo: texto(dados.objetivo, 'objetivo', arquivo),
     situacao,
     resumo: texto(dados.resumo, 'resumo', arquivo),
+    quantasFontes: fontes.length,
     fontes,
     blocos,
     youtube,

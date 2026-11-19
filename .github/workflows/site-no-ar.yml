@@ -1,7 +1,8 @@
 name: Site no ar
 
-# Confere toda semana que https://douglasabnovato.github.io/studio-d/ responde 200
-# e tem o título e a descrição do index.html do repositório (#43).
+# Confere toda semana que https://douglasabnovato.github.io/studio-d/ responde 200,
+# tem o título e a descrição do index.html do repositório (#43) e pede o mesmo
+# pacote (assets/index-*.js) que o build da main gera (#55).
 # O schedule só roda na branch padrão, e o GitHub o desliga depois de 60 dias sem
 # atividade num repositório público; nesse caso, religar na aba Actions.
 # Em falha, o job fica vermelho na aba Actions; nada é enviado a terceiros.
@@ -23,10 +24,22 @@ jobs:
   conferir:
     name: conferir-site
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      # O build comparado é sempre o da main, mesmo num PR ou num disparo manual de outra branch.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          path: principal
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: node scripts/conferir-site.ts
+          cache: npm
+          cache-dependency-path: principal/package-lock.json
+      - name: Build da main
+        working-directory: principal
+        run: |
+          npm ci
+          npm run build
+      - run: node scripts/conferir-site.ts --build principal/dist/index.html
