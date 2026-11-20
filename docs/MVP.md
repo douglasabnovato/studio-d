@@ -8,6 +8,13 @@
 
 **Finalizado:** sim — os 2 que faltam (5 e 10) dependem do responsável e têm issue com `depende-do-responsavel`: a conta de medição (#4) e a `main` protegida (#3).
 
+## Produto
+
+- **Problema:** o autor grava vídeos ensinando a partir dos próprios repositórios e precisa de um roteiro claro na hora de gravar.
+- **Público:** o autor, ao gravar e ao planejar; e quem assiste, pessoas que fizeram cursos e querem levar projetos a produto.
+- **Hipótese:** acreditamos que roteiros em blocos, com teleprompter e checklist, farão o autor gravar um vídeo por semana. Saberemos quando houver 4 vídeos publicados em 30 dias depois do primeiro.
+- **Métrica:** vídeos publicados por semana, medido pela situação `publicado` nos roteiros (`roteiros/*.md`) — meta: 4 vídeos em 30 dias depois do primeiro. Métricas de apoio e de qualidade em [`produto/visao.md`](produto/visao.md).
+
 **Hipótese:** acreditamos que roteiros em blocos, com teleprompter e checklist, farão o autor gravar um vídeo por semana; saberemos quando houver 4 vídeos publicados em 30 dias depois do primeiro.
 
 ## Critérios
@@ -29,6 +36,7 @@
 
 ## Histórico
 
+- 20/11/2026: bloco Produto padronizado, sem mudar critérios.
 - 18/11/2026: contagem sem mudança (10 de 12). Critério 10 com o ruleset novo, ainda sem checks obrigatórios. Critério 6 com o carregamento e a falha do roteiro sob demanda. Critério 7 com a nota do build publicado.
 
 - 16/11/2026, 15h03: 9 → 10 de 12. O critério 9 era "Parcial" porque a API de alertas do Dependabot respondia 403 (alertas desligados, engenharia#33). O responsável ligou os alertas; a API mostra 0 abertos e o audit de produção, 0 vulnerabilidades.
