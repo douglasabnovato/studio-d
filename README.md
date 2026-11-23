@@ -4,6 +4,23 @@
 
 > **Site:** <https://douglasabnovato.github.io/studio-d/> · publicado pelo GitHub Actions a cada merge na `main`.
 
+![Vitrine do Studio D no computador: o episódio em destaque, com os botões Gravar e Ver roteiro, e a fileira "Para gravar" com os episódios](.github/capturas/vitrine-computador.png)
+
+## Experimente em 30 segundos
+
+1. Abra o [site](https://douglasabnovato.github.io/studio-d/) e espere a abertura (ou aperte Esc).
+2. Clique em **Ver roteiro** no episódio em destaque: aparecem o objetivo, o público e os blocos com tempo.
+3. Clique em **Gravar**: o checklist de segurança vem primeiro, e depois o teleprompter.
+
+## Telas
+
+Capturas do site publicado em 23/11/2026, em 360 px (celular) e 1440 px (computador).
+
+| | Celular (360 px) | Computador (1440 px) |
+|---|---|---|
+| **Vitrine** | <img src=".github/capturas/vitrine-celular.png" width="180" alt="Vitrine no celular: o episódio em destaque e a fileira Para gravar"> | <img src=".github/capturas/vitrine-computador.png" width="480" alt="Vitrine no computador: o destaque e as fileiras por série"> |
+| **Roteiro** | <img src=".github/capturas/roteiro-celular.png" width="180" alt="Página do roteiro no celular: série, título, situação Rascunho, objetivo, público e o botão Gravar"> | <img src=".github/capturas/roteiro-computador.png" width="480" alt="Página do roteiro no computador: detalhes do episódio e os blocos com tempo"> |
+
 ## Para quem é
 
 - **Para mim, na hora de gravar:** o que dizer, o que mostrar e quanto tempo falta, sem ler texto corrido para a câmera.
