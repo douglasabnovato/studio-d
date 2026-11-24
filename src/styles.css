@@ -631,7 +631,8 @@ code {
   inset: 0;
   z-index: 60;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  /* minmax(0, …): a linha do texto encolhe até caber; antes, ela empurrava os controles para fora da tela no celular. */
+  grid-template-rows: auto minmax(0, 1fr) auto;
   background: #000;
   color: #fff;
 }
@@ -657,8 +658,21 @@ code {
 .gravacao-texto {
   position: relative;
   overflow-y: auto;
-  padding: 30vh var(--gutter) 60vh;
+  /* O respiro de cima (30vh) e o de baixo (60vh) são espaçadores que rolam junto: como padding, eles
+     impediam a caixa de encolher abaixo de 90vh, e o texto cobria os controles no celular. */
+  padding: 0 var(--gutter);
   scrollbar-width: none;
+}
+.gravacao-texto::before,
+.gravacao-texto::after {
+  content: '';
+  display: block;
+}
+.gravacao-texto::before {
+  height: 30vh;
+}
+.gravacao-texto::after {
+  height: 60vh;
 }
 .gravacao-texto::-webkit-scrollbar {
   display: none;

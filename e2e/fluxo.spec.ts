@@ -196,3 +196,21 @@ test('no roteiro, o comando longo rola dentro do bloco em 360 px (#87)', async (
   const caixa = await page.locator('.bloco pre').first().boundingBox();
   expect(caixa!.x + caixa!.width).toBeLessThanOrEqual(360);
 });
+
+test('modo gravação em 360 px: os controles cabem na tela', async ({ page }, info) => {
+  test.skip(info.project.name !== 'celular', 'mede a altura de 360×800');
+  await page.setViewportSize({ width: 360, height: 800 });
+  await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
+  for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
+  await page.getByRole('button', { name: /Começar a gravação/ }).click();
+  const rolar = page.getByRole('button', { name: 'Rolar' });
+  await expect(rolar).toBeInViewport();
+  const controles = await page.locator('.gravacao-controles').boundingBox();
+  expect(controles!.y + controles!.height).toBeLessThanOrEqual(800);
+  // O texto termina onde os controles começam: nada fica por cima deles.
+  const caixa = await page.locator('.gravacao-texto').boundingBox();
+  expect(caixa!.y + caixa!.height).toBeLessThanOrEqual(controles!.y + 1);
+  // O texto continua rolando dentro da própria caixa.
+  const texto = page.locator('.gravacao-texto');
+  expect(await texto.evaluate((e) => e.scrollHeight > e.clientHeight)).toBe(true);
+});
