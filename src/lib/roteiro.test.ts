@@ -89,6 +89,25 @@ describe('lerRoteiro', () => {
     expect(() => lerRoteiro('x.md', errada + corpo)).toThrow(/situação/);
   });
 
+  it('lê gravado_em e publicado_em de um roteiro publicado (#80)', () => {
+    const pub = cabecalho('gravado_em: 2026-11-20\npublicado_em: 2026-11-24\n').replace('situacao: rascunho', 'situacao: publicado');
+    const r = lerRoteiro('x.md', pub + corpo);
+    expect(r.gravadoEm).toBe('2026-11-20');
+    expect(r.publicadoEm).toBe('2026-11-24');
+  });
+
+  it('recusa data inválida, com o campo e o valor na mensagem (#80)', () => {
+    const errada = cabecalho('gravado_em: 2026-02-30\n');
+    expect(() => lerRoteiro('x.md', errada + corpo)).toThrow(/"gravado_em" precisa de uma data AAAA-MM-DD \(recebeu "2026-02-30"\)/);
+    expect(() => lerRoteiro('x.md', cabecalho('gravado_em: 24/11/2026\n') + corpo)).toThrow(/gravado_em/);
+  });
+
+  it('"publicado" exige publicado_em, e publicado_em exige "publicado" (#80)', () => {
+    const semData = cabecalho().replace('situacao: rascunho', 'situacao: publicado');
+    expect(() => lerRoteiro('x.md', semData + corpo)).toThrow(/precisa de "publicado_em"/);
+    expect(() => lerRoteiro('x.md', cabecalho('publicado_em: 2026-11-24\n') + corpo)).toThrow(/só vale com "situacao: publicado"/);
+  });
+
   it('recusa arquivo sem cabeçalho', () => {
     expect(() => lerRoteiro('x.md', corpo)).toThrow(/cabeçalho/);
   });

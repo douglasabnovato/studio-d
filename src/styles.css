@@ -498,6 +498,13 @@ a {
 .pagina {
   padding: 0 var(--gutter) 64px;
 }
+/* Meta do MVP pelas datas dos roteiros (#80): uma linha discreta antes das fileiras. */
+.meta-mvp {
+  margin: 0;
+  padding-bottom: 24px;
+  color: var(--texto-suave);
+  font-size: 0.95rem;
+}
 .roteiro-cabecalho {
   display: grid;
   gap: 24px;

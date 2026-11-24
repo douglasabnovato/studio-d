@@ -10,6 +10,8 @@ pre_requisitos:
   - O que a pessoa precisa saber antes
 objetivo: Ao final, a pessoa sabe fazer X.
 situacao: rascunho # planejado, rascunho, pronto, gravado ou publicado
+# gravado_em: AAAA-MM-DD    # opcional: o dia da gravação
+# publicado_em: AAAA-MM-DD  # obrigatório com "situacao: publicado"; conta na meta do MVP (4 vídeos em 30 dias, #80)
 resumo: Uma frase que aparece no card e no destaque.
 fontes:
   # Toda afirmação do roteiro vem de uma fonte: docs e PRs do repositório, guias oficiais.
