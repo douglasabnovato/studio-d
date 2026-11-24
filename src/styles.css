@@ -10,6 +10,7 @@
   --texto: #f2f4f8;
   --texto-suave: #b4bccb;
   --texto-no-azul: #ffffff;
+  --alerta: #ffb454;
   --foco: #5aa0ff;
   --sombra: 0 12px 32px rgb(0 0 0 / 0.55);
   --raio: 8px;
@@ -28,6 +29,7 @@
   --texto: #0f1420;
   --texto-suave: #465066;
   --texto-no-azul: #ffffff;
+  --alerta: #8a4b00;
   --foco: #0a55d9;
   --sombra: 0 12px 32px rgb(15 20 32 / 0.18);
   color-scheme: light;
@@ -551,6 +553,12 @@ a {
   font-variant-numeric: tabular-nums;
   color: var(--azul-claro);
   font-size: 0.95rem;
+}
+/* Fala maior que o tempo do bloco (#90): texto, e não só cor. */
+.bloco-aviso {
+  margin: 4px 0 0;
+  color: var(--alerta);
+  font-weight: 700;
 }
 .bloco h3 {
   margin: 16px 0 4px;

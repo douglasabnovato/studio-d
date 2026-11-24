@@ -232,3 +232,30 @@ describe('Gravação', () => {
     expect(screen.getByText(/0:00 \//)).toHaveTextContent(primeiro.blocos[primeiro.blocos.length - 1].fim);
   });
 });
+
+describe('Fala por bloco (#90)', () => {
+  const comBlocos = (ajustar: (r: Roteiro) => Roteiro) =>
+    indexarCatalogo(catalogo.series, catalogo.roteiros, async (slug) => ajustar(await catalogo.carregar(slug)));
+
+  it('esconde o "de fala" num bloco sem fala estimada', async () => {
+    const r0 = (r: Roteiro) => ({ ...r, blocos: r.blocos.map((b, i) => (i === 0 ? { ...b, falaSegundos: 0 } : b)) });
+    abrir(`/v/${primeiro.slug}`, comBlocos(r0));
+    const titulo = await screen.findByRole('heading', { level: 2, name: new RegExp(`^1\. ${primeiro.blocos[0].nome}`) });
+    expect(titulo).not.toHaveTextContent('de fala');
+    expect(screen.getByRole('heading', { level: 2, name: new RegExp(`^2\. ${primeiro.blocos[1].nome}`) })).toHaveTextContent('de fala');
+  });
+
+  it('avisa, em texto, quando a fala passa do tempo do bloco', async () => {
+    const longo = (r: Roteiro) => ({ ...r, blocos: r.blocos.map((b, i) => (i === 0 ? { ...b, falaSegundos: 9999 } : b)) });
+    abrir(`/v/${primeiro.slug}`, comBlocos(longo));
+    await screen.findByRole('heading', { name: /^Roteiro em/ });
+    const avisos = screen.getAllByText(/A fala estimada passa do tempo do bloco/);
+    expect(avisos).toHaveLength(1);
+  });
+
+  it('não avisa nos roteiros de hoje, que cabem no tempo', async () => {
+    abrir(`/v/${primeiro.slug}`);
+    await screen.findByRole('heading', { name: /^Roteiro em/ });
+    expect(screen.queryByText(/A fala estimada passa do tempo do bloco/)).not.toBeInTheDocument();
+  });
+});

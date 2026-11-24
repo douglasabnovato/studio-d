@@ -33,6 +33,7 @@ const PARES: [string, string][] = [
   ['texto-no-azul', 'azul-studio'],
   ['azul-claro', 'fundo'],
   ['azul-claro', 'superficie'],
+  ['alerta', 'superficie'],
 ];
 
 describe.each([
