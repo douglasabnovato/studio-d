@@ -735,6 +735,13 @@ code {
   height: 70vh;
   height: 70cqh;
 }
+/* Tempo de tela sem fala, no fim do bloco (#83): menor e mais claro que a fala. */
+.gravacao-tela-sem-fala {
+  margin: 0.5em 0 0;
+  font-size: 0.5em;
+  font-weight: 600;
+  color: #b4bccb;
+}
 .gravacao-texto::-webkit-scrollbar {
   display: none;
 }

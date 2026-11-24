@@ -266,3 +266,24 @@ test('modo gravação: no fim do roteiro, a última linha chega à linha de leit
   // A última linha sobe até a linha de leitura (com a margem de baixo do bloco, no máximo 12vh acima).
   expect(fim.fimDoBloco).toBeLessThanOrEqual(fim.linha + 2);
 });
+
+test('teleprompter: o 1º bloco dura o tempo da fala estimada, a ±10% (#83)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'escuro', 'mede o tempo num projeto só');
+  test.setTimeout(60_000);
+  await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
+  for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
+  await page.getByRole('button', { name: /Começar a gravação/ }).click();
+  // Ritmo 200%, para o teste levar metade da fala do bloco.
+  for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowUp');
+  await expect(page.getByText('Ritmo 200%')).toBeVisible();
+  const fala = await page.locator('[data-bloco="0"]').evaluate((e) => Number((e as HTMLElement).dataset.falaSegundos));
+  const esperado = fala / 2;
+  await page.keyboard.press('Space');
+  await expect(page.getByRole('button', { name: 'Pausar' })).toBeVisible({ timeout: 6000 });
+  const t0 = Date.now();
+  // O bloco acaba quando o próximo chega à linha de leitura: a faixa passa a "Cena 2".
+  await expect(page.locator('.gravacao-faixa')).toContainText('Cena 2', { timeout: (esperado * 1.5 + 5) * 1000 });
+  const medido = (Date.now() - t0) / 1000;
+  expect(medido).toBeGreaterThan(esperado * 0.9);
+  expect(medido).toBeLessThan(esperado * 1.1);
+});
