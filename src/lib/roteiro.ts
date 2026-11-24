@@ -1,4 +1,5 @@
 import { parse as lerYaml } from 'yaml';
+import { segundosDeFala } from './ritmo';
 import { SITUACOES, type Bloco, type Fonte, type ParaOYoutube, type Roteiro, type Situacao } from './tipos';
 
 // Roda no build e nos testes, nunca no navegador (#9).
@@ -86,6 +87,7 @@ export function lerRoteiro(arquivo: string, conteudo: string): Roteiro {
       inicio: t[2],
       fim: t[3],
       fala,
+      falaSegundos: segundosDeFala(fala),
       tela: subsecao(s.conteudo, 'Tela'),
       comandos: subsecao(s.conteudo, 'Comandos'),
     });
@@ -106,6 +108,7 @@ export function lerRoteiro(arquivo: string, conteudo: string): Roteiro {
     situacao,
     resumo: texto(dados.resumo, 'resumo', arquivo),
     quantasFontes: fontes.length,
+    falaSegundos: blocos.reduce((soma, b) => soma + b.falaSegundos, 0),
     fontes,
     blocos,
     youtube,

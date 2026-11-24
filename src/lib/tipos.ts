@@ -23,6 +23,8 @@ export interface Bloco {
   inicio: string;
   fim: string;
   fala: string;
+  /** Segundos de fala estimados (#85). */
+  falaSegundos: number;
   tela: string;
   comandos: string;
   /** Fala, tela e comandos já em HTML seguro. Preenchido no build (#9). */
@@ -54,6 +56,8 @@ export interface RoteiroResumo {
   resumo: string;
   /** Número de fontes, para a janela de detalhes mostrar sem carregar o roteiro. */
   quantasFontes: number;
+  /** Soma da fala estimada dos blocos, em segundos (#85). */
+  falaSegundos: number;
 }
 
 /** O que só a página do roteiro e o modo gravação usam (#56). */

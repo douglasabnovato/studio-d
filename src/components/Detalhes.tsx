@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import type { Episodio } from '../lib/catalogo';
+import { formatarFala } from '../lib/ritmo';
 import { SITUACOES } from '../lib/tipos';
 import { Capa } from './Capa';
 
@@ -75,7 +76,11 @@ export function Detalhes({ episodio, episodiosDaSerie, onFechar }: Props) {
             <li>
               <span className={`selo${episodio.situacao === 'pronto' ? ' selo-pronto' : ''}`}>{SITUACOES[episodio.situacao]}</span>
             </li>
-            {roteiro && <li>{roteiro.duracaoAlvo}</li>}
+            {roteiro && (
+              <li>
+                {roteiro.duracaoAlvo}, cerca de {formatarFala(roteiro.falaSegundos)} de fala
+              </li>
+            )}
             {roteiro && <li>Episódio {roteiro.episodio}</li>}
             <li>{episodio.repositorio}</li>
           </ul>

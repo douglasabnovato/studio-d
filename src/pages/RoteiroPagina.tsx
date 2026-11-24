@@ -6,6 +6,7 @@ import { Markdown } from '../components/Markdown';
 import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import type { Catalogo } from '../lib/catalogo';
+import { formatarFala } from '../lib/ritmo';
 import { SITUACOES, type Roteiro } from '../lib/tipos';
 import { useRoteiro } from '../lib/usar-roteiro';
 
@@ -73,7 +74,9 @@ export function RoteiroPagina({ catalogo }: { catalogo: Catalogo }) {
               <li>
                 <span className={`selo${roteiro.situacao === 'pronto' ? ' selo-pronto' : ''}`}>{SITUACOES[roteiro.situacao]}</span>
               </li>
-              <li>{roteiro.duracaoAlvo}</li>
+              <li>
+                {roteiro.duracaoAlvo}, cerca de {formatarFala(roteiro.falaSegundos)} de fala
+              </li>
               <li>
                 <a href={`https://github.com/${roteiro.repositorio}`}>{roteiro.repositorio}</a>
               </li>
@@ -153,7 +156,7 @@ function Corpo({ roteiro }: { roteiro: Roteiro }) {
               {i + 1}. {b.nome}
             </span>
             <span className="bloco-tempo">
-              {b.inicio}–{b.fim}
+              {b.inicio}–{b.fim} · {formatarFala(b.falaSegundos)} de fala
             </span>
           </h2>
           <h3>Fala</h3>
