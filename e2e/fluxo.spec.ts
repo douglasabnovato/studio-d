@@ -213,20 +213,36 @@ test('teleprompter: contagem antes do 1º começo e progresso do bloco (#84)', a
   await expect.poll(async () => Number(await barra.getAttribute('aria-valuenow')), { timeout: 6000 }).toBeGreaterThan(0);
 });
 
-test('modo gravação em 360 px: os controles cabem na tela', async ({ page }, info) => {
-  test.skip(info.project.name !== 'celular', 'mede a altura de 360×800');
-  await page.setViewportSize({ width: 360, height: 800 });
-  await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
-  for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
-  await page.getByRole('button', { name: /Começar a gravação/ }).click();
-  const rolar = page.getByRole('button', { name: 'Rolar' });
-  await expect(rolar).toBeInViewport();
-  const controles = await page.locator('.gravacao-controles').boundingBox();
-  expect(controles!.y + controles!.height).toBeLessThanOrEqual(800);
-  // O texto termina onde os controles começam: nada fica por cima deles.
-  const caixa = await page.locator('.gravacao-texto').boundingBox();
-  expect(caixa!.y + caixa!.height).toBeLessThanOrEqual(controles!.y + 1);
-  // O texto continua rolando dentro da própria caixa.
-  const texto = page.locator('.gravacao-texto');
-  expect(await texto.evaluate((e) => e.scrollHeight > e.clientHeight)).toBe(true);
-});
+/** Modo gravação em 3 telas (#93, #95): os controles cabem, o texto não os cobre e o 1º bloco abre na linha de leitura. */
+const TELAS_GRAVACAO: { nome: string; w: number; h: number; projeto: 'celular' | 'desktop' }[] = [
+  { nome: 'celular de pé, 360×800', w: 360, h: 800, projeto: 'celular' },
+  { nome: 'celular deitado, 800×360', w: 800, h: 360, projeto: 'celular' },
+  { nome: 'computador, 1440×900', w: 1440, h: 900, projeto: 'desktop' },
+];
+
+for (const tela of TELAS_GRAVACAO) {
+  test(`modo gravação, ${tela.nome}: controles na tela e 1º bloco na linha de leitura`, async ({ page }, info) => {
+    test.skip(
+      tela.projeto === 'celular' ? info.project.name !== 'celular' : info.project.name !== 'escuro',
+      'roda num projeto só',
+    );
+    await page.setViewportSize({ width: tela.w, height: tela.h });
+    await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
+    for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
+    await page.getByRole('button', { name: /Começar a gravação/ }).click();
+    await expect(page.getByRole('button', { name: 'Rolar' })).toBeInViewport();
+    const controles = await page.locator('.gravacao-controles').boundingBox();
+    expect(controles!.y + controles!.height).toBeLessThanOrEqual(tela.h);
+    // O texto termina onde os controles começam: nada fica por cima deles.
+    const caixa = await page.locator('.gravacao-texto').boundingBox();
+    expect(caixa!.y + caixa!.height).toBeLessThanOrEqual(controles!.y + 1);
+    // O texto rola dentro da própria caixa, e o 1º bloco abre na linha de leitura (30% da caixa).
+    const medida = await page.locator('.gravacao-texto').evaluate((e) => ({
+      rola: e.scrollHeight > e.clientHeight,
+      linha: e.clientHeight * 0.3,
+      bloco0: (e.querySelector('[data-bloco="0"]') as HTMLElement).offsetTop,
+    }));
+    expect(medida.rola).toBe(true);
+    expect(Math.abs(medida.bloco0 - medida.linha)).toBeLessThanOrEqual(2);
+  });
+}
