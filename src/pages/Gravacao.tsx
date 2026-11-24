@@ -163,7 +163,8 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
     };
     quadro = requestAnimationFrame(passo);
     return () => cancelAnimationFrame(quadro);
-  }, [rodando, fator, roteiro.blocos]);
+    // letra nas dependências: trocar a letra durante a rolagem recalcula as distâncias e a média (R19 do #99).
+  }, [rodando, fator, roteiro.blocos, letra]);
 
   // Bloco atual: o que cruza a linha de leitura, a 30% da altura.
   const aoRolar = () => {
@@ -330,11 +331,12 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
           −
         </button>
         <span aria-live="polite">Ritmo {Math.round(fator * 100)}%</span>
-        {/* A referência do ritmo em palavras por minuto (nota 0 da R19 do #97). */}
-        <span className="rotulo-ritmo">≈ {Math.round(PALAVRAS_POR_MINUTO * fator)} palavras/min</span>
         <button type="button" className="botao botao-secundario" onClick={() => setFator(mudarRitmo(+1))} aria-label="Mais rápido">
           +
         </button>
+        {/* A referência do ritmo em palavras por minuto (nota 0 da R19 do #97), depois do "+": "− Ritmo 100% +"
+            fica sempre junto (R19 do #99). */}
+        <span className="rotulo-ritmo">≈ {Math.round(PALAVRAS_POR_MINUTO * fator)} palavras/min</span>
         <button type="button" className="botao botao-secundario" onClick={() => setLetra((l) => Math.max(l - 4, 24))} >
           <span aria-hidden="true">A−</span>
           <span className="sr-only">Letra menor</span>
