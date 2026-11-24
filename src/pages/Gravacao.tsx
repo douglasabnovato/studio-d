@@ -95,10 +95,16 @@ function Checklist({
   );
 }
 
-/** Teleprompter: espaço pausa, ↑ e ↓ mudam a velocidade, ← e → trocam o bloco, + e − mudam a letra, Esc sai. */
-export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: () => void }) {
+/**
+ * Teleprompter: espaço pausa, ↑ e ↓ mudam a velocidade, ← e → trocam o bloco, + e − mudam a letra, Esc sai.
+ * O primeiro começo (e o primeiro depois de "Zerar tempo") passa por uma contagem regressiva (#84).
+ */
+export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteiro: Roteiro; onSair: () => void; contagemSegundos?: number }) {
   const texto = useRef<HTMLDivElement>(null);
+  const barra = useRef<HTMLDivElement>(null);
   const [rodando, setRodando] = useState(false);
+  const [contagem, setContagem] = useState<number | null>(null);
+  const jaComecou = useRef(false);
   const [velocidade, setVelocidade] = useState(40);
   const [letra, setLetra] = useState(44);
   const [atual, setAtual] = useState(0);
@@ -148,7 +154,48 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
     let i = 0;
     for (const b of blocos) if (b.offsetTop <= linha) i = Number(b.dataset.bloco);
     setAtual(i);
+    // Progresso dentro do bloco atual (#84): escrito direto na barra, sem renderizar o texto a cada quadro.
+    const atualEl = blocos[i];
+    const proximo = blocos[i + 1];
+    if (atualEl && barra.current) {
+      const fimDoBloco = proximo ? proximo.offsetTop : caixa.scrollHeight;
+      const pct = Math.round(Math.min(1, Math.max(0, (linha - atualEl.offsetTop) / Math.max(1, fimDoBloco - atualEl.offsetTop))) * 100);
+      barra.current.style.width = `${pct}%`;
+      barra.current.parentElement?.setAttribute('aria-valuenow', String(pct));
+    }
   };
+
+  // Contagem regressiva: um passo por segundo; no zero, a rolagem começa.
+  useEffect(() => {
+    if (contagem === null) return;
+    if (contagem <= 0) {
+      setContagem(null);
+      setRodando(true);
+      return;
+    }
+    const id = window.setTimeout(() => setContagem((c) => (c === null ? null : c - 1)), 1000);
+    return () => window.clearTimeout(id);
+  }, [contagem]);
+
+  /** Rolar ou pausar. O primeiro começo passa pela contagem; durante ela, o mesmo comando cancela. */
+  const alternar = useCallback(() => {
+    if (contagem !== null) {
+      setContagem(null);
+      jaComecou.current = false; // cancelar não conta como começo
+      return;
+    }
+    if (rodando) {
+      setRodando(false);
+      return;
+    }
+    if (!jaComecou.current && contagemSegundos > 0) {
+      jaComecou.current = true;
+      setContagem(contagemSegundos);
+      return;
+    }
+    jaComecou.current = true;
+    setRodando(true);
+  }, [contagem, rodando, contagemSegundos]);
 
   useEffect(() => {
     const onTecla = (ev: KeyboardEvent) => {
@@ -158,7 +205,7 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
       switch (ev.key) {
         case ' ':
           ev.preventDefault();
-          setRodando((r) => !r);
+          alternar();
           break;
         case 'ArrowUp':
           ev.preventDefault();
@@ -184,13 +231,17 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
           setLetra((l) => Math.max(l - 4, 24));
           break;
         case 'Escape':
-          onSair();
+          // Esc cancela a contagem; fora dela, sai do modo gravação.
+          if (contagem !== null) {
+            setContagem(null);
+            jaComecou.current = false;
+          } else onSair();
           break;
       }
     };
     window.addEventListener('keydown', onTecla);
     return () => window.removeEventListener('keydown', onTecla);
-  }, [atual, irPara, onSair, roteiro.blocos.length]);
+  }, [atual, irPara, onSair, roteiro.blocos.length, alternar, contagem]);
 
   return (
     <div className="gravacao" role="region" aria-label={`Modo gravação: ${roteiro.titulo}`}>
@@ -205,7 +256,23 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
           </span>
         )}
         <Cronometro rodando={rodando} total={total} zerar={zerar} />
+        <div
+          className="gravacao-progresso"
+          role="progressbar"
+          aria-label={`Bloco ${atual + 1}: ${bloco.nome}`}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={0}
+        >
+          <div className="gravacao-progresso-barra" ref={barra} />
+        </div>
       </div>
+      {contagem !== null && (
+        <div className="gravacao-contagem" role="status" aria-live="assertive">
+          <span className="sr-only">Começa em </span>
+          {contagem}
+        </div>
+      )}
       <div
         className="gravacao-texto"
         ref={texto}
@@ -222,8 +289,8 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
         ))}
       </div>
       <div className="gravacao-controles">
-        <button type="button" className="botao botao-principal" onClick={() => setRodando((r) => !r)} aria-pressed={rodando}>
-          {rodando ? 'Pausar' : 'Rolar'}
+        <button type="button" className="botao botao-principal" onClick={alternar} aria-pressed={rodando}>
+          {contagem !== null ? 'Cancelar contagem' : rodando ? 'Pausar' : 'Rolar'}
         </button>
         <button type="button" className="botao botao-secundario" onClick={() => setVelocidade((v) => Math.max(v - 10, 10))} aria-label="Mais devagar">
           −
@@ -240,10 +307,17 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
           <span aria-hidden="true">A+</span>
           <span className="sr-only">Letra maior</span>
         </button>
-        <button type="button" className="botao botao-secundario" onClick={() => setZerar((z) => z + 1)}>
+        <button
+          type="button"
+          className="botao botao-secundario"
+          onClick={() => {
+            setZerar((z) => z + 1);
+            jaComecou.current = false; // uma nova tomada passa de novo pela contagem
+          }}
+        >
           Zerar tempo
         </button>
-        <span className="rotulo-atalhos">Espaço pausa · ↑↓ velocidade · ←→ bloco · Esc sai</span>
+        <span className="rotulo-atalhos">Espaço rola (com contagem de {contagemSegundos} s na 1ª vez) e pausa · ↑↓ velocidade · ←→ bloco · Esc sai</span>
         <button type="button" className="botao botao-secundario" onClick={onSair} style={{ marginLeft: 'auto' }}>
           Sair
         </button>

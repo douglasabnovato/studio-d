@@ -196,3 +196,19 @@ test('no roteiro, o comando longo rola dentro do bloco em 360 px (#87)', async (
   const caixa = await page.locator('.bloco pre').first().boundingBox();
   expect(caixa!.x + caixa!.width).toBeLessThanOrEqual(360);
 });
+
+test('teleprompter: contagem antes do 1º começo e progresso do bloco (#84)', async ({ page }, info) => {
+  test.skip(info.project.name === 'celular', 'atalho de teclado é de desktop');
+  await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
+  for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
+  await page.getByRole('button', { name: /Começar a gravação/ }).click();
+  await expect(page.getByRole('progressbar', { name: /^Bloco 1: / })).toBeVisible();
+  await page.keyboard.press('Space');
+  const contagem = page.getByRole('status').filter({ hasText: /Começa em/ });
+  await expect(contagem).toBeVisible();
+  await semViolacoes(page, '.gravacao');
+  await expect(page.getByRole('button', { name: 'Pausar' })).toBeVisible({ timeout: 6000 });
+  await expect(contagem).toHaveCount(0);
+  const barra = page.getByRole('progressbar', { name: /^Bloco \d+: / });
+  await expect.poll(async () => Number(await barra.getAttribute('aria-valuenow')), { timeout: 6000 }).toBeGreaterThan(0);
+});

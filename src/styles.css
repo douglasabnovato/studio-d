@@ -654,6 +654,48 @@ code {
   font-variant-numeric: tabular-nums;
   font-weight: 800;
 }
+/* Progresso dentro do bloco atual (#84): trilho e preenchimento com 3:1 entre si. */
+.gravacao-progresso {
+  flex: 0 0 120px;
+  height: 8px;
+  border-radius: 4px;
+  background: #3a4354;
+  overflow: hidden;
+}
+.gravacao-progresso-barra {
+  width: 0;
+  height: 100%;
+  background: #5aa0ff;
+}
+/* Contagem regressiva antes do primeiro começo (#84). */
+.gravacao-contagem {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.72);
+  color: #fff;
+  font-size: clamp(6rem, 30vw, 14rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .gravacao-contagem {
+    animation: contagem-pulso 1s ease-out infinite;
+  }
+}
+@keyframes contagem-pulso {
+  from {
+    transform: scale(1.15);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 .gravacao-texto {
   position: relative;
   overflow-y: auto;
