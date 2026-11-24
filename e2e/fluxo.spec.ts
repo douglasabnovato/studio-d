@@ -231,24 +231,23 @@ test('modo gravação em 360 px: os controles cabem na tela', async ({ page }, i
   expect(await texto.evaluate((e) => e.scrollHeight > e.clientHeight)).toBe(true);
 });
 
-test('teleprompter: o bloco rola no ritmo da fala estimada, a ±10% (#83)', async ({ page }, info) => {
-  test.skip(info.project.name !== 'escuro', 'mede a velocidade num projeto só');
+test('teleprompter: o 1º bloco dura o tempo da fala estimada, a ±10% (#83)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'escuro', 'mede o tempo num projeto só');
+  test.setTimeout(60_000);
   await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
   for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
   await page.getByRole('button', { name: /Começar a gravação/ }).click();
-  const texto = page.locator('.gravacao-texto');
-  const esperada = await texto.evaluate((e) => {
-    const b = e.querySelector<HTMLElement>('[data-bloco="0"]')!;
-    return b.offsetHeight / Number(b.dataset.falaSegundos);
-  });
+  // Ritmo 200%, para o teste levar metade da fala do bloco.
+  for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowUp');
+  await expect(page.getByText('Ritmo 200%')).toBeVisible();
+  const fala = await page.locator('[data-bloco="0"]').evaluate((e) => Number((e as HTMLElement).dataset.falaSegundos));
+  const esperado = fala / 2;
   await page.keyboard.press('Space');
   await expect(page.getByRole('button', { name: 'Pausar' })).toBeVisible({ timeout: 6000 });
-  // Mede 2 s de rolagem dentro do 1º bloco.
-  const y0 = await texto.evaluate((e) => e.scrollTop);
   const t0 = Date.now();
-  await page.waitForTimeout(2000);
-  const y1 = await texto.evaluate((e) => e.scrollTop);
-  const medida = (y1 - y0) / ((Date.now() - t0) / 1000);
-  expect(medida).toBeGreaterThan(esperada * 0.9);
-  expect(medida).toBeLessThan(esperada * 1.1);
+  // O bloco acaba quando o próximo chega à linha de leitura: a faixa passa a "Cena 2".
+  await expect(page.locator('.gravacao-faixa')).toContainText('Cena 2', { timeout: (esperado * 1.5 + 5) * 1000 });
+  const medido = (Date.now() - t0) / 1000;
+  expect(medido).toBeGreaterThan(esperado * 0.9);
+  expect(medido).toBeLessThan(esperado * 1.1);
 });

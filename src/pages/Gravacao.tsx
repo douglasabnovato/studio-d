@@ -142,10 +142,18 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
       const dt = (agora - anterior) / 1000;
       anterior = agora;
       if (caixa) {
-        // Velocidade do bloco que está na linha de leitura: a altura dele ÷ a fala estimada (#83).
+        // Velocidade do bloco que está na linha de leitura (#83): a distância até o próximo bloco chegar à
+        // linha, margem de 12vh incluída, ÷ a fala estimada. Sem a margem, o bloco ficava até 27% mais lento
+        // (R19 do #97).
         const i = atualRef.current;
         const el = caixa.querySelector<HTMLElement>(`[data-bloco="${i}"]`);
-        const v = velocidadeDoBloco(el?.offsetHeight ?? 0, roteiro.blocos[i]?.falaSegundos ?? 0, fator);
+        const prox = caixa.querySelector<HTMLElement>(`[data-bloco="${i + 1}"]`);
+        const distancia = el
+          ? prox
+            ? prox.offsetTop - el.offsetTop
+            : el.offsetHeight + parseFloat(getComputedStyle(el).marginBottom || '0')
+          : 0;
+        const v = velocidadeDoBloco(distancia, roteiro.blocos[i]?.falaSegundos ?? 0, fator);
         posicao.current = Math.min(posicao.current + v * dt, caixa.scrollHeight);
         caixa.scrollTop = posicao.current;
       }
@@ -301,12 +309,13 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
           <section key={b.nome} className="gravacao-bloco" data-bloco={i} data-atual={i === atual} data-fala-segundos={b.falaSegundos}>
             <h2>
               {i + 1}. {b.nome}
-              {/* Fica no texto que rola, e não na faixa: a faixa mudar de altura deslocava a linha de leitura (#83). */}
-              {segundosDeTela(b.falaSegundos, b.inicio, b.fim) > 0 && (
-                <span className="gravacao-tela-sem-fala"> · depois, {relogio(segundosDeTela(b.falaSegundos, b.inicio, b.fim))} de tela sem fala</span>
-              )}
             </h2>
             <Markdown html={b.html?.fala} />
+            {/* No fim do bloco, quando a fala acaba: é aí que a tela sem fala começa (R19 do #97). Fica no texto
+                que rola, e não na faixa: a faixa mudar de altura deslocava a linha de leitura. */}
+            {segundosDeTela(b.falaSegundos, b.inicio, b.fim) > 0 && (
+              <p className="gravacao-tela-sem-fala">Agora, {relogio(segundosDeTela(b.falaSegundos, b.inicio, b.fim))} de tela sem fala</p>
+            )}
           </section>
         ))}
       </div>
