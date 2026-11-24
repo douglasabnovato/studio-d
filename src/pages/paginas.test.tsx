@@ -201,7 +201,7 @@ describe('Gravação', () => {
     expect(screen.getByRole('region', { name: /Modo gravação/ })).toBeInTheDocument();
   });
 
-  it('teclado: espaço pausa, setas mudam a velocidade e Esc sai', async () => {
+  it('teclado: espaço pausa, setas mudam o ritmo e Esc sai', async () => {
     const user = userEvent.setup();
     const sair = vi.fn();
     render(<Teleprompter roteiro={primeiro} onSair={sair} contagemSegundos={0} />);
@@ -210,11 +210,11 @@ describe('Gravação', () => {
     await user.keyboard(' ');
     expect(screen.getByRole('button', { name: 'Pausar' })).toBeInTheDocument();
     await user.keyboard(' ');
-    expect(screen.getByText('Velocidade 40')).toBeInTheDocument();
+    expect(screen.getByText('Ritmo 100%')).toBeInTheDocument();
     await user.keyboard('{ArrowUp}{ArrowUp}');
-    expect(screen.getByText('Velocidade 60')).toBeInTheDocument();
+    expect(screen.getByText('Ritmo 120%')).toBeInTheDocument();
     await user.keyboard('{ArrowDown}');
-    expect(screen.getByText('Velocidade 50')).toBeInTheDocument();
+    expect(screen.getByText('Ritmo 110%')).toBeInTheDocument();
     await user.keyboard('{Escape}');
     expect(sair).toHaveBeenCalledOnce();
   });
@@ -223,7 +223,7 @@ describe('Gravação', () => {
     const user = userEvent.setup();
     render(<Teleprompter roteiro={primeiro} onSair={() => {}} />);
     await user.keyboard('{Control>}{ArrowUp}{/Control}');
-    expect(screen.getByText('Velocidade 40')).toBeInTheDocument();
+    expect(screen.getByText('Ritmo 100%')).toBeInTheDocument();
   });
 
   it('o primeiro começo conta e só então rola (#84)', async () => {
@@ -276,6 +276,15 @@ describe('Gravação', () => {
     const barra = screen.getByRole('progressbar', { name: `Bloco 1: ${primeiro.blocos[0].nome}` });
     expect(barra).toHaveAttribute('aria-valuemin', '0');
     expect(barra).toHaveAttribute('aria-valuemax', '100');
+  });
+
+  it('o ritmo fica entre 50% e 200%, de 10 em 10 (#83)', async () => {
+    const user = userEvent.setup();
+    render(<Teleprompter roteiro={primeiro} onSair={() => {}} contagemSegundos={0} />);
+    for (let i = 0; i < 12; i++) await user.click(screen.getByRole('button', { name: 'Mais rápido' }));
+    expect(screen.getByText('Ritmo 200%')).toBeInTheDocument();
+    for (let i = 0; i < 20; i++) await user.click(screen.getByRole('button', { name: 'Mais devagar' }));
+    expect(screen.getByText('Ritmo 50%')).toBeInTheDocument();
   });
 
   it('mostra a cena atual e o tempo total do roteiro', () => {

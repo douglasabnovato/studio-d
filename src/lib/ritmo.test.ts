@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { contarPalavras, excessoDeFala, falaPassaDoBloco, formatarFala, PALAVRAS_POR_MINUTO, segundosDeFala } from './ritmo';
+import {
+  contarPalavras,
+  excessoDeFala,
+  falaPassaDoBloco,
+  formatarFala,
+  PALAVRAS_POR_MINUTO,
+  segundosDeFala,
+  segundosDeTela,
+  velocidadeDoBloco,
+  VELOCIDADE_RESERVA,
+} from './ritmo';
 
 describe('tempo de fala estimado (#85)', () => {
   it('conta palavras sem o Markdown que não se lê em voz alta', () => {
@@ -35,5 +45,22 @@ describe('tempo de fala estimado (#85)', () => {
   it('diz quantos segundos a fala passa do bloco (#90)', () => {
     expect(excessoDeFala(57, '0:00', '0:45')).toBe(12);
     expect(excessoDeFala(40, '0:00', '0:45')).toBe(0);
+  });
+});
+
+describe('velocidade por bloco (#83)', () => {
+  it('divide a altura do bloco pelo tempo de fala', () => {
+    expect(velocidadeDoBloco(600, 30)).toBe(20);
+    expect(velocidadeDoBloco(600, 30, 1.5)).toBe(30);
+  });
+
+  it('usa a velocidade de reserva sem fala ou sem altura', () => {
+    expect(velocidadeDoBloco(600, 0)).toBe(VELOCIDADE_RESERVA);
+    expect(velocidadeDoBloco(0, 30, 0.5)).toBe(VELOCIDADE_RESERVA * 0.5);
+  });
+
+  it('o tempo de tela é a janela menos a fala, nunca negativo', () => {
+    expect(segundosDeTela(34, '0:00', '0:45')).toBe(11);
+    expect(segundosDeTela(60, '0:00', '0:45')).toBe(0);
   });
 });

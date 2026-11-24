@@ -230,3 +230,25 @@ test('modo gravação em 360 px: os controles cabem na tela', async ({ page }, i
   const texto = page.locator('.gravacao-texto');
   expect(await texto.evaluate((e) => e.scrollHeight > e.clientHeight)).toBe(true);
 });
+
+test('teleprompter: o bloco rola no ritmo da fala estimada, a ±10% (#83)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'escuro', 'mede a velocidade num projeto só');
+  await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
+  for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
+  await page.getByRole('button', { name: /Começar a gravação/ }).click();
+  const texto = page.locator('.gravacao-texto');
+  const esperada = await texto.evaluate((e) => {
+    const b = e.querySelector<HTMLElement>('[data-bloco="0"]')!;
+    return b.offsetHeight / Number(b.dataset.falaSegundos);
+  });
+  await page.keyboard.press('Space');
+  await expect(page.getByRole('button', { name: 'Pausar' })).toBeVisible({ timeout: 6000 });
+  // Mede 2 s de rolagem dentro do 1º bloco.
+  const y0 = await texto.evaluate((e) => e.scrollTop);
+  const t0 = Date.now();
+  await page.waitForTimeout(2000);
+  const y1 = await texto.evaluate((e) => e.scrollTop);
+  const medida = (y1 - y0) / ((Date.now() - t0) / 1000);
+  expect(medida).toBeGreaterThan(esperada * 0.9);
+  expect(medida).toBeLessThan(esperada * 1.1);
+});

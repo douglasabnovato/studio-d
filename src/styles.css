@@ -729,6 +729,12 @@ code {
 .gravacao-texto::after {
   height: 60vh;
 }
+/* Tempo de tela sem fala do bloco (#83): menor e mais claro que o título. */
+.gravacao-tela-sem-fala {
+  font-size: 0.45em;
+  font-weight: 600;
+  color: #b4bccb;
+}
 .gravacao-texto::-webkit-scrollbar {
   display: none;
 }
