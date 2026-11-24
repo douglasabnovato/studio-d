@@ -840,6 +840,16 @@ code {
   color: #b4bccb;
   font-size: 0.85rem;
 }
+.rotulo-ritmo {
+  color: #b4bccb;
+  font-size: 0.85rem;
+}
+/* Em tela baixa (celular deitado), o rótulo quebraria os controles numa linha a mais e tiraria altura do texto. */
+@media (max-height: 500px) {
+  .rotulo-ritmo {
+    display: none;
+  }
+}
 /* Os atalhos só servem para teclado: em tela de toque e abaixo de 600 px, a linha sai e devolve altura ao texto (#95). */
 @media (pointer: coarse), (max-width: 599px) {
   .rotulo-atalhos {

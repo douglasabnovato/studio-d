@@ -214,10 +214,11 @@ test('teleprompter: contagem antes do 1º começo e progresso do bloco (#84)', a
 });
 
 /** Modo gravação em 3 telas (#93, #95): os controles cabem, o texto não os cobre e o 1º bloco abre na linha de leitura. */
-const TELAS_GRAVACAO: { nome: string; w: number; h: number; projeto: 'celular' | 'desktop' }[] = [
-  { nome: 'celular de pé, 360×800', w: 360, h: 800, projeto: 'celular' },
-  { nome: 'celular deitado, 800×360', w: 800, h: 360, projeto: 'celular' },
-  { nome: 'computador, 1440×900', w: 1440, h: 900, projeto: 'desktop' },
+// minTexto: a altura mínima da caixa de texto, para um rótulo novo nos controles não tirar a leitura sem ninguém ver.
+const TELAS_GRAVACAO: { nome: string; w: number; h: number; projeto: 'celular' | 'desktop'; minTexto: number }[] = [
+  { nome: 'celular de pé, 360×800', w: 360, h: 800, projeto: 'celular', minTexto: 450 },
+  { nome: 'celular deitado, 800×360', w: 800, h: 360, projeto: 'celular', minTexto: 180 },
+  { nome: 'computador, 1440×900', w: 1440, h: 900, projeto: 'desktop', minTexto: 700 },
 ];
 
 for (const tela of TELAS_GRAVACAO) {
@@ -236,6 +237,7 @@ for (const tela of TELAS_GRAVACAO) {
     // O texto termina onde os controles começam: nada fica por cima deles.
     const caixa = await page.locator('.gravacao-texto').boundingBox();
     expect(caixa!.y + caixa!.height).toBeLessThanOrEqual(controles!.y + 1);
+    expect(caixa!.height).toBeGreaterThanOrEqual(tela.minTexto);
     // O texto rola dentro da própria caixa, e o 1º bloco abre na linha de leitura (30% da caixa).
     const medida = await page.locator('.gravacao-texto').evaluate((e) => ({
       rola: e.scrollHeight > e.clientHeight,

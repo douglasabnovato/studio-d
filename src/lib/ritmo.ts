@@ -45,9 +45,20 @@ export const VELOCIDADE_RESERVA = 40;
  * estimado, para o bloco passar pela linha de leitura no ritmo da fala. O fator (↑ e ↓) ajusta o
  * ritmo de quem grava, de 50% a 200%.
  */
-export function velocidadeDoBloco(alturaPx: number, falaSegundos: number, fator = 1): number {
-  const base = falaSegundos > 0 && alturaPx > 0 ? alturaPx / falaSegundos : VELOCIDADE_RESERVA;
+export function velocidadeDoBloco(alturaPx: number, falaSegundos: number, fator = 1, reserva = VELOCIDADE_RESERVA): number {
+  const base = falaSegundos > 0 && alturaPx > 0 ? alturaPx / falaSegundos : reserva;
   return base * fator;
+}
+
+/**
+ * Reserva para os blocos sem fala (nota 0 da R19 do #97): a velocidade média dos blocos com fala do
+ * mesmo roteiro, para a rolagem não mudar de repente num roteiro misto. Sem nenhum bloco com fala,
+ * fica a reserva de antes.
+ */
+export function velocidadeMedia(blocos: { distanciaPx: number; falaSegundos: number }[]): number {
+  const com = blocos.filter((b) => b.falaSegundos > 0 && b.distanciaPx > 0);
+  if (com.length === 0) return VELOCIDADE_RESERVA;
+  return com.reduce((s, b) => s + b.distanciaPx / b.falaSegundos, 0) / com.length;
 }
 
 /** Segundos do bloco sem fala (demonstração, comando, pausa): a janela menos a fala estimada. */
