@@ -211,6 +211,7 @@ test('teleprompter: contagem antes do 1º começo e progresso do bloco (#84)', a
   await expect(contagem).toHaveCount(0);
   const barra = page.getByRole('progressbar', { name: /^Bloco \d+: / });
   await expect.poll(async () => Number(await barra.getAttribute('aria-valuenow')), { timeout: 6000 }).toBeGreaterThan(0);
+});
 
 test('modo gravação em 360 px: os controles cabem na tela', async ({ page }, info) => {
   test.skip(info.project.name !== 'celular', 'mede a altura de 360×800');
