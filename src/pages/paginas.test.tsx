@@ -206,9 +206,9 @@ describe('Gravação', () => {
     const sair = vi.fn();
     render(<Teleprompter roteiro={primeiro} onSair={sair} contagemSegundos={0} />);
     const rolar = screen.getByRole('button', { name: 'Rolar' });
-    expect(rolar).toHaveAttribute('aria-pressed', 'false');
+    expect(rolar).not.toHaveAttribute('aria-pressed');
     await user.keyboard(' ');
-    expect(screen.getByRole('button', { name: 'Pausar' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Pausar' })).toBeInTheDocument();
     await user.keyboard(' ');
     expect(screen.getByText('Velocidade 40')).toBeInTheDocument();
     await user.keyboard('{ArrowUp}{ArrowUp}');
@@ -232,10 +232,11 @@ describe('Gravação', () => {
     render(<Teleprompter roteiro={primeiro} onSair={() => {}} contagemSegundos={2} />);
     await user.keyboard(' ');
     expect(screen.getByRole('status')).toHaveTextContent('Começa em 2');
-    expect(screen.getByRole('button', { name: 'Cancelar contagem' })).toHaveAttribute('aria-pressed', 'false');
-    expect(await screen.findByText('1', { selector: '.gravacao-contagem' }, { timeout: 1600 })).toBeInTheDocument();
-    expect(await screen.findByRole('button', { name: 'Pausar' }, { timeout: 1600 })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancelar contagem' })).toBeInTheDocument();
+    await vi.waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Começa em 1'), { timeout: 1600 });
+    expect(await screen.findByRole('button', { name: 'Pausar' }, { timeout: 1600 })).toBeInTheDocument();
+    // Do 1 direto para a rolagem: nunca anuncia "Começa em 0".
+    expect(screen.getByRole('status')).toHaveTextContent('');
     // Pausar e voltar a rolar não conta de novo.
     await user.keyboard('  ');
     expect(screen.getByRole('button', { name: 'Pausar' })).toBeInTheDocument();
@@ -248,7 +249,7 @@ describe('Gravação', () => {
     await user.keyboard(' ');
     expect(screen.getByRole('status')).toHaveTextContent('Começa em 3');
     await user.keyboard('{Escape}');
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('');
     expect(sair).not.toHaveBeenCalled();
     // Cancelar não conta como começo: o próximo também conta.
     await user.click(screen.getByRole('button', { name: 'Rolar' }));
@@ -257,6 +258,17 @@ describe('Gravação', () => {
     await user.click(screen.getByRole('button', { name: 'Zerar tempo' }));
     await user.click(screen.getByRole('button', { name: 'Rolar' }));
     expect(screen.getByRole('status')).toHaveTextContent('Começa em 3');
+  });
+
+  it('"Zerar tempo" com o texto rolando pausa, e o próximo Rolar conta de novo (#84)', async () => {
+    const user = userEvent.setup();
+    render(<Teleprompter roteiro={primeiro} onSair={() => {}} contagemSegundos={2} />);
+    await user.click(screen.getByRole('button', { name: 'Rolar' }));
+    expect(await screen.findByRole('button', { name: 'Pausar' }, { timeout: 2600 })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Zerar tempo' }));
+    expect(screen.getByRole('button', { name: 'Rolar' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Rolar' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Começa em 2');
   });
 
   it('mostra o progresso do bloco atual, com o nome do bloco (#84)', () => {

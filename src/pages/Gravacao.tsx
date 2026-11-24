@@ -165,15 +165,15 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
     }
   };
 
-  // Contagem regressiva: um passo por segundo; no zero, a rolagem começa.
+  // Contagem regressiva: um passo por segundo. Do 1, a rolagem começa direto, sem pintar um "0" (R19 do #94).
   useEffect(() => {
     if (contagem === null) return;
-    if (contagem <= 0) {
-      setContagem(null);
-      setRodando(true);
-      return;
-    }
-    const id = window.setTimeout(() => setContagem((c) => (c === null ? null : c - 1)), 1000);
+    const id = window.setTimeout(() => {
+      if (contagem <= 1) {
+        setContagem(null);
+        setRodando(true);
+      } else setContagem(contagem - 1);
+    }, 1000);
     return () => window.clearTimeout(id);
   }, [contagem]);
 
@@ -267,10 +267,15 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
           <div className="gravacao-progresso-barra" ref={barra} />
         </div>
       </div>
+      {/* Região viva sempre montada: o leitor anuncia também o 1º número (R19 do #94). */}
+      <div className="sr-only" role="status" aria-live="assertive">
+        {contagem !== null ? `Começa em ${contagem}` : ''}
+      </div>
       {contagem !== null && (
-        <div className="gravacao-contagem" role="status" aria-live="assertive">
-          <span className="sr-only">Começa em </span>
-          {contagem}
+        <div className="gravacao-contagem" aria-hidden="true">
+          <span key={contagem} className="gravacao-contagem-numero">
+            {contagem}
+          </span>
         </div>
       )}
       <div
@@ -289,7 +294,7 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
         ))}
       </div>
       <div className="gravacao-controles">
-        <button type="button" className="botao botao-principal" onClick={alternar} aria-pressed={rodando}>
+        <button type="button" className="botao botao-principal" onClick={alternar}>
           {contagem !== null ? 'Cancelar contagem' : rodando ? 'Pausar' : 'Rolar'}
         </button>
         <button type="button" className="botao botao-secundario" onClick={() => setVelocidade((v) => Math.max(v - 10, 10))} aria-label="Mais devagar">
@@ -312,12 +317,15 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
           className="botao botao-secundario"
           onClick={() => {
             setZerar((z) => z + 1);
-            jaComecou.current = false; // uma nova tomada passa de novo pela contagem
+            // Uma nova tomada: pausa, e o próximo Rolar passa de novo pela contagem (R19 do #94).
+            setRodando(false);
+            setContagem(null);
+            jaComecou.current = false;
           }}
         >
           Zerar tempo
         </button>
-        <span className="rotulo-atalhos">Espaço rola (com contagem de {contagemSegundos} s na 1ª vez) e pausa · ↑↓ velocidade · ←→ bloco · Esc sai</span>
+        <span className="rotulo-atalhos">Espaço rola e pausa · ↑↓ velocidade · ←→ bloco · Esc sai</span>
         <button type="button" className="botao botao-secundario" onClick={onSair} style={{ marginLeft: 'auto' }}>
           Sair
         </button>

@@ -668,10 +668,21 @@ code {
   height: 100%;
   background: #5aa0ff;
 }
-/* Contagem regressiva antes do primeiro começo (#84). */
+/* Contagem regressiva antes do primeiro começo (#84). A camada cobre só a área do texto (linha 2 da
+   grade), e os controles ficam com o contraste de sempre (R19 do #94). */
+.gravacao-faixa {
+  grid-row: 1;
+}
+.gravacao-texto {
+  grid-row: 2;
+  grid-column: 1;
+}
+.gravacao-controles {
+  grid-row: 3;
+}
 .gravacao-contagem {
-  position: absolute;
-  inset: 0;
+  grid-row: 2;
+  grid-column: 1;
   z-index: 2;
   display: grid;
   place-items: center;
@@ -682,9 +693,11 @@ code {
   font-variant-numeric: tabular-nums;
   pointer-events: none;
 }
+/* Só o número pulsa, uma vez a cada troca; o fundo fica parado. */
 @media (prefers-reduced-motion: no-preference) {
-  .gravacao-contagem {
-    animation: contagem-pulso 1s ease-out infinite;
+  .gravacao-contagem-numero {
+    display: inline-block;
+    animation: contagem-pulso 0.6s ease-out;
   }
 }
 @keyframes contagem-pulso {
