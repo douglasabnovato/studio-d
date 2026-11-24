@@ -22,6 +22,13 @@ beforeAll(async () => {
 });
 
 describe('Início', () => {
+  it('mostra a meta do MVP: sem vídeo publicado, o relógio ainda não começou (#80)', () => {
+    abrir();
+    const linha = screen.getByText('Meta do MVP:').closest('p')!;
+    expect(linha).toHaveTextContent('Meta do MVP: 4 vídeos em 30 dias. O relógio começa no 1º vídeo publicado.');
+    expect(screen.getByText('Meta do MVP:').tagName).toBe('STRONG');
+  });
+
   it('mostra o destaque e uma fileira por série', () => {
     abrir();
     expect(screen.getByRole('heading', { level: 1, name: primeiro.titulo })).toBeInTheDocument();

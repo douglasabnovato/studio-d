@@ -6,6 +6,7 @@ import { Fileira } from '../components/Fileira';
 import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import { destaque, type Catalogo, type Episodio } from '../lib/catalogo';
+import { fraseDaMeta, hojeIso, metaDaHipotese } from '../lib/meta';
 import { SITUACOES } from '../lib/tipos';
 
 export function Inicio({ catalogo }: { catalogo: Catalogo }) {
@@ -22,6 +23,11 @@ export function Inicio({ catalogo }: { catalogo: Catalogo }) {
   const todos = useMemo(() => catalogo.series.flatMap((s) => catalogo.porSerie.get(s.id) ?? []), [catalogo]);
   const prontos = todos.filter((e) => e.situacao === 'pronto' || e.situacao === 'rascunho');
   const publicados = todos.filter((e) => e.situacao === 'publicado');
+  // Meta do MVP pelas datas de publicação dos roteiros (#80).
+  const meta = metaDaHipotese(
+    todos.map((e) => e.roteiro?.publicadoEm ?? ''),
+    hojeIso(),
+  );
 
   const abrir = (e: Episodio, el: HTMLElement) => {
     origem.current = el;
@@ -73,6 +79,11 @@ export function Inicio({ catalogo }: { catalogo: Catalogo }) {
               </div>
             </div>
           </section>
+        )}
+        {!termo && (
+          <p className="pagina meta-mvp">
+            <strong>{fraseDaMeta(meta).rotulo}</strong> {fraseDaMeta(meta).texto}
+          </p>
         )}
         {termo && <h1 className="pagina">Resultados para “{busca.trim()}”</h1>}
         {nada && (
