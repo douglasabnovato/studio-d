@@ -7,7 +7,7 @@ export const JANELA_DIAS = 30;
 
 export type EstadoDaMeta =
   | { estado: 'sem-inicio' }
-  | { estado: 'em-andamento' | 'encerrada'; publicados: number; inicio: string; fim: string; diasRestantes: number };
+  | { estado: 'em-andamento' | 'atingida' | 'encerrada'; publicados: number; inicio: string; fim: string; diasRestantes: number };
 
 const DIA = 24 * 60 * 60 * 1000;
 const emDia = (iso: string) => Date.UTC(Number(iso.slice(0, 4)), Number(iso.slice(5, 7)) - 1, Number(iso.slice(8, 10)));
@@ -32,7 +32,9 @@ export function metaDaHipotese(datasDePublicacao: string[], hoje: string): Estad
   const publicados = datas.filter((d) => d <= fim).length;
   const h = emDia(hoje);
   const diasRestantes = Math.max(0, Math.round((fim - h) / DIA));
-  return { estado: h > fim ? 'encerrada' : 'em-andamento', publicados, inicio: paraIso(inicio), fim: paraIso(fim), diasRestantes };
+  // 4 ou mais publicados dentro da janela: a meta foi atingida, mesmo antes de a janela acabar (R19 do #98).
+  const estado = publicados >= META_VIDEOS ? 'atingida' : h > fim ? 'encerrada' : 'em-andamento';
+  return { estado, publicados, inicio: paraIso(inicio), fim: paraIso(fim), diasRestantes };
 }
 
 /** "24/11" a partir de "2026-11-24". */
@@ -40,10 +42,17 @@ export function diaMes(iso: string): string {
   return `${iso.slice(8, 10)}/${iso.slice(5, 7)}`;
 }
 
-/** Frase da meta para a tela inicial. */
-export function fraseDaMeta(m: EstadoDaMeta): string {
-  if (m.estado === 'sem-inicio') return `Meta do MVP: ${META_VIDEOS} vídeos em ${JANELA_DIAS} dias. O relógio começa no 1º vídeo publicado.`;
-  const base = `Meta do MVP: ${m.publicados} de ${META_VIDEOS} vídeos publicados em ${JANELA_DIAS} dias`;
-  if (m.estado === 'encerrada') return `${base} (de ${diaMes(m.inicio)} a ${diaMes(m.fim)}, encerrada).`;
-  return `${base} · ${m.diasRestantes === 0 ? 'último dia' : `faltam ${m.diasRestantes} ${m.diasRestantes === 1 ? 'dia' : 'dias'}`} (até ${diaMes(m.fim)}).`;
+/** Frase da meta para a tela inicial: o rótulo (em negrito) e o texto (R19 do #98). */
+export function fraseDaMeta(m: EstadoDaMeta): { rotulo: string; texto: string } {
+  if (m.estado === 'sem-inicio') {
+    return { rotulo: 'Meta do MVP:', texto: `${META_VIDEOS} vídeos em ${JANELA_DIAS} dias. O relógio começa no 1º vídeo publicado.` };
+  }
+  const periodo = `de ${diaMes(m.inicio)} a ${diaMes(m.fim)}`;
+  if (m.estado === 'atingida') {
+    return { rotulo: 'Meta do MVP atingida:', texto: `${m.publicados} vídeos publicados em ${JANELA_DIAS} dias (${periodo}).` };
+  }
+  const conta = `${m.publicados} de ${META_VIDEOS} vídeos publicados em ${JANELA_DIAS} dias`;
+  if (m.estado === 'encerrada') return { rotulo: 'Meta do MVP encerrada:', texto: `${conta} (${periodo}).` };
+  const resta = m.diasRestantes === 0 ? 'último dia' : m.diasRestantes === 1 ? 'falta 1 dia' : `faltam ${m.diasRestantes} dias`;
+  return { rotulo: 'Meta do MVP:', texto: `${conta} · ${resta} (até ${diaMes(m.fim)}).` };
 }

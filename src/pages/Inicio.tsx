@@ -80,7 +80,11 @@ export function Inicio({ catalogo }: { catalogo: Catalogo }) {
             </div>
           </section>
         )}
-        {!termo && <p className="pagina meta-mvp">{fraseDaMeta(meta)}</p>}
+        {!termo && (
+          <p className="pagina meta-mvp">
+            <strong>{fraseDaMeta(meta).rotulo}</strong> {fraseDaMeta(meta).texto}
+          </p>
+        )}
         {termo && <h1 className="pagina">Resultados para “{busca.trim()}”</h1>}
         {nada && (
           <p className="pagina" role="status">

@@ -500,10 +500,15 @@ a {
 }
 /* Meta do MVP pelas datas dos roteiros (#80): uma linha discreta antes das fileiras. */
 .meta-mvp {
-  margin: 0;
-  padding-bottom: 24px;
+  margin: 0 0 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--borda);
   color: var(--texto-suave);
   font-size: 0.95rem;
+}
+/* O rótulo na cor do texto e em negrito separa a meta da descrição da fileira (R19 do #98). */
+.meta-mvp strong {
+  color: var(--texto);
 }
 .roteiro-cabecalho {
   display: grid;
