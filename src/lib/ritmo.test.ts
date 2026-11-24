@@ -8,6 +8,7 @@ import {
   segundosDeFala,
   segundosDeTela,
   velocidadeDoBloco,
+  velocidadeMedia,
   VELOCIDADE_RESERVA,
 } from './ritmo';
 
@@ -62,5 +63,20 @@ describe('velocidade por bloco (#83)', () => {
   it('o tempo de tela é a janela menos a fala, nunca negativo', () => {
     expect(segundosDeTela(34, '0:00', '0:45')).toBe(11);
     expect(segundosDeTela(60, '0:00', '0:45')).toBe(0);
+  });
+});
+
+describe('reserva pela média do roteiro (nota 0 da R19 do #97)', () => {
+  it('usa a média dos blocos com fala', () => {
+    expect(velocidadeMedia([{ distanciaPx: 600, falaSegundos: 30 }, { distanciaPx: 900, falaSegundos: 30 }, { distanciaPx: 500, falaSegundos: 0 }])).toBe(25);
+  });
+
+  it('sem bloco com fala, fica a reserva de antes', () => {
+    expect(velocidadeMedia([{ distanciaPx: 500, falaSegundos: 0 }])).toBe(VELOCIDADE_RESERVA);
+  });
+
+  it('o bloco sem fala rola na reserva informada', () => {
+    expect(velocidadeDoBloco(500, 0, 1, 25)).toBe(25);
+    expect(velocidadeDoBloco(500, 0, 2, 25)).toBe(50);
   });
 });

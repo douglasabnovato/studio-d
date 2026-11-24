@@ -5,7 +5,7 @@ import { Markdown } from '../components/Markdown';
 import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import type { Catalogo } from '../lib/catalogo';
-import { segundosDeTela, velocidadeDoBloco } from '../lib/ritmo';
+import { PALAVRAS_POR_MINUTO, segundosDeTela, velocidadeDoBloco, velocidadeMedia } from '../lib/ritmo';
 import { emSegundos, type Roteiro, type RoteiroResumo } from '../lib/tipos';
 import { useRoteiro, type EstadoDoRoteiro } from '../lib/usar-roteiro';
 
@@ -138,6 +138,15 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
     if (caixa) posicao.current = caixa.scrollTop;
     let anterior = performance.now();
     let quadro = 0;
+    // Distância de cada bloco até o próximo chegar à linha (margem incluída) e a média dos que têm fala,
+    // que serve de reserva para os blocos sem fala (nota 0 da R19 do #97).
+    const distancia = (i: number) => {
+      const el = caixa?.querySelector<HTMLElement>(`[data-bloco="${i}"]`);
+      const prox = caixa?.querySelector<HTMLElement>(`[data-bloco="${i + 1}"]`);
+      if (!el) return 0;
+      return prox ? prox.offsetTop - el.offsetTop : el.offsetHeight + parseFloat(getComputedStyle(el).marginBottom || '0');
+    };
+    const reserva = velocidadeMedia(roteiro.blocos.map((b, i) => ({ distanciaPx: distancia(i), falaSegundos: b.falaSegundos })));
     const passo = (agora: number) => {
       const dt = (agora - anterior) / 1000;
       anterior = agora;
@@ -146,14 +155,7 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
         // linha, margem de 12vh incluída, ÷ a fala estimada. Sem a margem, o bloco ficava até 27% mais lento
         // (R19 do #97).
         const i = atualRef.current;
-        const el = caixa.querySelector<HTMLElement>(`[data-bloco="${i}"]`);
-        const prox = caixa.querySelector<HTMLElement>(`[data-bloco="${i + 1}"]`);
-        const distancia = el
-          ? prox
-            ? prox.offsetTop - el.offsetTop
-            : el.offsetHeight + parseFloat(getComputedStyle(el).marginBottom || '0')
-          : 0;
-        const v = velocidadeDoBloco(distancia, roteiro.blocos[i]?.falaSegundos ?? 0, fator);
+        const v = velocidadeDoBloco(distancia(i), roteiro.blocos[i]?.falaSegundos ?? 0, fator, reserva);
         posicao.current = Math.min(posicao.current + v * dt, caixa.scrollHeight);
         caixa.scrollTop = posicao.current;
       }
@@ -161,7 +163,8 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
     };
     quadro = requestAnimationFrame(passo);
     return () => cancelAnimationFrame(quadro);
-  }, [rodando, fator, roteiro.blocos]);
+    // letra nas dependências: trocar a letra durante a rolagem recalcula as distâncias e a média (R19 do #99).
+  }, [rodando, fator, roteiro.blocos, letra]);
 
   // Bloco atual: o que cruza a linha de leitura, a 30% da altura.
   const aoRolar = () => {
@@ -331,6 +334,9 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
         <button type="button" className="botao botao-secundario" onClick={() => setFator(mudarRitmo(+1))} aria-label="Mais rápido">
           +
         </button>
+        {/* A referência do ritmo em palavras por minuto (nota 0 da R19 do #97), depois do "+": "− Ritmo 100% +"
+            fica sempre junto (R19 do #99). */}
+        <span className="rotulo-ritmo">≈ {Math.round(PALAVRAS_POR_MINUTO * fator)} palavras/min</span>
         <button type="button" className="botao botao-secundario" onClick={() => setLetra((l) => Math.max(l - 4, 24))} >
           <span aria-hidden="true">A−</span>
           <span className="sr-only">Letra menor</span>
