@@ -207,6 +207,9 @@ test('modo gravação em 360 px: os controles cabem na tela', async ({ page }, i
   await expect(rolar).toBeInViewport();
   const controles = await page.locator('.gravacao-controles').boundingBox();
   expect(controles!.y + controles!.height).toBeLessThanOrEqual(800);
+  // O texto termina onde os controles começam: nada fica por cima deles.
+  const caixa = await page.locator('.gravacao-texto').boundingBox();
+  expect(caixa!.y + caixa!.height).toBeLessThanOrEqual(controles!.y + 1);
   // O texto continua rolando dentro da própria caixa.
   const texto = page.locator('.gravacao-texto');
   expect(await texto.evaluate((e) => e.scrollHeight > e.clientHeight)).toBe(true);
