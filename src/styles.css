@@ -731,8 +731,10 @@ code {
 }
 /* Tempo de tela sem fala do bloco (#83): menor e mais claro que o título. */
 .gravacao-tela-sem-fala {
-  font-size: 0.45em;
+  font-size: 0.75em;
   font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
   color: #b4bccb;
 }
 .gravacao-texto::-webkit-scrollbar {
