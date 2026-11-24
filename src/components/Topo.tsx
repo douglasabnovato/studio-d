@@ -33,7 +33,7 @@ export function Topo({ busca, onBusca }: Props) {
               id="busca"
               className="busca"
               type="search"
-              placeholder="Buscar por título ou repositório"
+              placeholder="Buscar"
               value={busca}
               onChange={(e) => onBusca(e.target.value)}
             />

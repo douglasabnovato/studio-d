@@ -127,3 +127,30 @@ test('o texto do roteiro só é baixado ao abrir o roteiro (#56)', async ({ page
   await expect(page.getByRole('heading', { name: 'Fontes' })).toBeVisible();
   expect(pedidos.filter(doRoteiro).length).toBeGreaterThan(0);
 });
+
+test('cabeçalho e destaque inteiros em 360 px (#79)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'celular', 'mede a largura de 360 px');
+  await page.setViewportSize({ width: 360, height: 800 });
+  await abrir(page, './', info.project.name);
+  const nome = page.locator('.marca span', { hasText: 'Studio D' }).first();
+  const caixa = await nome.boundingBox();
+  const linha = await nome.evaluate((e) => parseFloat(getComputedStyle(e).fontSize) * 1.6);
+  expect(caixa!.height).toBeLessThan(linha);
+  const busca = page.getByRole('searchbox', { name: 'Buscar roteiros' });
+  const cabe = await busca.evaluate((e: HTMLInputElement) => {
+    const s = getComputedStyle(e);
+    const c = document.createElement('canvas').getContext('2d')!;
+    c.font = `${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;
+    return c.measureText(e.placeholder).width <= e.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight);
+  });
+  expect(cabe).toBe(true);
+  for (const alvo of await page.locator('.topo a, .topo button, .topo input').all()) {
+    const r = await alvo.boundingBox();
+    expect(Math.min(r!.width, r!.height)).toBeGreaterThanOrEqual(44);
+  }
+  const capa = await page.locator('.destaque-capa svg').boundingBox();
+  expect(capa!.width / capa!.height).toBeCloseTo(16 / 9, 1);
+  const conteudo = await page.locator('.destaque-conteudo').boundingBox();
+  expect(conteudo!.y).toBeGreaterThanOrEqual(capa!.y + capa!.height);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
