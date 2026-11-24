@@ -523,6 +523,8 @@ a {
 }
 .roteiro-layout {
   display: grid;
+  /* Sem minmax(0, …), a coluna cresce até o comando mais largo e a página rola de lado no celular. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 32px;
 }
 @media (min-width: 1000px) {
@@ -611,6 +613,8 @@ code {
 }
 .youtube-campo pre {
   white-space: pre-wrap;
+  /* Links longos quebram em vez de fazer o campo rolar no celular. */
+  overflow-wrap: anywhere;
 }
 
 /* Modo gravação */

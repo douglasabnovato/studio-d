@@ -154,3 +154,15 @@ test('cabeçalho e destaque inteiros em 360 px (#79)', async ({ page }, info) =>
   expect(conteudo!.y).toBeGreaterThanOrEqual(capa!.y + capa!.height);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+test('a página do roteiro não rola de lado em 360 px', async ({ page }, info) => {
+  test.skip(info.project.name !== 'celular', 'mede a largura de 360 px');
+  await page.setViewportSize({ width: 360, height: 800 });
+  await abrir(page, `./#/v/${SLUG}`, info.project.name);
+  await expect(page.getByRole('heading', { name: /^Roteiro em \d+ blocos$/ })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+  // O comando longo rola dentro do próprio bloco, e não a página.
+  const pre = page.locator('.bloco pre').first();
+  const caixa = await pre.boundingBox();
+  expect(caixa!.x + caixa!.width).toBeLessThanOrEqual(360);
+});
