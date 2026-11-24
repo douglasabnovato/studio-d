@@ -26,6 +26,8 @@ fontes:
     url: https://github.com/douglasabnovato/engenharia/blob/developer/sprint-2026-11-12/decisoes/2026-11-10-ciclo-faixa-90.md
   - titulo: "Engenharia issue #9: revisão independente de fatos para documentos e roteiros"
     url: https://github.com/douglasabnovato/engenharia/issues/9
+  - titulo: "Engenharia: seção Revisor de fatos do como-trabalhamos.md (PR #72, 24/11/2026)"
+    url: https://github.com/douglasabnovato/engenharia/blob/developer/sprint-2026-11-26/ia/como-trabalhamos.md#revisor-de-fatos
   - titulo: "Studio D PR #39: roteiro 3, com a revisão de fatos"
     url: https://github.com/douglasabnovato/studio-d/pull/39
   - titulo: "Studio D PR #44: roteiro 7, com a revisão de fatos"
@@ -127,11 +129,11 @@ A seção "O que fica com o responsável" do `ia/como-trabalhamos.md`.
 ## Melhoria: revisor de fatos também para documentos · 12:45–13:30
 
 ### Fala
-- Desde 13/11, o engenharia tem um agente revisor de fatos e uma skill para isso. Mas o `como-trabalhamos.md`, que guia os ciclos, ainda só fala do revisor de código. Os achados dos roteiros mostram que texto precisa da mesma coisa: data, commit, comando e o que aparece na tela.
-- A issue 9 do repositório engenharia, ainda aberta, propõe levar a revisão de fatos para documentos, relatórios e roteiros, como já está no guia de roteiro do Studio D.
+- Desde 13/11, o engenharia tem um agente revisor de fatos. Faltava o guia dos ciclos dizer quando usar: texto precisa da mesma revisão que código.
+- Em 24/11, o `como-trabalhamos.md` ganhou a seção "Revisor de fatos" (PR 72 do engenharia, que atende à issue 9). O revisor recebe só o texto e as fontes, nunca a conclusão de quem escreveu. Ele procura afirmação sem fonte, número ou commit que não confere, link quebrado e dado pessoal na tela.
 
 ### Tela
-O arquivo `.claude/agents/revisor-de-fatos.md` do engenharia. Depois, a issue 9. Por fim, o passo 8 do `docs/como-escrever-um-roteiro.md` do Studio D.
+O arquivo `.claude/agents/revisor-de-fatos.md` do engenharia. Depois, a seção "Revisor de fatos" do `ia/como-trabalhamos.md`, com a lista de entrada, pedido e saída. Por fim, o passo 8 do `docs/como-escrever-um-roteiro.md` do Studio D.
 
 ## Desafio · 13:30–13:50
 
