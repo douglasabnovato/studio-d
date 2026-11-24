@@ -631,7 +631,8 @@ code {
   inset: 0;
   z-index: 60;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  /* minmax(0, …): o texto tem 90vh de respiro (30vh + 60vh) e, com 1fr, empurrava os controles para fora da tela no celular. */
+  grid-template-rows: auto minmax(0, 1fr) auto;
   background: #000;
   color: #fff;
 }
