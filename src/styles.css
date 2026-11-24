@@ -713,10 +713,13 @@ code {
 .gravacao-texto {
   position: relative;
   overflow-y: auto;
-  /* O respiro de cima (30vh) e o de baixo (60vh) são espaçadores que rolam junto: como padding, eles
-     impediam a caixa de encolher abaixo de 90vh, e o texto cobria os controles no celular. */
+  /* O respiro de cima e o de baixo são espaçadores que rolam junto: como padding, eles impediam a
+     caixa de encolher, e o texto cobria os controles no celular (#93). */
   padding: 0 var(--gutter);
   scrollbar-width: none;
+  /* Unidades cqh: o respiro de cima mede 30% da própria caixa, a mesma régua da linha de leitura
+     (clientHeight * 0.3 em aoRolar e irPara), e não da janela (#95). */
+  container-type: size;
 }
 .gravacao-texto::before,
 .gravacao-texto::after {
@@ -725,9 +728,12 @@ code {
 }
 .gravacao-texto::before {
   height: 30vh;
+  height: 30cqh;
 }
 .gravacao-texto::after {
-  height: 60vh;
+  /* 70% da caixa: a última linha sobe até a linha de leitura (30%) (R19 do #96). */
+  height: 70vh;
+  height: 70cqh;
 }
 .gravacao-texto::-webkit-scrollbar {
   display: none;
@@ -814,6 +820,12 @@ code {
 .rotulo-atalhos {
   color: #b4bccb;
   font-size: 0.85rem;
+}
+/* Os atalhos só servem para teclado: em tela de toque e abaixo de 600 px, a linha sai e devolve altura ao texto (#95). */
+@media (pointer: coarse), (max-width: 599px) {
+  .rotulo-atalhos {
+    display: none;
+  }
 }
 .botao:disabled {
   opacity: 0.55;
