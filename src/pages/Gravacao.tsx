@@ -179,7 +179,8 @@ export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteir
     const atualEl = blocos[i];
     const proximo = blocos[i + 1];
     if (atualEl && barra.current) {
-      const fimDoBloco = proximo ? proximo.offsetTop : caixa.scrollHeight;
+      // Até o fim do próprio bloco: com o scrollHeight, a barra do último bloco não chegava a 100% (R19 do #96).
+      const fimDoBloco = proximo ? proximo.offsetTop : atualEl.offsetTop + atualEl.offsetHeight;
       const pct = Math.round(Math.min(1, Math.max(0, (linha - atualEl.offsetTop) / Math.max(1, fimDoBloco - atualEl.offsetTop))) * 100);
       barra.current.style.width = `${pct}%`;
       barra.current.parentElement?.setAttribute('aria-valuenow', String(pct));
