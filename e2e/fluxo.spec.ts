@@ -246,3 +246,23 @@ for (const tela of TELAS_GRAVACAO) {
     expect(Math.abs(medida.bloco0 - medida.linha)).toBeLessThanOrEqual(2);
   });
 }
+
+test('modo gravação: no fim do roteiro, a última linha chega à linha de leitura e a barra a 100% (#96)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'escuro', 'roda num projeto só');
+  await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
+  for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
+  await page.getByRole('button', { name: /Começar a gravação/ }).click();
+  const texto = page.locator('.gravacao-texto');
+  await texto.evaluate((e) => {
+    e.scrollTop = e.scrollHeight;
+    e.dispatchEvent(new Event('scroll'));
+  });
+  const n = await texto.evaluate((e) => e.querySelectorAll('[data-bloco]').length);
+  await expect(page.getByRole('progressbar', { name: new RegExp(`^Bloco ${n}: `) })).toHaveAttribute('aria-valuenow', '100');
+  const fim = await texto.evaluate((e) => {
+    const ultimo = e.querySelector<HTMLElement>(`[data-bloco="${e.querySelectorAll('[data-bloco]').length - 1}"]`)!;
+    return { fimDoBloco: ultimo.offsetTop + ultimo.offsetHeight - e.scrollTop, linha: e.clientHeight * 0.3 };
+  });
+  // A última linha sobe até a linha de leitura (com a margem de baixo do bloco, no máximo 12vh acima).
+  expect(fim.fimDoBloco).toBeLessThanOrEqual(fim.linha + 2);
+});

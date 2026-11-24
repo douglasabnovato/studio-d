@@ -731,8 +731,9 @@ code {
   height: 30cqh;
 }
 .gravacao-texto::after {
-  height: 60vh;
-  height: 60cqh;
+  /* 70% da caixa: a última linha sobe até a linha de leitura (30%) (R19 do #96). */
+  height: 70vh;
+  height: 70cqh;
 }
 .gravacao-texto::-webkit-scrollbar {
   display: none;
