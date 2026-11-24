@@ -92,12 +92,12 @@ test('axe sem violações: início, detalhes, roteiro e gravação', async ({ pa
 test('sem rolagem lateral da página', async ({ page }, info) => {
   await abrir(page, './', info.project.name);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  const largura = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
-  expect(largura[0]).toBeLessThanOrEqual(largura[1]);
+  // Compara com a largura do projeto, e não com o innerWidth, que alarga junto com o conteúdo no celular (#89).
+  const viewport = page.viewportSize()!.width;
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport);
   await page.goto(`./#/v/${SLUG}`);
   await expect(page.getByRole('heading', { name: /^Roteiro em \d+ blocos$/ })).toBeVisible();
-  const l2 = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
-  expect(l2[0]).toBeLessThanOrEqual(l2[1]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport);
 });
 
 test('o foco fica visível nos cards', async ({ page }, info) => {
@@ -152,7 +152,7 @@ test('cabeçalho e destaque inteiros em 360 px (#79)', async ({ page }, info) =>
   expect(capa!.width / capa!.height).toBeCloseTo(16 / 9, 1);
   const conteudo = await page.locator('.destaque-conteudo').boundingBox();
   expect(conteudo!.y).toBeGreaterThanOrEqual(capa!.y + capa!.height);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
 });
 
 /**
@@ -168,6 +168,9 @@ const ROTAS: { nome: string; rota: string; pronto: (page: Page) => Promise<void>
     pronto: async (p) => {
       await p.getByRole('button', { name: /Movies: de 3,3 s/ }).first().click();
       await expect(p.getByRole('dialog')).toBeVisible();
+      // A janela é fixa e corta o que passa da borda: o scrollWidth da página não pega isso.
+      const j = await p.locator('.janela').evaluate((e) => [e.scrollWidth, e.clientWidth]);
+      expect(j[0], 'conteúdo cortado na janela').toBeLessThanOrEqual(j[1]);
     },
   },
   { nome: 'roteiro', rota: `./#/v/${SLUG}`, pronto: (p) => expect(p.getByRole('heading', { name: /^Roteiro em \d+ blocos$/ })).toBeVisible() },
