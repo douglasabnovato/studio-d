@@ -27,7 +27,12 @@ export function formatarFala(segundos: number): string {
   return `${Math.round(segundos / 60)} min`;
 }
 
-/** A fala estimada passa da janela do bloco (fim − início)? Igual ao tempo ainda cabe (#90). */
+/** Segundos de fala além da janela do bloco (fim − início); 0 quando cabe. Igual ao tempo ainda cabe (#90). */
+export function excessoDeFala(falaSegundos: number, inicio: string, fim: string): number {
+  return Math.max(0, falaSegundos - (emSegundos(fim) - emSegundos(inicio)));
+}
+
+/** A fala estimada passa da janela do bloco? (#90) */
 export function falaPassaDoBloco(falaSegundos: number, inicio: string, fim: string): boolean {
-  return falaSegundos > emSegundos(fim) - emSegundos(inicio);
+  return excessoDeFala(falaSegundos, inicio, fim) > 0;
 }

@@ -6,7 +6,7 @@ import { Markdown } from '../components/Markdown';
 import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import type { Catalogo } from '../lib/catalogo';
-import { falaPassaDoBloco, formatarFala } from '../lib/ritmo';
+import { excessoDeFala, falaPassaDoBloco, formatarFala } from '../lib/ritmo';
 import { SITUACOES, type Roteiro } from '../lib/tipos';
 import { useRoteiro } from '../lib/usar-roteiro';
 
@@ -162,7 +162,7 @@ function Corpo({ roteiro }: { roteiro: Roteiro }) {
           </h2>
           {falaPassaDoBloco(b.falaSegundos, b.inicio, b.fim) && (
             <p className="bloco-aviso">
-              <span aria-hidden="true">⚠ </span>A fala estimada passa do tempo do bloco: encurte a fala ou aumente o bloco.
+              <span aria-hidden="true">⚠ </span>A fala estimada passa {formatarFala(excessoDeFala(b.falaSegundos, b.inicio, b.fim))} do tempo do bloco: encurte a fala ou aumente o tempo do bloco.
             </p>
           )}
           <h3>Fala</h3>

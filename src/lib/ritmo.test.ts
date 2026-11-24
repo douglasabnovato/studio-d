@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { contarPalavras, falaPassaDoBloco, formatarFala, PALAVRAS_POR_MINUTO, segundosDeFala } from './ritmo';
+import { contarPalavras, excessoDeFala, falaPassaDoBloco, formatarFala, PALAVRAS_POR_MINUTO, segundosDeFala } from './ritmo';
 
 describe('tempo de fala estimado (#85)', () => {
   it('conta palavras sem o Markdown que não se lê em voz alta', () => {
@@ -30,5 +30,10 @@ describe('tempo de fala estimado (#85)', () => {
     expect(falaPassaDoBloco(46, '0:00', '0:45')).toBe(true);
     expect(falaPassaDoBloco(30, '0:45', '2:30')).toBe(false);
     expect(falaPassaDoBloco(0, '1:00', '1:00')).toBe(false);
+  });
+
+  it('diz quantos segundos a fala passa do bloco (#90)', () => {
+    expect(excessoDeFala(57, '0:00', '0:45')).toBe(12);
+    expect(excessoDeFala(40, '0:00', '0:45')).toBe(0);
   });
 });

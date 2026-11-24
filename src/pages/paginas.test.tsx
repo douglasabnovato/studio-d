@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { Rotas } from '../App';
 import { indexarCatalogo, type Catalogo } from '../lib/catalogo';
 import { catalogo } from '../lib/conteudo';
-import type { Roteiro } from '../lib/tipos';
+import { emSegundos, type Roteiro } from '../lib/tipos';
 import { ITENS_CHECKLIST, Teleprompter } from './Gravacao';
 
 const abrir = (rota = '/', c: Catalogo = catalogo) =>
@@ -246,16 +246,21 @@ describe('Fala por bloco (#90)', () => {
   });
 
   it('avisa, em texto, quando a fala passa do tempo do bloco', async () => {
-    const longo = (r: Roteiro) => ({ ...r, blocos: r.blocos.map((b, i) => (i === 0 ? { ...b, falaSegundos: 9999 } : b)) });
+    // A fala do 1º bloco fica 12 s maior que a janela dele.
+    const longo = (r: Roteiro) => ({
+      ...r,
+      blocos: r.blocos.map((b, i) => (i === 0 ? { ...b, falaSegundos: emSegundos(b.fim) - emSegundos(b.inicio) + 12 } : b)),
+    });
     abrir(`/v/${primeiro.slug}`, comBlocos(longo));
     await screen.findByRole('heading', { name: /^Roteiro em/ });
-    const avisos = screen.getAllByText(/A fala estimada passa do tempo do bloco/);
+    const avisos = screen.getAllByText(/A fala estimada passa .+ do tempo do bloco/);
     expect(avisos).toHaveLength(1);
+    expect(avisos[0]).toHaveTextContent('A fala estimada passa 12 s do tempo do bloco: encurte a fala ou aumente o tempo do bloco.');
   });
 
   it('não avisa nos roteiros de hoje, que cabem no tempo', async () => {
     abrir(`/v/${primeiro.slug}`);
     await screen.findByRole('heading', { name: /^Roteiro em/ });
-    expect(screen.queryByText(/A fala estimada passa do tempo do bloco/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/A fala estimada passa .+ do tempo do bloco/)).not.toBeInTheDocument();
   });
 });
