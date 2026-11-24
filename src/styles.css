@@ -147,6 +147,9 @@ a {
   font-weight: 800;
   font-size: 1.25rem;
   letter-spacing: 0.02em;
+  min-height: 44px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .marca-d {
   display: inline-grid;
@@ -229,6 +232,31 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+/* Celular: o nome fica em uma linha, a busca ocupa o espaço que sobra e a arte do destaque aparece inteira no alto (#79). */
+@media (max-width: 599px) {
+  .topo {
+    gap: 8px;
+  }
+  .topo-acoes {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: flex-end;
+  }
+  .busca {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+  }
+  .destaque {
+    min-height: 0;
+    padding-top: calc(100vw * 9 / 16 + 16px);
+  }
+  .destaque-capa {
+    bottom: auto;
+    aspect-ratio: 16 / 9;
+  }
 }
 
 .metadados {
