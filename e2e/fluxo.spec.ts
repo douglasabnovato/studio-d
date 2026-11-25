@@ -92,12 +92,12 @@ test('axe sem violações: início, detalhes, roteiro e gravação', async ({ pa
 test('sem rolagem lateral da página', async ({ page }, info) => {
   await abrir(page, './', info.project.name);
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-  const largura = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
-  expect(largura[0]).toBeLessThanOrEqual(largura[1]);
+  // Compara com a largura do projeto, e não com o innerWidth, que alarga junto com o conteúdo no celular (#89).
+  const viewport = page.viewportSize()!.width;
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport);
   await page.goto(`./#/v/${SLUG}`);
   await expect(page.getByRole('heading', { name: /^Roteiro em \d+ blocos$/ })).toBeVisible();
-  const l2 = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
-  expect(l2[0]).toBeLessThanOrEqual(l2[1]);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport);
 });
 
 test('o foco fica visível nos cards', async ({ page }, info) => {
@@ -126,4 +126,166 @@ test('o texto do roteiro só é baixado ao abrir o roteiro (#56)', async ({ page
   await expect(page.getByRole('heading', { name: /^Roteiro em \d+ blocos$/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Fontes' })).toBeVisible();
   expect(pedidos.filter(doRoteiro).length).toBeGreaterThan(0);
+});
+
+test('cabeçalho e destaque inteiros em 360 px (#79)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'celular', 'mede a largura de 360 px');
+  await page.setViewportSize({ width: 360, height: 800 });
+  await abrir(page, './', info.project.name);
+  const nome = page.locator('.marca span', { hasText: 'Studio D' }).first();
+  const caixa = await nome.boundingBox();
+  const linha = await nome.evaluate((e) => parseFloat(getComputedStyle(e).fontSize) * 1.6);
+  expect(caixa!.height).toBeLessThan(linha);
+  const busca = page.getByRole('searchbox', { name: 'Buscar roteiros' });
+  const cabe = await busca.evaluate((e: HTMLInputElement) => {
+    const s = getComputedStyle(e);
+    const c = document.createElement('canvas').getContext('2d')!;
+    c.font = `${s.fontWeight} ${s.fontSize} ${s.fontFamily}`;
+    return c.measureText(e.placeholder).width <= e.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight);
+  });
+  expect(cabe).toBe(true);
+  for (const alvo of await page.locator('.topo a, .topo button, .topo input').all()) {
+    const r = await alvo.boundingBox();
+    expect(Math.min(r!.width, r!.height)).toBeGreaterThanOrEqual(44);
+  }
+  const capa = await page.locator('.destaque-capa svg').boundingBox();
+  expect(capa!.width / capa!.height).toBeCloseTo(16 / 9, 1);
+  const conteudo = await page.locator('.destaque-conteudo').boundingBox();
+  expect(conteudo!.y).toBeGreaterThanOrEqual(capa!.y + capa!.height);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+});
+
+/**
+ * Reflow (WCAG 1.4.10) em todas as rotas, em 360 px (#89). Compara com 360 fixo, e não com o
+ * innerWidth: na emulação de celular, a viewport de layout alarga junto com o conteúdo, e
+ * `scrollWidth <= innerWidth` passava com a página do roteiro rolando até 1383 px (#87).
+ */
+const ROTAS: { nome: string; rota: string; pronto: (page: Page) => Promise<void> }[] = [
+  { nome: 'início', rota: './', pronto: (p) => expect(p.getByRole('heading', { level: 1 })).toBeVisible() },
+  {
+    nome: 'detalhes',
+    rota: './',
+    pronto: async (p) => {
+      await p.getByRole('button', { name: /Movies: de 3,3 s/ }).first().click();
+      await expect(p.getByRole('dialog')).toBeVisible();
+      // A janela é fixa e corta o que passa da borda: o scrollWidth da página não pega isso.
+      const j = await p.locator('.janela').evaluate((e) => [e.scrollWidth, e.clientWidth]);
+      expect(j[0], 'conteúdo cortado na janela').toBeLessThanOrEqual(j[1]);
+    },
+  },
+  { nome: 'roteiro', rota: `./#/v/${SLUG}`, pronto: (p) => expect(p.getByRole('heading', { name: /^Roteiro em \d+ blocos$/ })).toBeVisible() },
+  { nome: 'gravação', rota: `./#/v/${SLUG}/gravar`, pronto: (p) => expect(p.getByRole('button', { name: /Começar a gravação/ })).toBeVisible() },
+  { nome: 'roteiro inexistente', rota: './#/v/nao-existe', pronto: (p) => expect(p.getByRole('heading', { name: 'Roteiro não encontrado' })).toBeVisible() },
+];
+
+for (const { nome, rota, pronto } of ROTAS) {
+  test(`sem rolagem lateral em 360 px: ${nome} (#89)`, async ({ page }, info) => {
+    test.skip(info.project.name !== 'celular', 'mede a largura de 360 px');
+    await page.setViewportSize({ width: 360, height: 800 });
+    await abrir(page, rota, info.project.name);
+    await pronto(page);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
+  });
+}
+
+test('no roteiro, o comando longo rola dentro do bloco em 360 px (#87)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'celular', 'mede a largura de 360 px');
+  await page.setViewportSize({ width: 360, height: 800 });
+  await abrir(page, `./#/v/${SLUG}`, info.project.name);
+  await expect(page.getByRole('heading', { name: /^Roteiro em \d+ blocos$/ })).toBeVisible();
+  const caixa = await page.locator('.bloco pre').first().boundingBox();
+  expect(caixa!.x + caixa!.width).toBeLessThanOrEqual(360);
+});
+
+test('teleprompter: contagem antes do 1º começo e progresso do bloco (#84)', async ({ page }, info) => {
+  test.skip(info.project.name === 'celular', 'atalho de teclado é de desktop');
+  await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
+  for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
+  await page.getByRole('button', { name: /Começar a gravação/ }).click();
+  await expect(page.getByRole('progressbar', { name: /^Bloco 1: / })).toBeVisible();
+  await page.keyboard.press('Space');
+  const contagem = page.getByRole('status').filter({ hasText: /Começa em/ });
+  await expect(contagem).toBeVisible();
+  await semViolacoes(page, '.gravacao');
+  await expect(page.getByRole('button', { name: 'Pausar' })).toBeVisible({ timeout: 6000 });
+  await expect(contagem).toHaveCount(0);
+  const barra = page.getByRole('progressbar', { name: /^Bloco \d+: / });
+  await expect.poll(async () => Number(await barra.getAttribute('aria-valuenow')), { timeout: 6000 }).toBeGreaterThan(0);
+});
+
+/** Modo gravação em 3 telas (#93, #95): os controles cabem, o texto não os cobre e o 1º bloco abre na linha de leitura. */
+// minTexto: a altura mínima da caixa de texto, para um rótulo novo nos controles não tirar a leitura sem ninguém ver.
+const TELAS_GRAVACAO: { nome: string; w: number; h: number; projeto: 'celular' | 'desktop'; minTexto: number }[] = [
+  { nome: 'celular de pé, 360×800', w: 360, h: 800, projeto: 'celular', minTexto: 450 },
+  { nome: 'celular deitado, 800×360', w: 800, h: 360, projeto: 'celular', minTexto: 180 },
+  { nome: 'computador, 1440×900', w: 1440, h: 900, projeto: 'desktop', minTexto: 700 },
+];
+
+for (const tela of TELAS_GRAVACAO) {
+  test(`modo gravação, ${tela.nome}: controles na tela e 1º bloco na linha de leitura`, async ({ page }, info) => {
+    test.skip(
+      tela.projeto === 'celular' ? info.project.name !== 'celular' : info.project.name !== 'escuro',
+      'roda num projeto só',
+    );
+    await page.setViewportSize({ width: tela.w, height: tela.h });
+    await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
+    for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
+    await page.getByRole('button', { name: /Começar a gravação/ }).click();
+    await expect(page.getByRole('button', { name: 'Rolar' })).toBeInViewport();
+    const controles = await page.locator('.gravacao-controles').boundingBox();
+    expect(controles!.y + controles!.height).toBeLessThanOrEqual(tela.h);
+    // O texto termina onde os controles começam: nada fica por cima deles.
+    const caixa = await page.locator('.gravacao-texto').boundingBox();
+    expect(caixa!.y + caixa!.height).toBeLessThanOrEqual(controles!.y + 1);
+    expect(caixa!.height).toBeGreaterThanOrEqual(tela.minTexto);
+    // O texto rola dentro da própria caixa, e o 1º bloco abre na linha de leitura (30% da caixa).
+    const medida = await page.locator('.gravacao-texto').evaluate((e) => ({
+      rola: e.scrollHeight > e.clientHeight,
+      linha: e.clientHeight * 0.3,
+      bloco0: (e.querySelector('[data-bloco="0"]') as HTMLElement).offsetTop,
+    }));
+    expect(medida.rola).toBe(true);
+    expect(Math.abs(medida.bloco0 - medida.linha)).toBeLessThanOrEqual(2);
+  });
+}
+
+test('modo gravação: no fim do roteiro, a última linha chega à linha de leitura e a barra a 100% (#96)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'escuro', 'roda num projeto só');
+  await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
+  for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
+  await page.getByRole('button', { name: /Começar a gravação/ }).click();
+  const texto = page.locator('.gravacao-texto');
+  await texto.evaluate((e) => {
+    e.scrollTop = e.scrollHeight;
+    e.dispatchEvent(new Event('scroll'));
+  });
+  const n = await texto.evaluate((e) => e.querySelectorAll('[data-bloco]').length);
+  await expect(page.getByRole('progressbar', { name: new RegExp(`^Bloco ${n}: `) })).toHaveAttribute('aria-valuenow', '100');
+  const fim = await texto.evaluate((e) => {
+    const ultimo = e.querySelector<HTMLElement>(`[data-bloco="${e.querySelectorAll('[data-bloco]').length - 1}"]`)!;
+    return { fimDoBloco: ultimo.offsetTop + ultimo.offsetHeight - e.scrollTop, linha: e.clientHeight * 0.3 };
+  });
+  // A última linha sobe até a linha de leitura (com a margem de baixo do bloco, no máximo 12vh acima).
+  expect(fim.fimDoBloco).toBeLessThanOrEqual(fim.linha + 2);
+});
+
+test('teleprompter: o 1º bloco dura o tempo da fala estimada, a ±10% (#83)', async ({ page }, info) => {
+  test.skip(info.project.name !== 'escuro', 'mede o tempo num projeto só');
+  test.setTimeout(60_000);
+  await abrir(page, `./#/v/${SLUG}/gravar`, info.project.name);
+  for (const caixa of await page.getByRole('checkbox').all()) await caixa.check();
+  await page.getByRole('button', { name: /Começar a gravação/ }).click();
+  // Ritmo 200%, para o teste levar metade da fala do bloco.
+  for (let i = 0; i < 10; i++) await page.keyboard.press('ArrowUp');
+  await expect(page.getByText('Ritmo 200%')).toBeVisible();
+  const fala = await page.locator('[data-bloco="0"]').evaluate((e) => Number((e as HTMLElement).dataset.falaSegundos));
+  const esperado = fala / 2;
+  await page.keyboard.press('Space');
+  await expect(page.getByRole('button', { name: 'Pausar' })).toBeVisible({ timeout: 6000 });
+  const t0 = Date.now();
+  // O bloco acaba quando o próximo chega à linha de leitura: a faixa passa a "Cena 2".
+  await expect(page.locator('.gravacao-faixa')).toContainText('Cena 2', { timeout: (esperado * 1.5 + 5) * 1000 });
+  const medido = (Date.now() - t0) / 1000;
+  expect(medido).toBeGreaterThan(esperado * 0.9);
+  expect(medido).toBeLessThan(esperado * 1.1);
 });

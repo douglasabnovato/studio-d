@@ -5,7 +5,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { Rotas } from '../App';
 import { indexarCatalogo, type Catalogo } from '../lib/catalogo';
 import { catalogo } from '../lib/conteudo';
-import type { Roteiro } from '../lib/tipos';
+import { emSegundos, type Roteiro } from '../lib/tipos';
 import { ITENS_CHECKLIST, Teleprompter } from './Gravacao';
 
 const abrir = (rota = '/', c: Catalogo = catalogo) =>
@@ -22,6 +22,13 @@ beforeAll(async () => {
 });
 
 describe('Início', () => {
+  it('mostra a meta do MVP: sem vídeo publicado, o relógio ainda não começou (#80)', () => {
+    abrir();
+    const linha = screen.getByText('Meta do MVP:').closest('p')!;
+    expect(linha).toHaveTextContent('Meta do MVP: 4 vídeos em 30 dias. O relógio começa no 1º vídeo publicado.');
+    expect(screen.getByText('Meta do MVP:').tagName).toBe('STRONG');
+  });
+
   it('mostra o destaque e uma fileira por série', () => {
     abrir();
     expect(screen.getByRole('heading', { level: 1, name: primeiro.titulo })).toBeInTheDocument();
@@ -201,20 +208,20 @@ describe('Gravação', () => {
     expect(screen.getByRole('region', { name: /Modo gravação/ })).toBeInTheDocument();
   });
 
-  it('teclado: espaço pausa, setas mudam a velocidade e Esc sai', async () => {
+  it('teclado: espaço pausa, setas mudam o ritmo e Esc sai', async () => {
     const user = userEvent.setup();
     const sair = vi.fn();
-    render(<Teleprompter roteiro={primeiro} onSair={sair} />);
+    render(<Teleprompter roteiro={primeiro} onSair={sair} contagemSegundos={0} />);
     const rolar = screen.getByRole('button', { name: 'Rolar' });
-    expect(rolar).toHaveAttribute('aria-pressed', 'false');
+    expect(rolar).not.toHaveAttribute('aria-pressed');
     await user.keyboard(' ');
-    expect(screen.getByRole('button', { name: 'Pausar' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Pausar' })).toBeInTheDocument();
     await user.keyboard(' ');
-    expect(screen.getByText('Velocidade 40')).toBeInTheDocument();
+    expect(screen.getByText('Ritmo 100%')).toBeInTheDocument();
     await user.keyboard('{ArrowUp}{ArrowUp}');
-    expect(screen.getByText('Velocidade 60')).toBeInTheDocument();
+    expect(screen.getByText('Ritmo 120%')).toBeInTheDocument();
     await user.keyboard('{ArrowDown}');
-    expect(screen.getByText('Velocidade 50')).toBeInTheDocument();
+    expect(screen.getByText('Ritmo 110%')).toBeInTheDocument();
     await user.keyboard('{Escape}');
     expect(sair).toHaveBeenCalledOnce();
   });
@@ -223,12 +230,105 @@ describe('Gravação', () => {
     const user = userEvent.setup();
     render(<Teleprompter roteiro={primeiro} onSair={() => {}} />);
     await user.keyboard('{Control>}{ArrowUp}{/Control}');
-    expect(screen.getByText('Velocidade 40')).toBeInTheDocument();
+    expect(screen.getByText('Ritmo 100%')).toBeInTheDocument();
+  });
+
+  it('o primeiro começo conta e só então rola (#84)', async () => {
+    const user = userEvent.setup();
+    // Contagem curta no teste (2 s), com o relógio real.
+    render(<Teleprompter roteiro={primeiro} onSair={() => {}} contagemSegundos={2} />);
+    await user.keyboard(' ');
+    expect(screen.getByRole('status')).toHaveTextContent('Começa em 2');
+    expect(screen.getByRole('button', { name: 'Cancelar contagem' })).toBeInTheDocument();
+    await vi.waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Começa em 1'), { timeout: 1600 });
+    expect(await screen.findByRole('button', { name: 'Pausar' }, { timeout: 1600 })).toBeInTheDocument();
+    // Do 1 direto para a rolagem: nunca anuncia "Começa em 0".
+    expect(screen.getByRole('status')).toHaveTextContent('');
+    // Pausar e voltar a rolar não conta de novo.
+    await user.keyboard('  ');
+    expect(screen.getByRole('button', { name: 'Pausar' })).toBeInTheDocument();
+  });
+
+  it('Esc cancela a contagem sem sair, e Zerar tempo volta a contar (#84)', async () => {
+    const user = userEvent.setup();
+    const sair = vi.fn();
+    render(<Teleprompter roteiro={primeiro} onSair={sair} />);
+    await user.keyboard(' ');
+    expect(screen.getByRole('status')).toHaveTextContent('Começa em 3');
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('status')).toHaveTextContent('');
+    expect(sair).not.toHaveBeenCalled();
+    // Cancelar não conta como começo: o próximo também conta.
+    await user.click(screen.getByRole('button', { name: 'Rolar' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Começa em 3');
+    await user.click(screen.getByRole('button', { name: 'Cancelar contagem' }));
+    await user.click(screen.getByRole('button', { name: 'Zerar tempo' }));
+    await user.click(screen.getByRole('button', { name: 'Rolar' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Começa em 3');
+  });
+
+  it('"Zerar tempo" com o texto rolando pausa, e o próximo Rolar conta de novo (#84)', async () => {
+    const user = userEvent.setup();
+    render(<Teleprompter roteiro={primeiro} onSair={() => {}} contagemSegundos={2} />);
+    await user.click(screen.getByRole('button', { name: 'Rolar' }));
+    expect(await screen.findByRole('button', { name: 'Pausar' }, { timeout: 2600 })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Zerar tempo' }));
+    expect(screen.getByRole('button', { name: 'Rolar' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Rolar' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Começa em 2');
+  });
+
+  it('mostra o progresso do bloco atual, com o nome do bloco (#84)', () => {
+    render(<Teleprompter roteiro={primeiro} onSair={() => {}} />);
+    const barra = screen.getByRole('progressbar', { name: `Bloco 1: ${primeiro.blocos[0].nome}` });
+    expect(barra).toHaveAttribute('aria-valuemin', '0');
+    expect(barra).toHaveAttribute('aria-valuemax', '100');
+  });
+
+  it('o ritmo fica entre 50% e 200%, de 10 em 10 (#83)', async () => {
+    const user = userEvent.setup();
+    render(<Teleprompter roteiro={primeiro} onSair={() => {}} contagemSegundos={0} />);
+    for (let i = 0; i < 12; i++) await user.click(screen.getByRole('button', { name: 'Mais rápido' }));
+    expect(screen.getByText('Ritmo 200%')).toBeInTheDocument();
+    for (let i = 0; i < 20; i++) await user.click(screen.getByRole('button', { name: 'Mais devagar' }));
+    expect(screen.getByText('Ritmo 50%')).toBeInTheDocument();
   });
 
   it('mostra a cena atual e o tempo total do roteiro', () => {
     render(<Teleprompter roteiro={primeiro} onSair={() => {}} />);
     expect(screen.getByText(/de \d+ ·/)).toHaveTextContent(`de ${primeiro.blocos.length}`);
     expect(screen.getByText(/0:00 \//)).toHaveTextContent(primeiro.blocos[primeiro.blocos.length - 1].fim);
+  });
+});
+
+describe('Fala por bloco (#90)', () => {
+  const comBlocos = (ajustar: (r: Roteiro) => Roteiro) =>
+    indexarCatalogo(catalogo.series, catalogo.roteiros, async (slug) => ajustar(await catalogo.carregar(slug)));
+
+  it('esconde o "de fala" num bloco sem fala estimada', async () => {
+    const r0 = (r: Roteiro) => ({ ...r, blocos: r.blocos.map((b, i) => (i === 0 ? { ...b, falaSegundos: 0 } : b)) });
+    abrir(`/v/${primeiro.slug}`, comBlocos(r0));
+    const titulo = await screen.findByRole('heading', { level: 2, name: new RegExp(`^1\. ${primeiro.blocos[0].nome}`) });
+    expect(titulo).not.toHaveTextContent('de fala');
+    expect(screen.getByRole('heading', { level: 2, name: new RegExp(`^2\. ${primeiro.blocos[1].nome}`) })).toHaveTextContent('de fala');
+  });
+
+  it('avisa, em texto, quando a fala passa do tempo do bloco', async () => {
+    // A fala do 1º bloco fica 12 s maior que a janela dele.
+    const longo = (r: Roteiro) => ({
+      ...r,
+      blocos: r.blocos.map((b, i) => (i === 0 ? { ...b, falaSegundos: emSegundos(b.fim) - emSegundos(b.inicio) + 12 } : b)),
+    });
+    abrir(`/v/${primeiro.slug}`, comBlocos(longo));
+    await screen.findByRole('heading', { name: /^Roteiro em/ });
+    const avisos = screen.getAllByText(/A fala estimada passa .+ do tempo do bloco/);
+    expect(avisos).toHaveLength(1);
+    expect(avisos[0]).toHaveTextContent('A fala estimada passa 12 s do tempo do bloco: encurte a fala ou aumente o tempo do bloco.');
+  });
+
+  it('não avisa nos roteiros de hoje, que cabem no tempo', async () => {
+    abrir(`/v/${primeiro.slug}`);
+    await screen.findByRole('heading', { name: /^Roteiro em/ });
+    expect(screen.queryByText(/A fala estimada passa .+ do tempo do bloco/)).not.toBeInTheDocument();
   });
 });

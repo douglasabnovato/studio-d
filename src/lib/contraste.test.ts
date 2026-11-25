@@ -33,6 +33,7 @@ const PARES: [string, string][] = [
   ['texto-no-azul', 'azul-studio'],
   ['azul-claro', 'fundo'],
   ['azul-claro', 'superficie'],
+  ['alerta', 'superficie'],
 ];
 
 describe.each([
@@ -58,4 +59,8 @@ describe('modo gravação e abertura (cores fixas)', () => {
     ['#f2f4f8', '#0b0d12'], // botão "Pular abertura" (fundo quase opaco sobre o preto)
     ['#ffffff', '#1e6bff'], // o mesmo botão com o mouse em cima (texto branco: o #f2f4f8 dava 4,1:1)
   ])('%s sobre %s', (a, b) => expect(contraste(a, b)).toBeGreaterThanOrEqual(4.5));
+
+  it('a barra de progresso do bloco tem 3:1 entre o preenchimento e o trilho (WCAG 1.4.11, #84)', () => {
+    expect(contraste('#5aa0ff', '#3a4354')).toBeGreaterThanOrEqual(3);
+  });
 });

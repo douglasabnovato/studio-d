@@ -10,6 +10,7 @@
   --texto: #f2f4f8;
   --texto-suave: #b4bccb;
   --texto-no-azul: #ffffff;
+  --alerta: #ffb454;
   --foco: #5aa0ff;
   --sombra: 0 12px 32px rgb(0 0 0 / 0.55);
   --raio: 8px;
@@ -28,6 +29,7 @@
   --texto: #0f1420;
   --texto-suave: #465066;
   --texto-no-azul: #ffffff;
+  --alerta: #8a4b00;
   --foco: #0a55d9;
   --sombra: 0 12px 32px rgb(15 20 32 / 0.18);
   color-scheme: light;
@@ -147,6 +149,9 @@ a {
   font-weight: 800;
   font-size: 1.25rem;
   letter-spacing: 0.02em;
+  min-height: 44px;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .marca-d {
   display: inline-grid;
@@ -229,6 +234,31 @@ a {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+/* Celular: o nome fica em uma linha, a busca ocupa o espaço que sobra e a arte do destaque aparece inteira no alto (#79). */
+@media (max-width: 599px) {
+  .topo {
+    gap: 8px;
+  }
+  .topo-acoes {
+    flex: 1 1 0;
+    min-width: 0;
+    justify-content: flex-end;
+  }
+  .busca {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+  }
+  .destaque {
+    min-height: 0;
+    padding-top: calc(100vw * 9 / 16 + 16px);
+  }
+  .destaque-capa {
+    bottom: auto;
+    aspect-ratio: 16 / 9;
+  }
 }
 
 .metadados {
@@ -468,6 +498,18 @@ a {
 .pagina {
   padding: 0 var(--gutter) 64px;
 }
+/* Meta do MVP pelas datas dos roteiros (#80): uma linha discreta antes das fileiras. */
+.meta-mvp {
+  margin: 0 0 16px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--borda);
+  color: var(--texto-suave);
+  font-size: 0.95rem;
+}
+/* O rótulo na cor do texto e em negrito separa a meta da descrição da fileira (R19 do #98). */
+.meta-mvp strong {
+  color: var(--texto);
+}
 .roteiro-cabecalho {
   display: grid;
   gap: 24px;
@@ -495,6 +537,8 @@ a {
 }
 .roteiro-layout {
   display: grid;
+  /* Sem minmax(0, …), a coluna cresce até o comando mais largo e a página rola de lado no celular. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 32px;
 }
 @media (min-width: 1000px) {
@@ -521,6 +565,12 @@ a {
   font-variant-numeric: tabular-nums;
   color: var(--azul-claro);
   font-size: 0.95rem;
+}
+/* Fala maior que o tempo do bloco (#90): texto, e não só cor. */
+.bloco-aviso {
+  margin: 4px 0 0;
+  color: var(--alerta);
+  font-weight: 700;
 }
 .bloco h3 {
   margin: 16px 0 4px;
@@ -583,6 +633,8 @@ code {
 }
 .youtube-campo pre {
   white-space: pre-wrap;
+  /* Links longos quebram em vez de fazer o campo rolar no celular. */
+  overflow-wrap: anywhere;
 }
 
 /* Modo gravação */
@@ -591,7 +643,8 @@ code {
   inset: 0;
   z-index: 60;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  /* minmax(0, …): a linha do texto encolhe até caber; antes, ela empurrava os controles para fora da tela no celular. */
+  grid-template-rows: auto minmax(0, 1fr) auto;
   background: #000;
   color: #fff;
 }
@@ -614,11 +667,92 @@ code {
   font-variant-numeric: tabular-nums;
   font-weight: 800;
 }
+/* Progresso dentro do bloco atual (#84): trilho e preenchimento com 3:1 entre si. */
+.gravacao-progresso {
+  flex: 0 0 120px;
+  height: 8px;
+  border-radius: 4px;
+  background: #3a4354;
+  overflow: hidden;
+}
+.gravacao-progresso-barra {
+  width: 0;
+  height: 100%;
+  background: #5aa0ff;
+}
+/* Contagem regressiva antes do primeiro começo (#84). A camada cobre só a área do texto (linha 2 da
+   grade), e os controles ficam com o contraste de sempre (R19 do #94). */
+.gravacao-faixa {
+  grid-row: 1;
+}
+.gravacao-texto {
+  grid-row: 2;
+  grid-column: 1;
+}
+.gravacao-controles {
+  grid-row: 3;
+}
+.gravacao-contagem {
+  grid-row: 2;
+  grid-column: 1;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 0.72);
+  color: #fff;
+  font-size: clamp(6rem, 30vw, 14rem);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+/* Só o número pulsa, uma vez a cada troca; o fundo fica parado. */
+@media (prefers-reduced-motion: no-preference) {
+  .gravacao-contagem-numero {
+    display: inline-block;
+    animation: contagem-pulso 0.6s ease-out;
+  }
+}
+@keyframes contagem-pulso {
+  from {
+    transform: scale(1.15);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 .gravacao-texto {
   position: relative;
   overflow-y: auto;
-  padding: 30vh var(--gutter) 60vh;
+  /* O respiro de cima e o de baixo são espaçadores que rolam junto: como padding, eles impediam a
+     caixa de encolher, e o texto cobria os controles no celular (#93). */
+  padding: 0 var(--gutter);
   scrollbar-width: none;
+  /* Unidades cqh: o respiro de cima mede 30% da própria caixa, a mesma régua da linha de leitura
+     (clientHeight * 0.3 em aoRolar e irPara), e não da janela (#95). */
+  container-type: size;
+}
+.gravacao-texto::before,
+.gravacao-texto::after {
+  content: '';
+  display: block;
+}
+.gravacao-texto::before {
+  height: 30vh;
+  height: 30cqh;
+}
+.gravacao-texto::after {
+  /* 70% da caixa: a última linha sobe até a linha de leitura (30%) (R19 do #96). */
+  height: 70vh;
+  height: 70cqh;
+}
+/* Tempo de tela sem fala, no fim do bloco (#83): menor e mais claro que a fala. */
+.gravacao-tela-sem-fala {
+  margin: 0.5em 0 0;
+  font-size: 0.5em;
+  font-weight: 600;
+  color: #b4bccb;
 }
 .gravacao-texto::-webkit-scrollbar {
   display: none;
@@ -705,6 +839,22 @@ code {
 .rotulo-atalhos {
   color: #b4bccb;
   font-size: 0.85rem;
+}
+.rotulo-ritmo {
+  color: #b4bccb;
+  font-size: 0.85rem;
+}
+/* Em tela baixa (celular deitado), o rótulo quebraria os controles numa linha a mais e tiraria altura do texto. */
+@media (max-height: 500px) {
+  .rotulo-ritmo {
+    display: none;
+  }
+}
+/* Os atalhos só servem para teclado: em tela de toque e abaixo de 600 px, a linha sai e devolve altura ao texto (#95). */
+@media (pointer: coarse), (max-width: 599px) {
+  .rotulo-atalhos {
+    display: none;
+  }
 }
 .botao:disabled {
   opacity: 0.55;

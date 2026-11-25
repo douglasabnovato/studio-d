@@ -1,4 +1,5 @@
 import { parse as lerYaml } from 'yaml';
+import { segundosDeFala } from './ritmo';
 import { SITUACOES, type Bloco, type Fonte, type ParaOYoutube, type Roteiro, type Situacao } from './tipos';
 
 // Roda no build e nos testes, nunca no navegador (#9).
@@ -13,6 +14,18 @@ export class RoteiroInvalido extends Error {
 
 const CABECALHO = /^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/;
 const TITULO_BLOCO = /^(.+?)\s*·\s*(\d{1,2}:\d{2})\s*[–-]\s*(\d{1,2}:\d{2})\s*$/;
+
+/** Data opcional AAAA-MM-DD (#80). Um valor que não é data reprova o build, com o campo e o arquivo. */
+function data(valor: unknown, campo: string, arquivo: string): string | undefined {
+  if (valor === undefined || valor === null || valor === '') return undefined;
+  const iso = valor instanceof Date ? valor.toISOString().slice(0, 10) : String(valor).trim();
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  const d = m ? new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]))) : null;
+  if (!m || !d || d.getUTCMonth() !== Number(m[2]) - 1 || d.getUTCDate() !== Number(m[3])) {
+    throw new RoteiroInvalido(arquivo, `o campo "${campo}" precisa de uma data AAAA-MM-DD (recebeu "${iso}")`);
+  }
+  return iso;
+}
 
 function texto(valor: unknown, campo: string, arquivo: string): string {
   if (typeof valor !== 'string' || valor.trim() === '') {
@@ -55,6 +68,11 @@ export function lerRoteiro(arquivo: string, conteudo: string): Roteiro {
 
   const situacao = texto(dados.situacao, 'situacao', arquivo) as Situacao;
   if (!(situacao in SITUACOES)) throw new RoteiroInvalido(arquivo, `situação desconhecida: ${situacao}`);
+  const gravadoEm = data(dados.gravado_em, 'gravado_em', arquivo);
+  const publicadoEm = data(dados.publicado_em, 'publicado_em', arquivo);
+  // A meta conta as publicações: "publicado" sem data, ou data sem "publicado", deixariam a conta errada (#80).
+  if (situacao === 'publicado' && !publicadoEm) throw new RoteiroInvalido(arquivo, 'um roteiro "publicado" precisa de "publicado_em"');
+  if (publicadoEm && situacao !== 'publicado') throw new RoteiroInvalido(arquivo, '"publicado_em" só vale com "situacao: publicado"');
 
   const fontes = Array.isArray(dados.fontes) ? (dados.fontes as Fonte[]) : [];
   if (fontes.length === 0) throw new RoteiroInvalido(arquivo, 'todo roteiro precisa de pelo menos uma fonte');
@@ -86,6 +104,7 @@ export function lerRoteiro(arquivo: string, conteudo: string): Roteiro {
       inicio: t[2],
       fim: t[3],
       fala,
+      falaSegundos: segundosDeFala(fala),
       tela: subsecao(s.conteudo, 'Tela'),
       comandos: subsecao(s.conteudo, 'Comandos'),
     });
@@ -106,6 +125,9 @@ export function lerRoteiro(arquivo: string, conteudo: string): Roteiro {
     situacao,
     resumo: texto(dados.resumo, 'resumo', arquivo),
     quantasFontes: fontes.length,
+    ...(gravadoEm ? { gravadoEm } : {}),
+    ...(publicadoEm ? { publicadoEm } : {}),
+    falaSegundos: blocos.reduce((soma, b) => soma + b.falaSegundos, 0),
     fontes,
     blocos,
     youtube,

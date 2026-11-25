@@ -6,6 +6,7 @@ import { Markdown } from '../components/Markdown';
 import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import type { Catalogo } from '../lib/catalogo';
+import { excessoDeFala, falaPassaDoBloco, formatarFala } from '../lib/ritmo';
 import { SITUACOES, type Roteiro } from '../lib/tipos';
 import { useRoteiro } from '../lib/usar-roteiro';
 
@@ -73,7 +74,9 @@ export function RoteiroPagina({ catalogo }: { catalogo: Catalogo }) {
               <li>
                 <span className={`selo${roteiro.situacao === 'pronto' ? ' selo-pronto' : ''}`}>{SITUACOES[roteiro.situacao]}</span>
               </li>
-              <li>{roteiro.duracaoAlvo}</li>
+              <li>
+                {roteiro.duracaoAlvo}, cerca de {formatarFala(roteiro.falaSegundos)} de fala
+              </li>
               <li>
                 <a href={`https://github.com/${roteiro.repositorio}`}>{roteiro.repositorio}</a>
               </li>
@@ -154,8 +157,14 @@ function Corpo({ roteiro }: { roteiro: Roteiro }) {
             </span>
             <span className="bloco-tempo">
               {b.inicio}–{b.fim}
+              {b.falaSegundos > 0 && ` · ${formatarFala(b.falaSegundos)} de fala`}
             </span>
           </h2>
+          {falaPassaDoBloco(b.falaSegundos, b.inicio, b.fim) && (
+            <p className="bloco-aviso">
+              <span aria-hidden="true">⚠ </span>A fala estimada passa {formatarFala(excessoDeFala(b.falaSegundos, b.inicio, b.fim))} do tempo do bloco: encurte a fala ou aumente o tempo do bloco.
+            </p>
+          )}
           <h3>Fala</h3>
           <Markdown html={b.html?.fala} />
           {b.tela && (

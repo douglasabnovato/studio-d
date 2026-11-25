@@ -5,6 +5,7 @@ import { Markdown } from '../components/Markdown';
 import { PularParaConteudo } from '../components/PularParaConteudo';
 import { Topo } from '../components/Topo';
 import type { Catalogo } from '../lib/catalogo';
+import { PALAVRAS_POR_MINUTO, segundosDeTela, velocidadeDoBloco, velocidadeMedia } from '../lib/ritmo';
 import { emSegundos, type Roteiro, type RoteiroResumo } from '../lib/tipos';
 import { useRoteiro, type EstadoDoRoteiro } from '../lib/usar-roteiro';
 
@@ -21,6 +22,11 @@ function relogio(segundos: number) {
   const m = Math.floor(segundos / 60);
   const s = Math.floor(segundos % 60);
   return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+/** Próximo ritmo: de 10 em 10 pontos percentuais, entre 50% e 200% (#83). */
+function mudarRitmo(passo: 1 | -1) {
+  return (f: number) => Math.min(2, Math.max(0.5, Math.round(f * 10 + passo) / 10));
 }
 
 /** Cronômetro à parte: só ele renderiza a cada quadro, não o texto do roteiro. */
@@ -95,11 +101,19 @@ function Checklist({
   );
 }
 
-/** Teleprompter: espaço pausa, ↑ e ↓ mudam a velocidade, ← e → trocam o bloco, + e − mudam a letra, Esc sai. */
-export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: () => void }) {
+/**
+ * Teleprompter: espaço pausa, ↑ e ↓ mudam o ritmo, ← e → trocam o bloco, + e − mudam a letra, Esc sai.
+ * Cada bloco rola na velocidade da própria fala estimada (#83); o ritmo é um fator de 50% a 200%.
+ * O primeiro começo (e o primeiro depois de "Zerar tempo") passa por uma contagem regressiva (#84).
+ */
+export function Teleprompter({ roteiro, onSair, contagemSegundos = 3 }: { roteiro: Roteiro; onSair: () => void; contagemSegundos?: number }) {
   const texto = useRef<HTMLDivElement>(null);
+  const barra = useRef<HTMLDivElement>(null);
   const [rodando, setRodando] = useState(false);
-  const [velocidade, setVelocidade] = useState(40);
+  const [contagem, setContagem] = useState<number | null>(null);
+  const jaComecou = useRef(false);
+  const [fator, setFator] = useState(1);
+  const atualRef = useRef(0);
   const [letra, setLetra] = useState(44);
   const [atual, setAtual] = useState(0);
   const [zerar, setZerar] = useState(0);
@@ -124,18 +138,33 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
     if (caixa) posicao.current = caixa.scrollTop;
     let anterior = performance.now();
     let quadro = 0;
+    // Distância de cada bloco até o próximo chegar à linha (margem incluída) e a média dos que têm fala,
+    // que serve de reserva para os blocos sem fala (nota 0 da R19 do #97).
+    const distancia = (i: number) => {
+      const el = caixa?.querySelector<HTMLElement>(`[data-bloco="${i}"]`);
+      const prox = caixa?.querySelector<HTMLElement>(`[data-bloco="${i + 1}"]`);
+      if (!el) return 0;
+      return prox ? prox.offsetTop - el.offsetTop : el.offsetHeight + parseFloat(getComputedStyle(el).marginBottom || '0');
+    };
+    const reserva = velocidadeMedia(roteiro.blocos.map((b, i) => ({ distanciaPx: distancia(i), falaSegundos: b.falaSegundos })));
     const passo = (agora: number) => {
       const dt = (agora - anterior) / 1000;
       anterior = agora;
       if (caixa) {
-        posicao.current = Math.min(posicao.current + velocidade * dt, caixa.scrollHeight);
+        // Velocidade do bloco que está na linha de leitura (#83): a distância até o próximo bloco chegar à
+        // linha, margem de 12vh incluída, ÷ a fala estimada. Sem a margem, o bloco ficava até 27% mais lento
+        // (R19 do #97).
+        const i = atualRef.current;
+        const v = velocidadeDoBloco(distancia(i), roteiro.blocos[i]?.falaSegundos ?? 0, fator, reserva);
+        posicao.current = Math.min(posicao.current + v * dt, caixa.scrollHeight);
         caixa.scrollTop = posicao.current;
       }
       quadro = requestAnimationFrame(passo);
     };
     quadro = requestAnimationFrame(passo);
     return () => cancelAnimationFrame(quadro);
-  }, [rodando, velocidade]);
+    // letra nas dependências: trocar a letra durante a rolagem recalcula as distâncias e a média (R19 do #99).
+  }, [rodando, fator, roteiro.blocos, letra]);
 
   // Bloco atual: o que cruza a linha de leitura, a 30% da altura.
   const aoRolar = () => {
@@ -147,8 +176,51 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
     const blocos = Array.from(caixa.querySelectorAll<HTMLElement>('[data-bloco]'));
     let i = 0;
     for (const b of blocos) if (b.offsetTop <= linha) i = Number(b.dataset.bloco);
+    atualRef.current = i;
     setAtual(i);
+    // Progresso dentro do bloco atual (#84): escrito direto na barra, sem renderizar o texto a cada quadro.
+    const atualEl = blocos[i];
+    const proximo = blocos[i + 1];
+    if (atualEl && barra.current) {
+      // Até o fim do próprio bloco: com o scrollHeight, a barra do último bloco não chegava a 100% (R19 do #96).
+      const fimDoBloco = proximo ? proximo.offsetTop : atualEl.offsetTop + atualEl.offsetHeight;
+      const pct = Math.round(Math.min(1, Math.max(0, (linha - atualEl.offsetTop) / Math.max(1, fimDoBloco - atualEl.offsetTop))) * 100);
+      barra.current.style.width = `${pct}%`;
+      barra.current.parentElement?.setAttribute('aria-valuenow', String(pct));
+    }
   };
+
+  // Contagem regressiva: um passo por segundo. Do 1, a rolagem começa direto, sem pintar um "0" (R19 do #94).
+  useEffect(() => {
+    if (contagem === null) return;
+    const id = window.setTimeout(() => {
+      if (contagem <= 1) {
+        setContagem(null);
+        setRodando(true);
+      } else setContagem(contagem - 1);
+    }, 1000);
+    return () => window.clearTimeout(id);
+  }, [contagem]);
+
+  /** Rolar ou pausar. O primeiro começo passa pela contagem; durante ela, o mesmo comando cancela. */
+  const alternar = useCallback(() => {
+    if (contagem !== null) {
+      setContagem(null);
+      jaComecou.current = false; // cancelar não conta como começo
+      return;
+    }
+    if (rodando) {
+      setRodando(false);
+      return;
+    }
+    if (!jaComecou.current && contagemSegundos > 0) {
+      jaComecou.current = true;
+      setContagem(contagemSegundos);
+      return;
+    }
+    jaComecou.current = true;
+    setRodando(true);
+  }, [contagem, rodando, contagemSegundos]);
 
   useEffect(() => {
     const onTecla = (ev: KeyboardEvent) => {
@@ -158,15 +230,15 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
       switch (ev.key) {
         case ' ':
           ev.preventDefault();
-          setRodando((r) => !r);
+          alternar();
           break;
         case 'ArrowUp':
           ev.preventDefault();
-          setVelocidade((v) => Math.min(v + 10, 200));
+          setFator(mudarRitmo(+1));
           break;
         case 'ArrowDown':
           ev.preventDefault();
-          setVelocidade((v) => Math.max(v - 10, 10));
+          setFator(mudarRitmo(-1));
           break;
         case 'ArrowRight':
           ev.preventDefault();
@@ -184,13 +256,17 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
           setLetra((l) => Math.max(l - 4, 24));
           break;
         case 'Escape':
-          onSair();
+          // Esc cancela a contagem; fora dela, sai do modo gravação.
+          if (contagem !== null) {
+            setContagem(null);
+            jaComecou.current = false;
+          } else onSair();
           break;
       }
     };
     window.addEventListener('keydown', onTecla);
     return () => window.removeEventListener('keydown', onTecla);
-  }, [atual, irPara, onSair, roteiro.blocos.length]);
+  }, [atual, irPara, onSair, roteiro.blocos.length, alternar, contagem]);
 
   return (
     <div className="gravacao" role="region" aria-label={`Modo gravação: ${roteiro.titulo}`}>
@@ -205,7 +281,28 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
           </span>
         )}
         <Cronometro rodando={rodando} total={total} zerar={zerar} />
+        <div
+          className="gravacao-progresso"
+          role="progressbar"
+          aria-label={`Bloco ${atual + 1}: ${bloco.nome}`}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={0}
+        >
+          <div className="gravacao-progresso-barra" ref={barra} />
+        </div>
       </div>
+      {/* Região viva sempre montada: o leitor anuncia também o 1º número (R19 do #94). */}
+      <div className="sr-only" role="status" aria-live="assertive">
+        {contagem !== null ? `Começa em ${contagem}` : ''}
+      </div>
+      {contagem !== null && (
+        <div className="gravacao-contagem" aria-hidden="true">
+          <span key={contagem} className="gravacao-contagem-numero">
+            {contagem}
+          </span>
+        </div>
+      )}
       <div
         className="gravacao-texto"
         ref={texto}
@@ -213,25 +310,33 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
         tabIndex={0}
         aria-label="Texto do roteiro" style={{ fontSize: `${letra}px`, lineHeight: 1.35 }}>
         {roteiro.blocos.map((b, i) => (
-          <section key={b.nome} className="gravacao-bloco" data-bloco={i} data-atual={i === atual}>
+          <section key={b.nome} className="gravacao-bloco" data-bloco={i} data-atual={i === atual} data-fala-segundos={b.falaSegundos}>
             <h2>
               {i + 1}. {b.nome}
             </h2>
             <Markdown html={b.html?.fala} />
+            {/* No fim do bloco, quando a fala acaba: é aí que a tela sem fala começa (R19 do #97). Fica no texto
+                que rola, e não na faixa: a faixa mudar de altura deslocava a linha de leitura. */}
+            {segundosDeTela(b.falaSegundos, b.inicio, b.fim) > 0 && (
+              <p className="gravacao-tela-sem-fala">Agora, {relogio(segundosDeTela(b.falaSegundos, b.inicio, b.fim))} de tela sem fala</p>
+            )}
           </section>
         ))}
       </div>
       <div className="gravacao-controles">
-        <button type="button" className="botao botao-principal" onClick={() => setRodando((r) => !r)} aria-pressed={rodando}>
-          {rodando ? 'Pausar' : 'Rolar'}
+        <button type="button" className="botao botao-principal" onClick={alternar}>
+          {contagem !== null ? 'Cancelar contagem' : rodando ? 'Pausar' : 'Rolar'}
         </button>
-        <button type="button" className="botao botao-secundario" onClick={() => setVelocidade((v) => Math.max(v - 10, 10))} aria-label="Mais devagar">
+        <button type="button" className="botao botao-secundario" onClick={() => setFator(mudarRitmo(-1))} aria-label="Mais devagar">
           −
         </button>
-        <span aria-live="polite">Velocidade {velocidade}</span>
-        <button type="button" className="botao botao-secundario" onClick={() => setVelocidade((v) => Math.min(v + 10, 200))} aria-label="Mais rápido">
+        <span aria-live="polite">Ritmo {Math.round(fator * 100)}%</span>
+        <button type="button" className="botao botao-secundario" onClick={() => setFator(mudarRitmo(+1))} aria-label="Mais rápido">
           +
         </button>
+        {/* A referência do ritmo em palavras por minuto (nota 0 da R19 do #97), depois do "+": "− Ritmo 100% +"
+            fica sempre junto (R19 do #99). */}
+        <span className="rotulo-ritmo">≈ {Math.round(PALAVRAS_POR_MINUTO * fator)} palavras/min</span>
         <button type="button" className="botao botao-secundario" onClick={() => setLetra((l) => Math.max(l - 4, 24))} >
           <span aria-hidden="true">A−</span>
           <span className="sr-only">Letra menor</span>
@@ -240,10 +345,20 @@ export function Teleprompter({ roteiro, onSair }: { roteiro: Roteiro; onSair: ()
           <span aria-hidden="true">A+</span>
           <span className="sr-only">Letra maior</span>
         </button>
-        <button type="button" className="botao botao-secundario" onClick={() => setZerar((z) => z + 1)}>
+        <button
+          type="button"
+          className="botao botao-secundario"
+          onClick={() => {
+            setZerar((z) => z + 1);
+            // Uma nova tomada: pausa, e o próximo Rolar passa de novo pela contagem (R19 do #94).
+            setRodando(false);
+            setContagem(null);
+            jaComecou.current = false;
+          }}
+        >
           Zerar tempo
         </button>
-        <span className="rotulo-atalhos">Espaço pausa · ↑↓ velocidade · ←→ bloco · Esc sai</span>
+        <span className="rotulo-atalhos">Espaço rola e pausa · ↑↓ ritmo · ←→ bloco · Esc sai</span>
         <button type="button" className="botao botao-secundario" onClick={onSair} style={{ marginLeft: 'auto' }}>
           Sair
         </button>
